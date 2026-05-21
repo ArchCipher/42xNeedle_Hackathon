@@ -27,6 +27,44 @@ from tools import ROOT, execute_tool, run_bash, scrub_malloc_env, tools_as_ollam
 scrub_malloc_env()  # apply to current process before any subprocess
 
 LOG = AgentLogger()
+VERBOSE = True  # print human-readable progress to the terminal
+
+
+def _out(msg: str = "") -> None:
+    if VERBOSE:
+        print(msg, flush=True)
+
+
+def _out_section(title: str) -> None:
+    if VERBOSE:
+        print(f"\n--- {title} ---", flush=True)
+
+
+def _preview(text: str, max_lines: int = 12, max_chars: int = 800) -> str:
+    lines = text.splitlines()
+    chunk = "\n".join(lines[:max_lines])
+    if len(lines) > max_lines:
+        chunk += f"\n... ({len(lines)} lines total)"
+    if len(chunk) > max_chars:
+        chunk = chunk[:max_chars] + "..."
+    return chunk
+
+
+def _format_tool_summary(name: str, inputs: dict[str, Any], result: str) -> str:
+    if name == "read_file":
+        path = inputs.get("path", "?")
+        if result.startswith("error:"):
+            return f"read_file {path} -> {result}"
+        return f"read_file {path} -> ok ({len(result)} chars)\n{_preview(result)}"
+    if name == "write_file":
+        path = inputs.get("path", "?")
+        return f"write_file {path} -> {result}"
+    if name == "bash":
+        cmd = inputs.get("command", "")
+        return f"bash: {cmd}\n{_preview(result)}"
+    if name == "run_tests":
+        return f"run_tests ->\n{_preview(result)}"
+    return f"{name} -> {_preview(result)}"
 MANIFEST = ROOT / "agent_manifest.json"
 SPEC_PATH = ROOT / "secret_spec" / "SECRET_SPEC.md"
 PENDING_PROMPT_PATH = ROOT / "agent_logs" / "pending_prompt.txt"
@@ -239,6 +277,7 @@ def _tool_rounds(
     test_cmd = str(config["public_test_command"])
 
     for round_i in range(1, max_rounds + 1):
+        _out(f"  [round {round_i}] Waiting for Ollama (can take minutes on CPU)...")
         resp = client.chat(messages, tools=tools_as_ollama_json())
         msg = resp.get("message", {})
         text, tool_calls = parse_assistant_response(msg)
@@ -249,10 +288,14 @@ def _tool_rounds(
                 f"Model reply (iter {iteration}, round {round_i})",
                 reason=text[:600],
             )
+            _out(f"  [round {round_i}] Model says:")
+            _out(_preview(text, max_lines=8))
 
         if not tool_calls:
+            _out(f"  [round {round_i}] No more tools requested.")
             return last_text
 
+        _out(f"  [round {round_i}] Running {len(tool_calls)} tool(s)...")
         messages.append({"role": "assistant", "content": text, "tool_calls": msg.get("tool_calls")})
         for tc in tool_calls:
             name, inputs = tc["name"], tc["input"]
@@ -264,8 +307,10 @@ def _tool_rounds(
                 LOG.error(f"Tool {name} failed", details=str(exc))
             LOG.command(f"{name} result", exit_code=0, output=result[:1500])
             messages.append({"role": "tool", "content": result})
+            _out(_format_tool_summary(name, inputs, result))
 
     LOG.error("Tool round cap", details=f"max={max_rounds}")
+    _out(f"  Stopped: hit max tool rounds ({max_rounds}).")
     return last_text
 
 
@@ -295,12 +340,17 @@ def _run_iteration(
             {"role": "user", "content": f"Operator instruction (pending_prompt.txt):\n{pending}"}
         )
     LOG.decision(f"Start iteration {iteration}", next_action="tool rounds then tests")
+    _out_section(f"Iteration {iteration}")
     summary = _tool_rounds(client, messages, config, iteration)
-    done = summary and any(k in summary.lower() for k in ("done", "complete", "finished"))
 
-    code, out = run_public_tests(str(config["public_test_command"]))
+    test_cmd = str(config["public_test_command"])
+    _out(f"\nRunning public tests:\n  {test_cmd}")
+    code, out = run_public_tests(test_cmd)
+    score = _parse_test_score(out)
     if code == 0:
         LOG.decision("Public tests passed", reason=out[:300])
+        _out(f"RESULT: PASSED (exit 0, score {score})")
+        _out(_preview(out, max_lines=6))
         return True, messages
 
     LOG.error(
@@ -308,8 +358,10 @@ def _run_iteration(
         details=out[:2000],
         recovery="target row_expansion and invalid_schema first",
     )
+    _out(f"RESULT: FAILED (exit {code}, score {score})")
+    _out(_preview(out, max_lines=10))
     messages.append({"role": "user", "content": _build_repair_message(code, out)})
-    return done, messages
+    return False, messages
 
 
 def run_agent(task: str, max_iterations: int | None = None) -> None:
@@ -336,6 +388,14 @@ def run_agent(task: str, max_iterations: int | None = None) -> None:
     )
     _log_spec_status()
 
+    _out_section("SPARK agent run")
+    _out(f"Model: {config['primary_model']} @ {config['ollama_base_url']}")
+    _out(f"Iterations: {limit}")
+    _out(f"Task: {task}")
+    _out(f"Tests: {config['public_test_command']}")
+    _out(f"Logs: {ROOT / 'agent_logs'}/")
+    _out("Full detail is also appended to agent_logs/*.log")
+
     client.ensure_model()
     _sync_manifest(config)
 
@@ -353,23 +413,34 @@ def run_agent(task: str, max_iterations: int | None = None) -> None:
     ]
 
     crashes = 0
+    passed = False
     for i in range(1, limit + 1):
         try:
             stop, messages = _run_iteration(client, messages, config, i)
             crashes = 0
             if stop:
-                LOG.decision("Run finished", reason="stop condition met")
+                passed = True
+                LOG.decision("Run finished", reason="tests passed")
                 break
         except OllamaError as exc:
             crashes += 1
             LOG.error("Iteration failed", details=str(exc))
+            _out(f"\nERROR: Ollama failed: {exc}")
             if crashes >= 3:
                 raise
         except Exception as exc:
             LOG.error("Agent crash", details=str(exc))
+            _out(f"\nERROR: {exc}")
             raise
     else:
         LOG.error("Max iterations reached", details=f"limit={limit}")
+
+    _out_section("Run complete")
+    if passed:
+        _out("Done: public tests passed. See agent_logs/ for full history.")
+    else:
+        _out("Done: finished without passing all tests. Check errors.log and test_runs.log.")
+    _out(f"Tail live logs: tail -f agent_logs/decisions.log")
 
 
 def cmd_plan(_args: argparse.Namespace) -> None:
@@ -432,6 +503,13 @@ def main() -> None:
     run_p.add_argument("--max-iterations", type=int, default=None)
     once_p = sub.add_parser("run-once", help="Run a single agent iteration (smoke test)")
     once_p.add_argument("task", nargs="?", default=os.getenv("AGENT_TASK", ""))
+    for p in (run_p, once_p):
+        p.add_argument(
+            "-q",
+            "--quiet",
+            action="store_true",
+            help="Only write to agent_logs/, minimal terminal output",
+        )
     human_p = sub.add_parser("log-human")
     human_p.add_argument("--type", required=True)
     human_p.add_argument("--what", required=True)
@@ -450,6 +528,8 @@ def main() -> None:
     elif args.cmd == "plan":
         cmd_plan(args)
     elif args.cmd in ("run", "run-once"):
+        global VERBOSE
+        VERBOSE = not getattr(args, "quiet", False)
         task = args.task or os.getenv("AGENT_TASK", "").strip() or DEFAULT_AGENT_TASK
         if args.cmd == "run" and not (args.task or os.getenv("AGENT_TASK")):
             entered = input("Task (Enter for default hidden-task prompt): ").strip()

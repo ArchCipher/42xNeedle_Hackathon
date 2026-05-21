@@ -64,7 +64,8 @@ v2 writes `<input>.out.json` (structured IR, symbols, stdout) and prints runtime
 ollama serve && ollama pull qwen2.5-coder:7b
 python3 agent/agent.py doctor
 python3 agent/agent.py run "Read secret_spec and implement knit.py"
-python3 agent/agent.py run-once "Read secret_spec/SECRET_SPEC.md"   # single iteration
+python3 agent/agent.py run-once "Read secret_spec/SECRET_SPEC.md"   # single iteration (verbose terminal output)
+# use -q for logs-only (quiet)
 ```
 
 **Windows:** use `py -3` instead of `python3`. Full guide: [docs/RUN_AND_TEST.md](docs/RUN_AND_TEST.md).
