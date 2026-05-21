@@ -32,3 +32,93 @@ Decision: Generate self-tests for multi-error recovery before further code chang
 Reason: Public tests show inconsistent behavior in invalid cases.
 Evidence/input used: Failing test categories and spec sections on error recovery.
 Next action: Create local self-tests and run them before patching.
+
+[2026-05-21 13:05] DECISION
+Decision: doctor smoke test
+Reason: 
+Evidence/input used: 
+Next action: 
+
+[2026-05-21 13:12] DECISION
+Decision: Agent run started
+Reason: E2E audit: read secret_spec/SECRET_SPEC.md if present, then improve knit.py compile in src/ only. Run run_tests after edits.
+Evidence/input used: 
+Next action: max 3 iterations
+
+[2026-05-21 13:12] DECISION
+Decision: Start iteration 1
+Reason: 
+Evidence/input used: 
+Next action: tool rounds then tests
+
+[2026-05-21 13:12] DECISION
+Decision: doctor smoke test
+Reason: 
+Evidence/input used: 
+Next action: 
+
+[2026-05-21 13:13] DECISION
+Decision: Model reply (iter 1, round 1)
+Reason: {"name": "read_file", "arguments": {"path": "secret_spec/SECRET_SPEC.md"}}
+Evidence/input used: 
+Next action: 
+
+[2026-05-21 13:13] DECISION
+Decision: Start iteration 2
+Reason: 
+Evidence/input used: 
+Next action: tool rounds then tests
+
+[2026-05-21 13:13] DECISION
+Decision: Model reply (iter 2, round 1)
+Reason: {"name": "read_file", "arguments": {"path": "secret_spec/SECRET_SPEC.md"}}
+Evidence/input used: 
+Next action: 
+
+[2026-05-21 13:13] DECISION
+Decision: Start iteration 3
+Reason: 
+Evidence/input used: 
+Next action: tool rounds then tests
+
+[2026-05-21 13:13] DECISION
+Decision: Model reply (iter 3, round 1)
+Reason: {"name": "read_file", "arguments": {"path": "secret_spec/SECRET_SPEC.md"}}
+Evidence/input used: 
+Next action: 
+
+[2026-05-21 13:55] DECISION
+Decision: doctor smoke test
+Reason: 
+Evidence/input used: 
+Next action: 
+
+[2026-05-21 16:13] DECISION
+Decision: Spec file missing
+Reason: 
+Evidence/input used: secret_spec\SECRET_SPEC.md
+Next action: copy SECRET_SPEC.md into secret_spec/ from the event repo
+
+[2026-05-21 16:13] DECISION
+Decision: Planning mode
+Reason: 
+Evidence/input used: 
+Next action: read spec then implement in src/
+
+[2026-05-21 16:15] DECISION
+Decision: Spec file missing
+Reason: 
+Evidence/input used: secret_spec\SECRET_SPEC.md
+Next action: copy SECRET_SPEC.md into secret_spec/ from the event repo
+
+[2026-05-21 16:15] DECISION
+Decision: Planning mode
+Reason: 
+Evidence/input used: 
+Next action: read spec then implement in src/
+
+[2026-05-21 16:15] DECISION
+Decision: Plan printed
+Reason: 
+Evidence/input used: agent/strategy.md + spec excerpt
+Next action: 

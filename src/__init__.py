@@ -1,1 +1,1 @@
-# Compiler implementation package (agent will populate after secret_spec release)
+# Knit compiler implementation (populated from secret_spec by the agent)

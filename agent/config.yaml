@@ -8,4 +8,5 @@ max_iterations: 40
 max_tool_rounds_per_iteration: 12
 request_timeout_seconds: 300
 
+# python3 is rewritten to sys.executable (or py -3 on Windows) at load time
 public_test_command: python3 knit.py compile examples/hello.knit 2>&1

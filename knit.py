@@ -8,9 +8,9 @@ import sys
 
 
 def cmd_compile(input_file: str) -> int:
-    # TODO: implement after secret_spec/ is released
-    print(f"compile not implemented yet: {input_file}", file=sys.stderr)
-    return 1
+    from src.compile import compile_file
+
+    return compile_file(input_file)
 
 
 def cmd_compile_v2(input_file: str) -> int:
