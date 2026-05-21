@@ -1,0 +1,13 @@
+{
+  "test_id": "pub_level_05_single_errors_007",
+  "suite": "public",
+  "category": "level_05_single_errors",
+  "difficulty": "easy",
+  "expected_exit_code": 1,
+  "spec_sections": [
+    "8",
+    "18"
+  ],
+  "reason": "Valid cast_on after a row reports CAST_ON_OUT_OF_ORDER.",
+  "input_file": "pub_level_05_single_errors_007.knit"
+}

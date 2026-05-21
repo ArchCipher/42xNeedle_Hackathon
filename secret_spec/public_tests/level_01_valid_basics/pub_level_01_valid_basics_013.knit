@@ -1,0 +1,4 @@
+pattern "Bound"
+cast_on 4
+row 1: k4
+bind_off

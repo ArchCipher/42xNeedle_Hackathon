@@ -1,0 +1,35 @@
+{
+  "expected_exit_code": 0,
+  "stdout": {
+    "bind_off": false,
+    "cast_on": 8,
+    "errors": [],
+    "expanded_rows": [
+      {
+        "end_stitches": 8,
+        "expanded_row_index": 1,
+        "instructions": [
+          {
+            "count": 2,
+            "stitch": "k"
+          },
+          {
+            "count": 2,
+            "stitch": "p"
+          },
+          {
+            "count": 4,
+            "stitch": "k"
+          }
+        ],
+        "source_row": 1,
+        "start_stitches": 8
+      }
+    ],
+    "final_stitch_count": 8,
+    "pattern_name": "No Space Commas",
+    "valid": true
+  },
+  "stdout_empty": false,
+  "test_id": "pub_level_01_valid_basics_011"
+}

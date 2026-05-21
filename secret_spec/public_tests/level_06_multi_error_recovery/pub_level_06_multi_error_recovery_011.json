@@ -1,0 +1,14 @@
+{
+  "test_id": "pub_level_06_multi_error_recovery_011",
+  "suite": "public",
+  "category": "level_06_multi_error_recovery",
+  "difficulty": "hard",
+  "expected_exit_code": 1,
+  "spec_sections": [
+    "14",
+    "16",
+    "18"
+  ],
+  "reason": "Invalid-but-claimed row can satisfy repeat range existence.",
+  "input_file": "pub_level_06_multi_error_recovery_011.knit"
+}

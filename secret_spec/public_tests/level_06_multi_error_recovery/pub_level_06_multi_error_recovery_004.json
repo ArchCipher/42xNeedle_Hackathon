@@ -1,0 +1,14 @@
+{
+  "test_id": "pub_level_06_multi_error_recovery_004",
+  "suite": "public",
+  "category": "level_06_multi_error_recovery",
+  "difficulty": "medium",
+  "expected_exit_code": 1,
+  "spec_sections": [
+    "12",
+    "16",
+    "18"
+  ],
+  "reason": "Empty comma item and detectable unknown stitch can both be reported.",
+  "input_file": "pub_level_06_multi_error_recovery_004.knit"
+}

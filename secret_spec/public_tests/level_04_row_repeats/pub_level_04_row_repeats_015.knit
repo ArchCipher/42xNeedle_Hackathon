@@ -1,0 +1,5 @@
+pattern "Repeat Bind After Repeat"
+cast_on 2
+row 1: k2
+repeat rows 1-1 x1
+bind_off

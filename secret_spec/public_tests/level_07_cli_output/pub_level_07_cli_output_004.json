@@ -1,0 +1,19 @@
+{
+  "test_id": "pub_level_07_cli_output_004",
+  "suite": "public",
+  "category": "level_07_cli_output",
+  "difficulty": "easy",
+  "expected_exit_code": 2,
+  "spec_sections": [
+    "2",
+    "25"
+  ],
+  "reason": "Unsupported command shape is a CLI usage error.",
+  "invocation": {
+    "argv": [
+      "check",
+      "missing.knit"
+    ],
+    "stdout_contract": "empty"
+  }
+}

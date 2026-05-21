@@ -1,0 +1,39 @@
+{
+  "expected_exit_code": 0,
+  "stdout": {
+    "bind_off": false,
+    "cast_on": 5,
+    "errors": [],
+    "expanded_rows": [
+      {
+        "end_stitches": 5,
+        "expanded_row_index": 1,
+        "instructions": [
+          {
+            "count": 1,
+            "stitch": "k"
+          },
+          {
+            "count": 1,
+            "stitch": "k"
+          },
+          {
+            "count": 1,
+            "stitch": "k"
+          },
+          {
+            "count": 2,
+            "stitch": "p"
+          }
+        ],
+        "source_row": 1,
+        "start_stitches": 5
+      }
+    ],
+    "final_stitch_count": 5,
+    "pattern_name": "Bracket Mixed After",
+    "valid": true
+  },
+  "stdout_empty": false,
+  "test_id": "pub_level_03_brackets_004"
+}

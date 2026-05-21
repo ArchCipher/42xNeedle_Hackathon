@@ -1,0 +1,5 @@
+pattern "A"
+pattern "B"
+cast_on 1
+cast_on 2
+row 1: k1

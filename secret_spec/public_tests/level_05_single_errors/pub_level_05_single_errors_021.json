@@ -1,0 +1,13 @@
+{
+  "test_id": "pub_level_05_single_errors_021",
+  "suite": "public",
+  "category": "level_05_single_errors",
+  "difficulty": "easy",
+  "expected_exit_code": 1,
+  "spec_sections": [
+    "7",
+    "18"
+  ],
+  "reason": "Unsupported embedded quote makes pattern malformed.",
+  "input_file": "pub_level_05_single_errors_021.knit"
+}

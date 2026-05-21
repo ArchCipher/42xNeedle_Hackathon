@@ -1,0 +1,3 @@
+pattern "Bracket Deep Nest"
+cast_on 14
+row 1: [k1, [p1, [k1] x2] x2] x2

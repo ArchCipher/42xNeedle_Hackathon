@@ -1,0 +1,15 @@
+{
+  "test_id": "pub_level_01_valid_basics_001",
+  "suite": "public",
+  "category": "level_01_valid_basics",
+  "difficulty": "easy",
+  "expected_exit_code": 0,
+  "spec_sections": [
+    "3",
+    "7",
+    "8",
+    "19"
+  ],
+  "reason": "Minimal valid file with no rows keeps final stitch count equal to cast_on.",
+  "input_file": "pub_level_01_valid_basics_001.knit"
+}

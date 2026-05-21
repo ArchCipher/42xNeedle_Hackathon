@@ -1,0 +1,3 @@
+pattern "Bracket Change Count Up"
+cast_on 3
+row 1: [inc] x3

@@ -1,0 +1,18 @@
+{
+  "test_id": "pub_level_07_cli_output_003",
+  "suite": "public",
+  "category": "level_07_cli_output",
+  "difficulty": "easy",
+  "expected_exit_code": 2,
+  "spec_sections": [
+    "2",
+    "25"
+  ],
+  "reason": "Missing file argument is a CLI usage error with empty stdout.",
+  "invocation": {
+    "argv": [
+      "compile"
+    ],
+    "stdout_contract": "empty"
+  }
+}

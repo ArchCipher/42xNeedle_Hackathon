@@ -1,0 +1,13 @@
+{
+  "test_id": "pub_level_02_stitches_017",
+  "suite": "public",
+  "category": "level_02_stitches",
+  "difficulty": "medium",
+  "expected_exit_code": 0,
+  "spec_sections": [
+    "10",
+    "11"
+  ],
+  "reason": "Rows may leave unconsumed stitches because no full-row consumption rule is defined.",
+  "input_file": "pub_level_02_stitches_017.knit"
+}

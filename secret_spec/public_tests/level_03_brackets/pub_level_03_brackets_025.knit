@@ -1,0 +1,4 @@
+pattern "Bracket Bind Bracket"
+cast_on 4
+row 1: [k1, p1] x2
+bind_off

@@ -1,0 +1,4 @@
+pattern "Shrink Feed"
+cast_on 5
+row 1: k1, dec, dec
+row 2: k3

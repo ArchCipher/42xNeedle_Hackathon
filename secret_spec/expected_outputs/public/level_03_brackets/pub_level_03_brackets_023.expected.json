@@ -1,0 +1,63 @@
+{
+  "expected_exit_code": 0,
+  "stdout": {
+    "bind_off": false,
+    "cast_on": 10,
+    "errors": [],
+    "expanded_rows": [
+      {
+        "end_stitches": 10,
+        "expanded_row_index": 1,
+        "instructions": [
+          {
+            "count": 1,
+            "stitch": "p"
+          },
+          {
+            "count": 1,
+            "stitch": "k"
+          },
+          {
+            "count": 1,
+            "stitch": "p"
+          },
+          {
+            "count": 1,
+            "stitch": "k"
+          },
+          {
+            "count": 1,
+            "stitch": "p"
+          },
+          {
+            "count": 1,
+            "stitch": "p"
+          },
+          {
+            "count": 1,
+            "stitch": "k"
+          },
+          {
+            "count": 1,
+            "stitch": "p"
+          },
+          {
+            "count": 1,
+            "stitch": "k"
+          },
+          {
+            "count": 1,
+            "stitch": "p"
+          }
+        ],
+        "source_row": 1,
+        "start_stitches": 10
+      }
+    ],
+    "final_stitch_count": 10,
+    "pattern_name": "Bracket Nested With Purl",
+    "valid": true
+  },
+  "stdout_empty": false,
+  "test_id": "pub_level_03_brackets_023"
+}

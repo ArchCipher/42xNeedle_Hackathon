@@ -1,0 +1,3 @@
+pattern "Bracket Nested Dec"
+cast_on 12
+row 1: [[dec] x2, k2] x2

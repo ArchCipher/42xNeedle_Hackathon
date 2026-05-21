@@ -1,0 +1,4 @@
+pattern "Two Inc"
+cast_on 3
+row 1: inc, inc, k1
+row 2: k5

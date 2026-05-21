@@ -1,0 +1,13 @@
+{
+  "test_id": "pub_level_01_valid_basics_007",
+  "suite": "public",
+  "category": "level_01_valid_basics",
+  "difficulty": "easy",
+  "expected_exit_code": 0,
+  "spec_sections": [
+    "4",
+    "7"
+  ],
+  "reason": "A hash inside a quoted pattern name is part of the name.",
+  "input_file": "pub_level_01_valid_basics_007.knit"
+}

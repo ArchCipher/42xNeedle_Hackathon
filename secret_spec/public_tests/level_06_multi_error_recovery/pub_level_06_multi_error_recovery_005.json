@@ -1,0 +1,14 @@
+{
+  "test_id": "pub_level_06_multi_error_recovery_005",
+  "suite": "public",
+  "category": "level_06_multi_error_recovery",
+  "difficulty": "medium",
+  "expected_exit_code": 1,
+  "spec_sections": [
+    "14",
+    "17",
+    "18"
+  ],
+  "reason": "One repeat statement can report invalid count and invalid range.",
+  "input_file": "pub_level_06_multi_error_recovery_005.knit"
+}

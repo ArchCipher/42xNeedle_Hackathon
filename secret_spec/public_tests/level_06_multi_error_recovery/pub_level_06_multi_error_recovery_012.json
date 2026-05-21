@@ -1,0 +1,15 @@
+{
+  "test_id": "pub_level_06_multi_error_recovery_012",
+  "suite": "public",
+  "category": "level_06_multi_error_recovery",
+  "difficulty": "hard",
+  "expected_exit_code": 1,
+  "spec_sections": [
+    "9",
+    "14",
+    "16",
+    "18"
+  ],
+  "reason": "Invalid row numbers do not claim rows and repeat range is invalid.",
+  "input_file": "pub_level_06_multi_error_recovery_012.knit"
+}

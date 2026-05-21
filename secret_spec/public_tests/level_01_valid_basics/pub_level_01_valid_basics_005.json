@@ -1,0 +1,16 @@
+{
+  "test_id": "pub_level_01_valid_basics_005",
+  "suite": "public",
+  "category": "level_01_valid_basics",
+  "difficulty": "easy",
+  "expected_exit_code": 0,
+  "spec_sections": [
+    "6A",
+    "7",
+    "8",
+    "9",
+    "10"
+  ],
+  "reason": "Leading zeros on cast_on, row number, and counted stitch normalize to integers.",
+  "input_file": "pub_level_01_valid_basics_005.knit"
+}

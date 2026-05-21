@@ -1,0 +1,13 @@
+{
+  "test_id": "pub_level_02_stitches_008",
+  "suite": "public",
+  "category": "level_02_stitches",
+  "difficulty": "easy",
+  "expected_exit_code": 0,
+  "spec_sections": [
+    "10",
+    "11"
+  ],
+  "reason": "Small counted knit magnitude parses correctly.",
+  "input_file": "pub_level_02_stitches_008.knit"
+}

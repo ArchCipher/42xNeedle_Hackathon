@@ -1,0 +1,3 @@
+pattern "Inline" # name
+cast_on 4 # cast
+row 1: k4 # row

@@ -1,0 +1,4 @@
+pattern "Repeat Repeat No Rows After"
+cast_on 1
+row 1: k1
+repeat rows 1-1 x3

@@ -1,0 +1,4 @@
+pattern "Decrease Basic"
+cast_on 4
+row 1: k2, dec
+row 2: k3

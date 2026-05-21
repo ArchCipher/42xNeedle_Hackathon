@@ -1,0 +1,13 @@
+{
+  "test_id": "pub_level_05_single_errors_026",
+  "suite": "public",
+  "category": "level_05_single_errors",
+  "difficulty": "easy",
+  "expected_exit_code": 1,
+  "spec_sections": [
+    "13",
+    "18"
+  ],
+  "reason": "Bracket repeat requires whitespace before x-count.",
+  "input_file": "pub_level_05_single_errors_026.knit"
+}

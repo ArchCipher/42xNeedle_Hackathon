@@ -1,0 +1,13 @@
+{
+  "test_id": "pub_level_04_row_repeats_003",
+  "suite": "public",
+  "category": "level_04_row_repeats",
+  "difficulty": "easy",
+  "expected_exit_code": 0,
+  "spec_sections": [
+    "14",
+    "20"
+  ],
+  "reason": "Two-row range repeats in source row order.",
+  "input_file": "pub_level_04_row_repeats_003.knit"
+}

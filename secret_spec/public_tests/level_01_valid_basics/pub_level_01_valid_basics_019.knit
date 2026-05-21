@@ -1,0 +1,4 @@
+pattern "Zero Repeat"
+cast_on 2
+row 01: k02
+repeat rows 01-01 x02

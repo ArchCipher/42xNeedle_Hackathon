@@ -1,0 +1,15 @@
+{
+  "test_id": "pub_level_06_multi_error_recovery_001",
+  "suite": "public",
+  "category": "level_06_multi_error_recovery",
+  "difficulty": "medium",
+  "expected_exit_code": 1,
+  "spec_sections": [
+    "16",
+    "17",
+    "18",
+    "24"
+  ],
+  "reason": "Section 24 multiple-error example input, included verbatim to validate public recovery behavior.",
+  "input_file": "pub_level_06_multi_error_recovery_001.knit"
+}

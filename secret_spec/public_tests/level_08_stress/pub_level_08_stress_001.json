@@ -1,0 +1,14 @@
+{
+  "test_id": "pub_level_08_stress_001",
+  "suite": "public",
+  "category": "level_08_stress",
+  "difficulty": "hard",
+  "expected_exit_code": 0,
+  "spec_sections": [
+    "26",
+    "9",
+    "20"
+  ],
+  "reason": "Many simple rows remain within source row count constraints.",
+  "input_file": "pub_level_08_stress_001.knit"
+}

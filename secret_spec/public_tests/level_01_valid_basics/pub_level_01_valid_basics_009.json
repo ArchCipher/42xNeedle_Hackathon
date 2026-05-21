@@ -1,0 +1,14 @@
+{
+  "test_id": "pub_level_01_valid_basics_009",
+  "suite": "public",
+  "category": "level_01_valid_basics",
+  "difficulty": "easy",
+  "expected_exit_code": 0,
+  "spec_sections": [
+    "9",
+    "10",
+    "11"
+  ],
+  "reason": "Single purl row preserves stitch count.",
+  "input_file": "pub_level_01_valid_basics_009.knit"
+}

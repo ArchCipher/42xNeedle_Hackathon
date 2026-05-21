@@ -1,0 +1,20 @@
+{
+  "test_id": "pub_level_07_cli_output_002",
+  "suite": "public",
+  "category": "level_07_cli_output",
+  "difficulty": "easy",
+  "expected_exit_code": 1,
+  "spec_sections": [
+    "2",
+    "25"
+  ],
+  "reason": "Invalid compile invocation exits 1 but still writes one JSON document.",
+  "input_file": "pub_level_07_cli_output_002.knit",
+  "invocation": {
+    "argv": [
+      "compile",
+      "{input}"
+    ],
+    "stdout_contract": "json_only"
+  }
+}

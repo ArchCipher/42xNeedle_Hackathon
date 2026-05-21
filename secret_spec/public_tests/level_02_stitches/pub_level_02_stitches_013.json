@@ -1,0 +1,13 @@
+{
+  "test_id": "pub_level_02_stitches_013",
+  "suite": "public",
+  "category": "level_02_stitches",
+  "difficulty": "medium",
+  "expected_exit_code": 0,
+  "spec_sections": [
+    "10",
+    "11"
+  ],
+  "reason": "Decrease stitches can lower stitch count for the next row.",
+  "input_file": "pub_level_02_stitches_013.knit"
+}

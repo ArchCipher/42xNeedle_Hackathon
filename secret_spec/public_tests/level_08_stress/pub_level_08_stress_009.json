@@ -1,0 +1,14 @@
+{
+  "test_id": "pub_level_08_stress_009",
+  "suite": "public",
+  "category": "level_08_stress",
+  "difficulty": "hard",
+  "expected_exit_code": 1,
+  "spec_sections": [
+    "11",
+    "18",
+    "26"
+  ],
+  "reason": "Overflow near the 10000 boundary is detected as a stress invalid case.",
+  "input_file": "pub_level_08_stress_009.knit"
+}

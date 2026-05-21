@@ -1,0 +1,4 @@
+pattern "Grow Feed"
+cast_on 2
+row 1: inc, inc
+row 2: k4

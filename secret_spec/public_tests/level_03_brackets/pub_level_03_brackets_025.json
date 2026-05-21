@@ -1,0 +1,14 @@
+{
+  "test_id": "pub_level_03_brackets_025",
+  "suite": "public",
+  "category": "level_03_brackets",
+  "difficulty": "hard",
+  "expected_exit_code": 0,
+  "spec_sections": [
+    "13",
+    "20",
+    "21"
+  ],
+  "reason": "Bracket repeats are valid before bind_off.",
+  "input_file": "pub_level_03_brackets_025.knit"
+}

@@ -1,0 +1,15 @@
+{
+  "test_id": "pub_level_06_multi_error_recovery_013",
+  "suite": "public",
+  "category": "level_06_multi_error_recovery",
+  "difficulty": "hard",
+  "expected_exit_code": 1,
+  "spec_sections": [
+    "7",
+    "8",
+    "16",
+    "18"
+  ],
+  "reason": "Duplicate top-level declarations are both recoverable.",
+  "input_file": "pub_level_06_multi_error_recovery_013.knit"
+}

@@ -1,0 +1,14 @@
+{
+  "test_id": "pub_level_03_brackets_004",
+  "suite": "public",
+  "category": "level_03_brackets",
+  "difficulty": "easy",
+  "expected_exit_code": 0,
+  "spec_sections": [
+    "13",
+    "20",
+    "21"
+  ],
+  "reason": "Normal stitches can follow bracket repeats.",
+  "input_file": "pub_level_03_brackets_004.knit"
+}

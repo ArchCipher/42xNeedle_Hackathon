@@ -1,0 +1,13 @@
+{
+  "test_id": "pub_level_04_row_repeats_020",
+  "suite": "public",
+  "category": "level_04_row_repeats",
+  "difficulty": "hard",
+  "expected_exit_code": 0,
+  "spec_sections": [
+    "14",
+    "20"
+  ],
+  "reason": "A repeat can be the last statement.",
+  "input_file": "pub_level_04_row_repeats_020.knit"
+}

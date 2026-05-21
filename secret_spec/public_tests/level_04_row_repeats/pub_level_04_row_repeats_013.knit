@@ -1,0 +1,6 @@
+pattern "Repeat Later Valid Repeat"
+cast_on 3
+row 1: k3
+repeat rows 1-1 x1
+row 2: p3
+repeat rows 1-2 x1

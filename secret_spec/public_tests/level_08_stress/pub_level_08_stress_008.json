@@ -1,0 +1,14 @@
+{
+  "test_id": "pub_level_08_stress_008",
+  "suite": "public",
+  "category": "level_08_stress",
+  "difficulty": "hard",
+  "expected_exit_code": 0,
+  "spec_sections": [
+    "10",
+    "11",
+    "26"
+  ],
+  "reason": "Large counted stitches below the boundary simulate normally.",
+  "input_file": "pub_level_08_stress_008.knit"
+}

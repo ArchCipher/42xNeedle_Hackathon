@@ -1,0 +1,14 @@
+{
+  "test_id": "pub_level_06_multi_error_recovery_014",
+  "suite": "public",
+  "category": "level_06_multi_error_recovery",
+  "difficulty": "hard",
+  "expected_exit_code": 1,
+  "spec_sections": [
+    "6",
+    "16",
+    "18"
+  ],
+  "reason": "Glued keywords are unknown statements and do not satisfy required declarations.",
+  "input_file": "pub_level_06_multi_error_recovery_014.knit"
+}

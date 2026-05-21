@@ -1,0 +1,14 @@
+{
+  "test_id": "pub_level_02_stitches_004",
+  "suite": "public",
+  "category": "level_02_stitches",
+  "difficulty": "easy",
+  "expected_exit_code": 0,
+  "spec_sections": [
+    "10",
+    "11",
+    "21"
+  ],
+  "reason": "k2tog consumes two and produces one.",
+  "input_file": "pub_level_02_stitches_004.knit"
+}

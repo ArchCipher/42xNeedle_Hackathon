@@ -1,0 +1,5 @@
+pattern "Repeat Repeat Same Source"
+cast_on 2
+row 1: k2
+repeat rows 1-1 x1
+repeat rows 1-1 x1

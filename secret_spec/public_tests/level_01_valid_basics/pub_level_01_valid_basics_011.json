@@ -1,0 +1,12 @@
+{
+  "test_id": "pub_level_01_valid_basics_011",
+  "suite": "public",
+  "category": "level_01_valid_basics",
+  "difficulty": "easy",
+  "expected_exit_code": 0,
+  "spec_sections": [
+    "12"
+  ],
+  "reason": "Whitespace around commas is optional.",
+  "input_file": "pub_level_01_valid_basics_011.knit"
+}

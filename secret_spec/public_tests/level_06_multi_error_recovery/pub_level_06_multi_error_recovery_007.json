@@ -1,0 +1,14 @@
+{
+  "test_id": "pub_level_06_multi_error_recovery_007",
+  "suite": "public",
+  "category": "level_06_multi_error_recovery",
+  "difficulty": "hard",
+  "expected_exit_code": 1,
+  "spec_sections": [
+    "8",
+    "16",
+    "18"
+  ],
+  "reason": "Malformed cast_on after rows also reports out-of-order and suppresses missing cast_on.",
+  "input_file": "pub_level_06_multi_error_recovery_007.knit"
+}

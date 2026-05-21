@@ -1,0 +1,14 @@
+{
+  "test_id": "pub_level_08_stress_010",
+  "suite": "public",
+  "category": "level_08_stress",
+  "difficulty": "hard",
+  "expected_exit_code": 1,
+  "spec_sections": [
+    "11",
+    "18",
+    "26"
+  ],
+  "reason": "Underflow in a longer instruction list stops simulation at the first underflow.",
+  "input_file": "pub_level_08_stress_010.knit"
+}

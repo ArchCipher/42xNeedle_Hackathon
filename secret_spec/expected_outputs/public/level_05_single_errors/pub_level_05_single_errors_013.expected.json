@@ -1,0 +1,22 @@
+{
+  "expected_exit_code": 1,
+  "stdout": {
+    "bind_off": false,
+    "cast_on": 2,
+    "errors": [
+      {
+        "code": "STITCH_UNDERFLOW",
+        "line": 3,
+        "message_non_empty": true,
+        "row": 1,
+        "type": "error"
+      }
+    ],
+    "expanded_rows": [],
+    "final_stitch_count": null,
+    "pattern_name": "X",
+    "valid": false
+  },
+  "stdout_empty": false,
+  "test_id": "pub_level_05_single_errors_013"
+}

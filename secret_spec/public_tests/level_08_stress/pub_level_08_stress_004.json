@@ -1,0 +1,13 @@
+{
+  "test_id": "pub_level_08_stress_004",
+  "suite": "public",
+  "category": "level_08_stress",
+  "difficulty": "hard",
+  "expected_exit_code": 0,
+  "spec_sections": [
+    "11",
+    "26"
+  ],
+  "reason": "A row ending exactly at 10000 stitches is valid.",
+  "input_file": "pub_level_08_stress_004.knit"
+}

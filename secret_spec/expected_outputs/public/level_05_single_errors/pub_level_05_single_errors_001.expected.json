@@ -1,0 +1,22 @@
+{
+  "expected_exit_code": 1,
+  "stdout": {
+    "bind_off": false,
+    "cast_on": 10,
+    "errors": [
+      {
+        "code": "MISSING_PATTERN",
+        "line": null,
+        "message_non_empty": true,
+        "row": null,
+        "type": "error"
+      }
+    ],
+    "expanded_rows": [],
+    "final_stitch_count": null,
+    "pattern_name": null,
+    "valid": false
+  },
+  "stdout_empty": false,
+  "test_id": "pub_level_05_single_errors_001"
+}
