@@ -4,7 +4,7 @@
 
 Team name:
 
-Team members:
+Team members: Kiruthika Murugananthan, Sreya Thota, Ran Mo, Pedro Castro
 
 Repository link:
 

@@ -94,9 +94,13 @@ Fill in `agent_logs/final_report.md` before submitting.
 
 | Field | Value |
 |-------|-------|
-| Team name | TBD |
-| Members | TBD |
+| Team name | TBD (see suggestions below) |
+| Members | Kiruthika Murugananthan, Sreya Thota, Ran Mo, Pedro Castro |
 | Checkpoint tag | `agent-readiness-1945` |
+
+**Team name ideas:** Knit Four · Loop & Purl · Needle Stack · Yarn Agents · Autoknit · 42 Stitches
+
+**Collaboration:** [docs/COLLABORATION.md](docs/COLLABORATION.md) — role split, free stack, sync points (assign roles among yourselves).
 
 ## Agent docs (fill as you build)
 
