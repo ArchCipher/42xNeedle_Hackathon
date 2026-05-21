@@ -87,13 +87,15 @@ One iteration only (faster check):
 ./scripts/test_calculator_agent.sh
 ```
 
+**Backups:** agent-built apps are saved under [`backups/`](backups/README.md) (e.g. `knit_calculator.py`). Teammate manual test notes go in [`tests/manual/`](tests/manual/README.md).
+
 Then verify by hand:
 
 ```bash
 python3 knit.py add 2 3   # must print 5 and exit 0 — not compile/compile-v2
 ```
 
-With the mock calculator spec, the agent uses `knit.py add 2 3` as the pass condition (not syntax-only). A run that “passes” but still shows `invalid choice: 'add'` means **no calculator was built** — re-run after `git pull` (tool JSON + verify fixes).
+With the mock calculator spec, the agent uses `knit.py add 2 3` as the pass condition (not syntax-only). A run that “passes” but still shows `invalid choice: 'add'` means **no calculator was built** — `git pull` and see [docs/TEST_CALCULATOR.md](docs/TEST_CALCULATOR.md#what-changed-why-early-runs-passed-but-add-failed) for what was fixed.
 
 **If Ollama is slow or times out:** warm up first with `ollama run qwen2.5-coder:7b`, then run the agent. Default setup does **not** call the model (writes `plan.md` from templates). See [Agent architecture](#agent-architecture) below.
 
