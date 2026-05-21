@@ -38,3 +38,13 @@ Expected agent action:
 Prompt: E2E audit: read secret_spec/SECRET_SPEC.md if present, then improve knit.py compile in src/ only. Run run_tests after edits.
 Context: model=qwen2.5-coder:7b (Ollama, free)
 Expected agent action: 
+
+[2026-05-21 17:37] USER_PROMPT
+Prompt: create a program that prints hello world
+Context: model=qwen2.5-coder:7b (Ollama, free)
+Expected agent action: 
+
+[2026-05-21 17:53] USER_PROMPT
+Prompt: Build the CLI calculator from secret_spec/SECRET_SPEC.md in knit.py
+Context: model=qwen2.5-coder:7b (Ollama, free)
+Expected agent action: 

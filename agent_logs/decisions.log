@@ -122,3 +122,87 @@ Decision: Plan printed
 Reason: 
 Evidence/input used: agent/strategy.md + spec excerpt
 Next action: 
+
+[2026-05-21 17:33] DECISION
+Decision: doctor smoke test
+Reason: 
+Evidence/input used: 
+Next action: 
+
+[2026-05-21 17:35] DECISION
+Decision: doctor smoke test
+Reason: 
+Evidence/input used: 
+Next action: 
+
+[2026-05-21 17:37] DECISION
+Decision: Agent run started
+Reason: create a program that prints hello world
+Evidence/input used: 
+Next action: max 40 iterations
+
+[2026-05-21 17:37] DECISION
+Decision: Test command configured
+Reason: 
+Evidence/input used: /Users/kiru/.venv/bin/python3 run_tests.py
+Next action: 
+
+[2026-05-21 17:37] DECISION
+Decision: Spec file missing
+Reason: 
+Evidence/input used: secret_spec/SECRET_SPEC.md
+Next action: copy SECRET_SPEC.md into secret_spec/ from the event repo
+
+[2026-05-21 17:37] DECISION
+Decision: Phase 1 start
+Reason: 
+Evidence/input used: 
+Next action: summarize spec (no tools)
+
+[2026-05-21 17:53] DECISION
+Decision: Agent run started
+Reason: Build the CLI calculator from secret_spec/SECRET_SPEC.md in knit.py
+Evidence/input used: 
+Next action: max 40 iterations
+
+[2026-05-21 17:53] DECISION
+Decision: Test command configured
+Reason: 
+Evidence/input used: /Users/kiru/.venv/bin//Users/kiru/.venv/bin/python3 -m py_compile knit.py
+Next action: 
+
+[2026-05-21 17:53] DECISION
+Decision: Task mode
+Reason: 
+Evidence/input used: flexible
+Next action: flexible = any app in knit.py; hackathon = compiler + pytest
+
+[2026-05-21 17:53] DECISION
+Decision: Spec loaded from secret_spec/SECRET_SPEC.md
+Reason: 
+Evidence/input used: 1136 bytes at secret_spec/SECRET_SPEC.md
+Next action: use read_file for full spec when implementing
+
+[2026-05-21 17:53] DECISION
+Decision: Template setup
+Reason: llm_setup disabled (use --llm-setup)
+Evidence/input used: 
+Next action: implement loop
+
+[2026-05-21 17:53] DECISION
+Decision: Wrote spec_summary.md
+Reason: 
+Evidence/input used: agent_logs/spec_summary.md
+Next action: 
+
+[2026-05-21 17:53] DECISION
+Decision: Wrote plan.md
+Reason: 
+Evidence/input used: agent_logs/plan.md
+Next action: 
+
+[2026-05-21 17:53] DECISION
+Decision: Start iteration 1
+Reason: 
+Evidence/input used: 
+Next action: implement (tools) -> test -> repair if fail

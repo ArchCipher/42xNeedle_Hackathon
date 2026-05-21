@@ -27,8 +27,10 @@ cp secret_spec/MOCK_CALCULATOR_SPEC.md secret_spec/SECRET_SPEC.md
 
 ```bash
 python3 agent/agent.py run --mode flexible --force-setup \
-  "Build the CLI calculator described in secret_spec/SECRET_SPEC.md inside knit.py"
+  "Build the CLI calculator from secret_spec/SECRET_SPEC.md in knit.py"
 ```
+
+(This is the same command as the **Teammate smoke test** block in the root [README.md](../README.md).)
 
 Single iteration (smoke):
 
@@ -39,12 +41,28 @@ python3 agent/agent.py run-once --mode flexible --force-setup \
 
 ## 4. Check results yourself
 
+**Success looks like:**
+
 ```bash
-python3 -m py_compile knit.py
 python3 knit.py add 2 3
+# 5
+echo $?   # 0
+```
+
+**Failure (agent did not build a calculator yet):**
+
+```text
+invalid choice: 'add' (choose from 'compile', 'compile-v2')
+```
+
+More checks:
+
+```bash
 python3 knit.py mul 4 5
 python3 knit.py div 10 0    # expect non-zero exit
 ```
+
+The agent loop only stops when `knit.py add 2 3` exits 0 (auto when mock spec mentions “calculator”).
 
 Logs: `agent_logs/decisions.log`, `agent_logs/plan.md`, `agent_logs/commands.log`.
 

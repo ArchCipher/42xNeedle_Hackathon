@@ -69,6 +69,32 @@ python3 agent/agent.py run --llm-setup  # optional: one LLM call for plan (only 
 # use -q for logs-only (quiet)
 ```
 
+### Teammate smoke test: calculator in `knit.py` (before the real spec)
+
+Copy-paste on any machine with Ollama installed. Full walkthrough: **[docs/TEST_CALCULATOR.md](docs/TEST_CALCULATOR.md)**.
+
+```bash
+git pull
+cp secret_spec/MOCK_CALCULATOR_SPEC.md secret_spec/SECRET_SPEC.md
+
+python3 agent/agent.py run --mode flexible --force-setup \
+  "Build the CLI calculator from secret_spec/SECRET_SPEC.md in knit.py"
+```
+
+One iteration only (faster check):
+
+```bash
+./scripts/test_calculator_agent.sh
+```
+
+Then verify by hand:
+
+```bash
+python3 knit.py add 2 3   # must print 5 and exit 0 — not compile/compile-v2
+```
+
+With the mock calculator spec, the agent uses `knit.py add 2 3` as the pass condition (not syntax-only). A run that “passes” but still shows `invalid choice: 'add'` means **no calculator was built** — re-run after `git pull` (tool JSON + verify fixes).
+
 **If Ollama is slow or times out:** warm up first with `ollama run qwen2.5-coder:7b`, then run the agent. Default setup does **not** call the model (writes `plan.md` from templates). See [Agent architecture](#agent-architecture) below.
 
 **Windows:** use `py -3` instead of `python3`. Full guide: [docs/RUN_AND_TEST.md](docs/RUN_AND_TEST.md).

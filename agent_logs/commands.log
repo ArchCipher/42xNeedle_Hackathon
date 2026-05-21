@@ -67,3 +67,109 @@ Run by: agent
 Command: python3 knit.py compile examples/hello.knit 2>&1
 Exit code: 9009
 Output summary: Python was not found; run without arguments to install from the Microsoft Store, or disable this shortcut from Settings > Apps > Advanced app settings > App execution aliases.
+
+[2026-05-21 17:33] COMMAND
+Run by: agent
+Command: /Users/kiru/.venv/bin/python3 run_tests.py
+Exit code: 0
+Output summary: pytest score: 4/4 passed, 0 failed
+
+[2026-05-21 17:33] COMMAND
+Run by: agent
+Command: /Users/kiru/.venv/bin/python3 run_tests.py
+Exit code: 0
+Output summary: pytest score: 4/4 passed, 0 failed
+
+[2026-05-21 17:56] COMMAND
+Run by: agent
+Command: read_file({"path": "secret_spec/SECRET_SPEC.md"})
+Exit code: n/a
+Output summary: 
+
+[2026-05-21 17:56] COMMAND
+Run by: agent
+Command: read_file result
+Exit code: 0
+Output summary: # Mock task — CLI calculator (intentionally brief)
+
+> **Test only.** Copy to `SECRET_SPEC.md` to run the agent against this spec:
+> `cp secret_spec/MOCK_CALCULATOR_SPEC.md secret_spec/SECRET_SPEC.md`
+
+## Product
+
+A **command-line calculator**. The program users run is **`knit.py`** (helpers may live in `src/`).
+
+## Behavior (minimal)
+
+- Support **add**, **subtract**, **multiply**, **divide** on two numbers.
+- Invalid input or divide-by-zero → non-zero exit, message on **stderr**.
+- Successful operation → print the numeric result on **stdout**, exit **0**.
+
+## Interface (not fully specified — agent must decide)
+
+Design a reasonable CLI, for example subcommands or positional arguments. Document usage in a short comment at the top of `knit.py`.
+
+Example shapes (pick one or similar):
+
+```text
+python3 knit.py add 2 3
+python3 knit.py calc add 2 3
+```
+
+## Non-goals
+
+- No GUI, no network, no database.
+- Does not need to keep the existing `compile` / `compile-v2` commands unless you wire them as aliases.
+
+## Done when
+
+- `python3 knit.py` runs without syntax errors.
+- A few manual cases work (e.g. add, div, bad input).
+
+
+[2026-05-21 17:58] COMMAND
+Run by: agent
+Command: read_file({"path": "secret_spec/SECRET_SPEC.md"})
+Exit code: n/a
+Output summary: 
+
+[2026-05-21 17:58] COMMAND
+Run by: agent
+Command: read_file result
+Exit code: 0
+Output summary: # Mock task — CLI calculator (intentionally brief)
+
+> **Test only.** Copy to `SECRET_SPEC.md` to run the agent against this spec:
+> `cp secret_spec/MOCK_CALCULATOR_SPEC.md secret_spec/SECRET_SPEC.md`
+
+## Product
+
+A **command-line calculator**. The program users run is **`knit.py`** (helpers may live in `src/`).
+
+## Behavior (minimal)
+
+- Support **add**, **subtract**, **multiply**, **divide** on two numbers.
+- Invalid input or divide-by-zero → non-zero exit, message on **stderr**.
+- Successful operation → print the numeric result on **stdout**, exit **0**.
+
+## Interface (not fully specified — agent must decide)
+
+Design a reasonable CLI, for example subcommands or positional arguments. Document usage in a short comment at the top of `knit.py`.
+
+Example shapes (pick one or similar):
+
+```text
+python3 knit.py add 2 3
+python3 knit.py calc add 2 3
+```
+
+## Non-goals
+
+- No GUI, no network, no database.
+- Does not need to keep the existing `compile` / `compile-v2` commands unless you wire them as aliases.
+
+## Done when
+
+- `python3 knit.py` runs without syntax errors.
+- A few manual cases work (e.g. add, div, bad input).
+

@@ -14,6 +14,8 @@ Assign roles among the four teammates yourselves. Each role owns specific paths 
 
 **Status:** Implemented (Ollama only, no paid APIs). Verify: `python3 agent/agent.py doctor`
 
+**Teammate smoke test (calculator):** [docs/TEST_CALCULATOR.md](TEST_CALCULATOR.md) — `run --mode flexible --force-setup` with `secret_spec/MOCK_CALCULATOR_SPEC.md`.
+
 **Responsibilities:**
 
 - Main loop: read spec → plan → act → test → repair

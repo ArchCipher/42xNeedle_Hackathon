@@ -13,6 +13,7 @@ TOOL_CALL_RE = re.compile(
     r"<tool_call>\s*(\{.*?\})\s*</tool_call>",
     re.DOTALL,
 )
+JSON_FENCE_RE = re.compile(r"```(?:json)?\s*\n?(.*?)```", re.DOTALL | re.IGNORECASE)
 
 
 class OllamaError(RuntimeError):
@@ -115,6 +116,52 @@ def _append_tool_call(tool_calls: list[dict[str, Any]], name: str, inputs: dict[
         tool_calls.append({"name": name, "input": inputs})
 
 
+def _try_parse_tool_json(blob: str) -> dict[str, Any] | None:
+    blob = blob.strip()
+    if not blob:
+        return None
+    try:
+        data = json.loads(blob)
+        return data if isinstance(data, dict) else None
+    except json.JSONDecodeError:
+        pass
+    start, end = blob.find("{"), blob.rfind("}")
+    if start >= 0 and end > start:
+        try:
+            data = json.loads(blob[start : end + 1])
+            return data if isinstance(data, dict) else None
+        except json.JSONDecodeError:
+            return None
+    return None
+
+
+def _tool_calls_from_text(content: str) -> list[dict[str, Any]]:
+    """Parse tool calls when the model prints JSON instead of native tool_calls."""
+    tool_calls: list[dict[str, Any]] = []
+    seen: set[str] = set()
+
+    def add_from_blob(blob: str) -> None:
+        data = _try_parse_tool_json(blob)
+        if not data or not data.get("name"):
+            return
+        key = json.dumps({"name": data["name"], "input": _tool_input_from_payload(data)}, sort_keys=True)
+        if key in seen:
+            return
+        seen.add(key)
+        _append_tool_call(tool_calls, str(data["name"]), _tool_input_from_payload(data))
+
+    for block in JSON_FENCE_RE.findall(content):
+        add_from_blob(block)
+
+    for match in TOOL_CALL_RE.finditer(content):
+        add_from_blob(match.group(1))
+
+    if not tool_calls:
+        add_from_blob(content)
+
+    return tool_calls
+
+
 def parse_assistant_response(message: dict[str, Any]) -> tuple[str, list[dict[str, Any]]]:
     content = (message.get("content") or "").strip()
     tool_calls: list[dict[str, Any]] = []
@@ -128,22 +175,10 @@ def parse_assistant_response(message: dict[str, Any]) -> tuple[str, list[dict[st
             _append_tool_call(tool_calls, fn.get("name", ""), args if isinstance(args, dict) else {})
         return content, tool_calls
 
-    for match in TOOL_CALL_RE.finditer(content):
-        try:
-            data = json.loads(match.group(1))
-            _append_tool_call(tool_calls, data["name"], _tool_input_from_payload(data))
-        except (json.JSONDecodeError, KeyError):
-            continue
-
-    if not tool_calls and content.startswith("{"):
-        try:
-            data = json.loads(content)
-            if isinstance(data, dict) and data.get("name"):
-                _append_tool_call(tool_calls, data["name"], _tool_input_from_payload(data))
-                content = ""
-        except json.JSONDecodeError:
-            pass
+    if not tool_calls:
+        tool_calls = _tool_calls_from_text(content)
 
     if tool_calls and content:
+        content = JSON_FENCE_RE.sub("", content)
         content = TOOL_CALL_RE.sub("", content).strip()
     return content, tool_calls

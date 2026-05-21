@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import shlex
 import shutil
 import sys
 from pathlib import Path
@@ -39,18 +40,34 @@ def default_public_test_command() -> str:
 
 
 def normalize_test_command(command: str) -> str:
+    """Rewrite leading python3/python to the current interpreter without mangling paths."""
     py = python_launcher()
-    if "python3" in command:
-        return command.replace("python3", py)
-    return command
+    cmd = command.strip()
+    if not cmd or py in cmd:
+        return cmd
+    try:
+        parts = shlex.split(cmd)
+    except ValueError:
+        parts = cmd.split()
+    if parts and parts[0] in ("python3", "python"):
+        parts[0] = py
+        return " ".join(shlex.quote(p) for p in parts)
+    return cmd
+
+
+def _quote_py(py: str) -> str:
+    return f'"{py}"' if " " in py or "/" in py or "\\" in py else py
 
 
 def flexible_verify_command() -> str:
-    """Default check for flexible mode: knit.py must at least compile."""
+    """Default verify for flexible mode — behavior check when mock spec mentions calculator."""
     if os.getenv("AGENT_VERIFY_COMMAND"):
         return normalize_test_command(os.environ["AGENT_VERIFY_COMMAND"].strip())
     py = python_launcher()
-    return normalize_test_command(f"{py} -m py_compile knit.py")
+    spec = ROOT / "secret_spec" / "SECRET_SPEC.md"
+    if spec.is_file() and "calculator" in spec.read_text(encoding="utf-8").lower():
+        return normalize_test_command(f"python3 knit.py add 2 3")
+    return f"{_quote_py(py)} -m py_compile knit.py"
 
 
 def apply_task_mode(data: dict[str, Any]) -> dict[str, Any]:
