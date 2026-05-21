@@ -32,6 +32,37 @@ def _append(path: Path, text: str) -> None:
         f.write(text + "\n")
 
 
+def _build_result(report: dict) -> dict:
+    """Extract structured result dict from a pytest JSON report."""
+    summary = report.get("summary", {})
+    passed = summary.get("passed", 0)
+    failed = summary.get("failed", 0) + summary.get("error", 0)
+    total = summary.get("total", 0)
+
+    failures = []
+    for t in report.get("tests", []):
+        if t.get("outcome") not in ("failed", "error"):
+            continue
+        node = t.get("nodeid", "unknown")
+        call = t.get("call") or t.get("setup") or {}
+        longrepr = call.get("longrepr", "") if isinstance(call, dict) else str(call)
+
+        detail_lines = [
+            line.strip()
+            for line in str(longrepr).splitlines()
+            if line.strip().startswith("E ") or line.strip().startswith("AssertionError")
+        ]
+        if detail_lines:
+            detail = " | ".join(detail_lines)
+        else:
+            non_empty = [l.strip() for l in str(longrepr).splitlines() if l.strip()]
+            detail = non_empty[-1] if non_empty else str(longrepr)
+
+        failures.append({"test": node, "detail": detail})
+
+    return {"total": total, "passed": passed, "failed": failed, "failures": failures}
+
+
 def _write_test_log(report: dict) -> None:
     summary = report.get("summary", {})
     passed = summary.get("passed", 0)
@@ -128,9 +159,50 @@ def _ensure_json_report() -> bool:
         return False
 
 
+def run_tests(extra_args: list[str] | None = None) -> dict:
+    """Run the test suite and return a result dict.
+
+    Intended for import by the agent loop. Suppresses pytest stdout/stderr.
+
+    Returns:
+        {
+            "total": int,
+            "passed": int,
+            "failed": int,
+            "failures": [{"test": str, "detail": str}, ...]
+        }
+    """
+    LOG_DIR.mkdir(parents=True, exist_ok=True)
+    has_plugin = _ensure_json_report()
+
+    pytest_cmd = [sys.executable, "-m", "pytest", str(ROOT / "tests"), "-v"]
+    if has_plugin:
+        pytest_cmd += ["--json-report", f"--json-report-file={REPORT_TMP}"]
+    if extra_args:
+        pytest_cmd += extra_args
+
+    try:
+        subprocess.run(pytest_cmd, cwd=ROOT, capture_output=True)
+    except Exception as e:
+        _write_error_log(e, "launching pytest subprocess")
+        return {"total": 0, "passed": 0, "failed": 0, "failures": [{"test": "runner", "detail": str(e)}]}
+
+    result = {"total": 0, "passed": 0, "failed": 0, "failures": []}
+    if has_plugin and REPORT_TMP.exists():
+        try:
+            with open(REPORT_TMP) as f:
+                report = json.load(f)
+            REPORT_TMP.unlink(missing_ok=True)
+            result = _build_result(report)
+            _write_test_log(report)
+        except Exception as e:
+            _write_error_log(e, "parsing pytest JSON report")
+
+    return result
+
+
 def main() -> int:
     LOG_DIR.mkdir(parents=True, exist_ok=True)
-
     has_plugin = _ensure_json_report()
 
     pytest_cmd = [sys.executable, "-m", "pytest", str(ROOT / "tests"), "-v"]
@@ -139,7 +211,7 @@ def main() -> int:
     pytest_cmd += sys.argv[1:]
 
     try:
-        result = subprocess.run(pytest_cmd, cwd=ROOT)
+        proc = subprocess.run(pytest_cmd, cwd=ROOT)
     except Exception as e:
         _write_error_log(e, "launching pytest subprocess")
         return 1
@@ -154,7 +226,7 @@ def main() -> int:
         except Exception as e:
             _write_error_log(e, "parsing pytest JSON report")
 
-    return result.returncode
+    return proc.returncode
 
 
 if __name__ == "__main__":
