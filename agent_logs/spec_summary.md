@@ -3,7 +3,7 @@
 Setup mode: llm_setup disabled (use --llm-setup)
 
 Operator task:
-Build the CLI calculator from secret_spec/SECRET_SPEC.md in knit.py
+Build the CLI calculator from secret_spec/SECRET_SPEC.md in knit.py (use src/ if needed).
 
 Specification excerpt:
 # Mock task — CLI calculator (intentionally brief)

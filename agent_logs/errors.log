@@ -76,3 +76,8 @@ Action taken: See traceback below.
       raise CalledProcessError(retcode, process.args,
   subprocess.CalledProcessError: Command '['/Users/kiru/.venv/bin/python3', '-m', 'pip', 'install', 'pytest-json-report', '-q']' returned non-zero exit status 1.
 Resolved: no
+
+[2026-05-21 18:40] ERROR
+Summary: Tool round cap
+Details: max=12
+Recovery attempt: 
