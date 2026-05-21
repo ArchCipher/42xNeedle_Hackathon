@@ -2,7 +2,7 @@
 
 ## Team
 
-Team name:
+Team name: SPARK
 
 Team members: Kiruthika Murugananthan, Sreya Thota, Ran Mo, Pedro Castro
 

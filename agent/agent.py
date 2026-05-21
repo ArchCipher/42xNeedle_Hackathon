@@ -22,7 +22,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from config_loader import load_config  # noqa: E402
 from logger import AgentLogger  # noqa: E402
 from ollama_client import OllamaClient, OllamaError, parse_assistant_response  # noqa: E402
-from tools import ROOT, execute_tool, run_bash, tools_as_ollama_json  # noqa: E402
+from tools import ROOT, execute_tool, run_bash, scrub_malloc_env, tools_as_ollama_json  # noqa: E402
+
+scrub_malloc_env()  # apply to current process before any subprocess
 
 LOG = AgentLogger()
 MANIFEST = ROOT / "agent_manifest.json"

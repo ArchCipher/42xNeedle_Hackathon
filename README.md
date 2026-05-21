@@ -1,4 +1,4 @@
-# 42 x Needle Hackathon — Team Repository
+# 42 x Needle Hackathon — SPARK
 
 Autonomous coding agent that builds the **Knit compiler** (`knit.py`). This repo is the team workspace for checkpoint, logs, agent code, and final submission.
 
@@ -89,6 +89,8 @@ python3 agent/agent.py log-human --type PROMPT_EDIT --what "..."
 
 Config: `agent/config.yaml`. **Rule:** use `agent/logger.py` for all agent activity logs.
 
+If macOS prints `MallocStackLogging` lines in the terminal, run `unset MallocStackLogging` once before the agent (harmless noise; subprocess output is filtered).
+
 ## 19:45 checkpoint (Thursday)
 
 Before the hidden spec drops at 20:00:
@@ -126,11 +128,9 @@ Fill in `agent_logs/final_report.md` before submitting.
 
 | Field | Value |
 |-------|-------|
-| Team name | TBD (see suggestions below) |
+| Team name | SPARK |
 | Members | Kiruthika Murugananthan, Sreya Thota, Ran Mo, Pedro Castro |
 | Checkpoint tag | `agent-readiness-1945` |
-
-**Team name ideas:** Knit Four · Loop & Purl · Needle Stack · Yarn Agents · Autoknit · 42 Stitches
 
 **Collaboration:** [docs/COLLABORATION.md](docs/COLLABORATION.md) — role split, free stack, sync points (assign roles among yourselves).
 

@@ -1,5 +1,5 @@
 {
-  "team_name": "YOUR_TEAM_NAME",
+  "team_name": "SPARK",
   "primary_model": "qwen2.5-coder:7b",
   "provider": "Ollama",
   "runtime_or_tool": "custom Python agent (agent/agent.py) + Ollama",

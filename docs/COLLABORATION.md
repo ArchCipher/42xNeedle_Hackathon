@@ -154,4 +154,4 @@ secret_spec/        → copy spec at 20:00; all roles read, Role 1 plans
 
 Kiruthika Murugananthan, Sreya Thota, Ran Mo, Pedro Castro
 
-**Team name:** TBD — update `README.md` and `agent_manifest.json` when decided.
+**Team name:** SPARK

@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import os
+import shlex
 import subprocess
 from pathlib import Path
 from typing import Any
@@ -66,17 +68,52 @@ def _resolve_path(rel: str) -> Path:
     return p
 
 
+def scrub_malloc_env(env: dict[str, str] | None = None) -> dict[str, str]:
+    """Remove macOS malloc debug vars that spam MallocStackLogging on child Python."""
+    base = dict(env if env is not None else os.environ)
+    for key in list(base):
+        if "malloc" in key.lower():
+            base.pop(key, None)
+    return base
+
+
+def filter_subprocess_noise(text: str) -> str:
+    lines = [ln for ln in text.splitlines() if "MallocStackLogging" not in ln]
+    return "\n".join(lines).strip()
+
+
 def run_bash(command: str, timeout: int = 120) -> tuple[int, str]:
-    proc = subprocess.run(
-        command,
-        shell=True,
-        cwd=ROOT,
-        capture_output=True,
-        text=True,
-        timeout=timeout,
-    )
-    out = (proc.stdout or "") + (proc.stderr or "")
-    return proc.returncode, out.strip()
+    cmd = command.strip()
+    if cmd.endswith("2>&1"):
+        cmd = cmd[:-4].strip()
+    env = scrub_malloc_env()
+
+    try:
+        parts = shlex.split(cmd)
+    except ValueError:
+        parts = None
+
+    if parts:
+        proc = subprocess.run(
+            parts,
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+            timeout=timeout,
+            env=env,
+        )
+    else:
+        proc = subprocess.run(
+            cmd,
+            shell=True,
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+            timeout=timeout,
+            env=env,
+        )
+    out = filter_subprocess_noise((proc.stdout or "") + (proc.stderr or ""))
+    return proc.returncode, out
 
 
 _PROTECTED_PREFIXES = ("agent/", "agent\\", "compiler_v2/", "compiler_v2\\", "agent_logs/")
