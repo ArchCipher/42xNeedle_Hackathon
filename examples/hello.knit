@@ -1,1 +1,4 @@
-# Placeholder — replace when secret spec defines input format
+# Sample Knit program for compiler v2
+let greeting = "Hello"
+let target = "Knit"
+print greeting, target

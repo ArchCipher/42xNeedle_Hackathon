@@ -42,6 +42,22 @@ python3 knit.py compile <input_file>
 
 Stub returns exit code 1 until `src/` is implemented.
 
+### Compiler v1 vs v2
+
+| | v1 (`compile`) | v2 (`compile-v2`) |
+|---|----------------|-------------------|
+| Entry | `knit.py` / `main.py compile` | `knit.py` / `main.py compile-v2` |
+| Code | `knit.py` + `src/` (agent) | `compiler_v2/` (isolated) |
+| Status | Unchanged stub until spec | Runnable pipeline |
+
+```bash
+python main.py compile examples/hello.knit      # v1 — same as knit.py
+python main.py compile-v2 examples/hello.knit   # v2 — JSON + stdout
+python knit.py compile-v2 examples/hello.knit
+```
+
+v2 writes `<input>.out.json` (structured IR, symbols, stdout) and prints runtime lines to stdout.
+
 ### Agent (free — Ollama only)
 
 ```bash
