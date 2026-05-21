@@ -1,0 +1,35 @@
+# prompts.log
+
+Purpose:
+Record human prompts/instructions sent to the agent after the hidden task release.
+
+Use this whenever a human gives the agent a new instruction, changes the prompt, asks it to retry, narrows scope, or redirects its strategy.
+
+Format:
+
+[YYYY-MM-DD HH:MM] USER_PROMPT
+Prompt:
+Context:
+Expected agent action:
+
+Examples:
+
+[2026-05-21 20:12] USER_PROMPT
+Prompt: Read secret_spec/SECRET_SPEC.md fully and create an implementation plan. Do not write code yet.
+Context: Hidden task was just released. We want the agent to plan before editing files.
+Expected agent action: Produce a phased implementation plan and identify required commands/output format.
+
+[2026-05-21 21:03] USER_PROMPT
+Prompt: Focus only on failing public tests in level_03. Do not rewrite the whole solution.
+Context: Public score: 94/250. Main failing category: bracket parsing.
+Expected agent action: Inspect failures, patch only relevant parser code, rerun tests.
+
+[2026-05-21 23:40] USER_PROMPT
+Prompt: Generate three additional self-tests based on the hidden specification section about exit codes.
+Context: Public tests pass for basic cases, but CLI behavior is fragile.
+Expected agent action: Create self-tests, run them, patch if needed.
+
+[2026-05-21 11:21] USER_PROMPT
+Prompt: test prompt
+Context: scaffold
+Expected agent action: 

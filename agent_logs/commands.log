@@ -1,0 +1,45 @@
+# commands.log
+
+Purpose:
+Record commands run by the agent or by humans after the hidden task release.
+
+This includes test commands, execution commands, git commands, dependency installation, and agent runner commands.
+
+Format:
+
+[YYYY-MM-DD HH:MM] COMMAND
+Run by: agent/human
+Command:
+Working directory:
+Exit code:
+Short result:
+
+Examples:
+
+[2026-05-21 20:18] COMMAND
+Run by: human
+Command: git tag agent-ready-1945
+Working directory: /workspace/team-project
+Exit code: 0
+Short result: Created readiness checkpoint before hidden task release.
+
+[2026-05-21 20:45] COMMAND
+Run by: agent
+Command: python3 solution.py compile examples/basic.input
+Working directory: /workspace/team-project
+Exit code: 1
+Short result: Program ran but returned invalid exit code for expected valid input.
+
+[2026-05-21 21:12] COMMAND
+Run by: agent
+Command: python3 secret_spec/test_runner/run_tests.py --program "python3 solution.py" --suite public
+Working directory: /workspace/team-project
+Exit code: 0
+Short result: Public score 78/250. Main failures: output schema and repeated rows.
+
+[2026-05-21 23:58] COMMAND
+Run by: human
+Command: pip install pytest
+Working directory: /workspace/team-project
+Exit code: 0
+Short result: Installed missing dependency so public tests could run.

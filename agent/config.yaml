@@ -1,0 +1,4 @@
+# Model configuration (referenced by agent_manifest.json)
+primary_model: ""
+provider: ""
+additional_models: []

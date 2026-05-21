@@ -1,0 +1,34 @@
+# decisions.log
+
+Purpose:
+Record important agent decisions and strategy changes.
+
+This is not for every tiny token the model emits. Use it for decisions that explain why the agent moved in a certain direction.
+
+Format:
+
+[YYYY-MM-DD HH:MM] DECISION
+Decision:
+Reason:
+Evidence/input used:
+Next action:
+
+Examples:
+
+[2026-05-21 20:24] DECISION
+Decision: Implement the minimal CLI first before handling edge cases.
+Reason: Public tests require the command to run before deeper behavior can be evaluated.
+Evidence/input used: Hidden spec command section; initial public test failures.
+Next action: Create entrypoint file and return valid JSON for a minimal valid case.
+
+[2026-05-21 21:31] DECISION
+Decision: Stop rewriting the whole file and patch only the parser function.
+Reason: Previous full rewrites caused regressions in already-passing tests.
+Evidence/input used: Public score dropped from 117/250 to 103/250 after full rewrite.
+Next action: Restore last good commit, apply targeted parser patch.
+
+[2026-05-22 02:10] DECISION
+Decision: Generate self-tests for multi-error recovery before further code changes.
+Reason: Public tests show inconsistent behavior in invalid cases.
+Evidence/input used: Failing test categories and spec sections on error recovery.
+Next action: Create local self-tests and run them before patching.

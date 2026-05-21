@@ -1,0 +1,50 @@
+# test_runs.log
+
+Purpose:
+Record public test runs, self-test runs, score progression, and failure categories.
+
+Judges should be able to see how the agent improved over time.
+
+Format:
+
+[YYYY-MM-DD HH:MM] TEST_RUN
+Run by: agent/human
+Command:
+Suite: public/self-generated/manual smoke
+Score/result:
+Main failing categories:
+Agent response/next step:
+
+Examples:
+
+[2026-05-21 20:52] TEST_RUN
+Run by: agent
+Command: python3 secret_spec/test_runner/run_tests.py --program "python3 solution.py" --suite public
+Suite: public
+Score/result: 31/250
+Main failing categories: CLI output, valid basic cases, JSON schema
+Agent response/next step: Implement required stdout JSON structure and correct exit codes.
+
+[2026-05-21 22:06] TEST_RUN
+Run by: agent
+Command: python3 secret_spec/test_runner/run_tests.py --program "python3 solution.py" --suite public
+Suite: public
+Score/result: 143/250
+Main failing categories: nested cases, multi-error recovery, boundary/stress
+Agent response/next step: Focus on nested structures and exact invalid-output schema.
+
+[2026-05-22 01:20] TEST_RUN
+Run by: agent
+Command: python3 tests/self_generated/test_exit_codes.py
+Suite: self-generated
+Score/result: 5/6 passed
+Main failing categories: usage error stdout not empty
+Agent response/next step: Patch CLI usage handler to print diagnostics only to stderr.
+
+[2026-05-22 08:55] TEST_RUN
+Run by: human
+Command: python3 secret_spec/test_runner/run_tests.py --program "python3 solution.py" --suite public
+Suite: public
+Score/result: 226/250
+Main failing categories: stress boundary and rare edge policy
+Agent response/next step: Final run before submission. No manual code edits.

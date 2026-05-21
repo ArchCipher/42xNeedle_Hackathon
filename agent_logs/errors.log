@@ -1,0 +1,45 @@
+# errors.log
+
+Purpose:
+Record crashes, repeated loops, tool failures, model failures, failed commands, corrupted outputs, or anything that blocked progress.
+
+This file is for operational failures, not normal public test failures. Normal score progression belongs in test_runs.log.
+
+Format:
+
+[YYYY-MM-DD HH:MM] ERROR
+Type:
+What happened:
+Impact:
+Action taken:
+Resolved: yes/no
+
+Examples:
+
+[2026-05-21 20:39] ERROR
+Type: MODEL_TIMEOUT
+What happened: Local model request timed out during spec summarization.
+Impact: Agent loop stopped before writing implementation plan.
+Action taken: Restarted model server and reran the same prompt.
+Resolved: yes
+
+[2026-05-21 21:48] ERROR
+Type: LOOP_STUCK
+What happened: Agent applied nearly identical parser patch four times with no score improvement.
+Impact: Public score stayed at 91/250 for 45 minutes.
+Action taken: Human edited prompt to force failure-category analysis before next patch.
+Resolved: yes
+
+[2026-05-22 00:27] ERROR
+Type: BAD_OUTPUT
+What happened: Agent added debug prints to stdout, causing JSON parsing failures.
+Impact: Previously passing CLI tests failed.
+Action taken: Agent was instructed to remove all debug stdout and rerun CLI tests.
+Resolved: yes
+
+[2026-05-22 03:12] ERROR
+Type: TOOL_FAILURE
+What happened: Test runner path was stale after repository structure changed.
+Impact: Agent could not run public tests.
+Action taken: Updated agent config path. Logged intervention separately in human_interventions.log.
+Resolved: yes
