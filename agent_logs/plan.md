@@ -1,13 +1,23 @@
 # Implementation plan (template)
 
 ## Operator task
-read the spec and write knit.py
+Build the CLI calculator from secret_spec/SECRET_SPEC.md in knit.py
 
 ## knit.py is the app
 All user-facing behavior lives in knit.py (helpers in src/).
 
 ## Steps
-1. Design CLI or UX for knit.py matching the operator task
-2. Implement logic in knit.py and src/
-3. bash: python3 knit.py <smoke args> until behavior matches task
-4. run_tests (py_compile) after each meaningful change
+1. read_file secret_spec/SECRET_SPEC.md
+2. Implement knit.py compile in src/ per spec
+3. run_tests after each meaningful change
+
+
+SPEC CHECKLIST (complete before coding):
+  [ ] CLI command and arguments
+  [ ] Input format (CSV/JSON/text, encoding)
+  [ ] Output JSON schema — all keys and types
+  [ ] row_expansion definition in this spec
+  [ ] Invalid input -> exit code
+  [ ] Edge cases listed in spec
+  [ ] stdout vs stderr rules
+IMPLEMENTATION ORDER: CLI -> reader -> JSON schema -> row_expansion -> invalid handler -> edges

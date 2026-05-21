@@ -63,3 +63,16 @@ Recovery attempt: patch and retry
 Summary: Max iterations reached
 Details: limit=3
 Recovery attempt: 
+
+[2026-05-21 17:00] ERROR
+Type: RUNNER_CALLEDPROCESSERROR
+What happened: installing pytest-json-report — CalledProcessError: Command '['/Users/kiru/.venv/bin/python3', '-m', 'pip', 'install', 'pytest-json-report', '-q']' returned non-zero exit status 1.
+Impact: Test run may not have completed; results may be missing from test_runs.log.
+Action taken: See traceback below.
+  Traceback (most recent call last):
+    File "/Users/kiru/Documents/CS/42xNeedle_Hackathon/run_tests.py", line 151, in _ensure_json_report
+      subprocess.run(
+    File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/subprocess.py", line 528, in run
+      raise CalledProcessError(retcode, process.args,
+  subprocess.CalledProcessError: Command '['/Users/kiru/.venv/bin/python3', '-m', 'pip', 'install', 'pytest-json-report', '-q']' returned non-zero exit status 1.
+Resolved: no

@@ -181,7 +181,10 @@ Put helpers in `src/`. You MAY replace the current compile/compile-v2 CLI if the
 1. read_file agent_logs/plan.md
 2. write_file / edit knit.py and src/
 3. bash — run `python3 knit.py ...` with real inputs to verify behavior
-4. run_tests — checks knit.py compiles (syntax); functional proof is your bash runs
+4. run_tests — runs the configured verify command (must pass for the loop to stop)
+
+## Tool calls (required)
+Use native tool calls OR <tool_call> JSON. Do NOT only print ```json {"name": ...} ``` without invoking tools.
 
 ## Rules
 - Small steps; re-run bash smoke tests after each change

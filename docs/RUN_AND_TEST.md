@@ -1,5 +1,7 @@
 # Run and test guide (Windows + Linux)
 
+**Teammate calculator smoke test (flexible mode):** see [TEST_CALCULATOR.md](TEST_CALCULATOR.md) — same command as README (*`run --mode flexible --force-setup`* + mock spec).
+
 ## Setup (once)
 
 ```powershell
