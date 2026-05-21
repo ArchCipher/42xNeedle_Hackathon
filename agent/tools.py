@@ -79,6 +79,17 @@ def run_bash(command: str, timeout: int = 120) -> tuple[int, str]:
     return proc.returncode, out.strip()
 
 
+_PROTECTED_PREFIXES = ("agent/", "agent\\", "compiler_v2/", "compiler_v2\\", "agent_logs/")
+
+
+def _check_write_allowed(rel: str) -> str | None:
+    norm = rel.replace("\\", "/")
+    for prefix in _PROTECTED_PREFIXES:
+        if norm.startswith(prefix) or norm == prefix.rstrip("/"):
+            return f"error: cannot write to protected path {rel}; edit knit.py and src/ only"
+    return None
+
+
 def execute_tool(name: str, inputs: dict[str, Any], *, public_test_command: str) -> str:
     if name == "bash":
         code, out = run_bash(inputs["command"])
@@ -89,10 +100,17 @@ def execute_tool(name: str, inputs: dict[str, Any], *, public_test_command: str)
             return f"error: file not found: {inputs['path']}"
         return p.read_text(encoding="utf-8")
     if name == "write_file":
-        p = _resolve_path(inputs["path"])
+        rel = inputs["path"]
+        blocked = _check_write_allowed(rel)
+        if blocked:
+            return blocked
+        p = _resolve_path(rel)
         p.parent.mkdir(parents=True, exist_ok=True)
         p.write_text(inputs["content"], encoding="utf-8")
-        return f"wrote {len(inputs['content'])} bytes to {inputs['path']}"
+        hint = ""
+        if rel.replace("\\", "/").startswith("src/") or rel.endswith("knit.py"):
+            hint = " | reminder: JSON to stdout only, errors to stderr, match spec schema"
+        return f"wrote {len(inputs['content'])} bytes to {rel}{hint}"
     if name == "run_tests":
         code, out = run_bash(public_test_command)
         return f"exit={code}\n{out}"

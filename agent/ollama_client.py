@@ -75,8 +75,21 @@ class OllamaClient:
             raise OllamaError(f"Ollama request failed: {exc}") from exc
 
 
+def _tool_input_from_payload(data: dict[str, Any]) -> dict[str, Any]:
+    if "input" in data and isinstance(data["input"], dict):
+        return data["input"]
+    if "arguments" in data and isinstance(data["arguments"], dict):
+        return data["arguments"]
+    return {}
+
+
+def _append_tool_call(tool_calls: list[dict[str, Any]], name: str, inputs: dict[str, Any]) -> None:
+    if name:
+        tool_calls.append({"name": name, "input": inputs})
+
+
 def parse_assistant_response(message: dict[str, Any]) -> tuple[str, list[dict[str, Any]]]:
-    content = message.get("content") or ""
+    content = (message.get("content") or "").strip()
     tool_calls: list[dict[str, Any]] = []
 
     if message.get("tool_calls"):
@@ -85,15 +98,25 @@ def parse_assistant_response(message: dict[str, Any]) -> tuple[str, list[dict[st
             args = fn.get("arguments", {})
             if isinstance(args, str):
                 args = json.loads(args) if args else {}
-            tool_calls.append({"name": fn.get("name", ""), "input": args})
+            _append_tool_call(tool_calls, fn.get("name", ""), args if isinstance(args, dict) else {})
         return content, tool_calls
 
     for match in TOOL_CALL_RE.finditer(content):
         try:
             data = json.loads(match.group(1))
-            tool_calls.append({"name": data["name"], "input": data.get("input", {})})
+            _append_tool_call(tool_calls, data["name"], _tool_input_from_payload(data))
         except (json.JSONDecodeError, KeyError):
             continue
-    if tool_calls:
+
+    if not tool_calls and content.startswith("{"):
+        try:
+            data = json.loads(content)
+            if isinstance(data, dict) and data.get("name"):
+                _append_tool_call(tool_calls, data["name"], _tool_input_from_payload(data))
+                content = ""
+        except json.JSONDecodeError:
+            pass
+
+    if tool_calls and content:
         content = TOOL_CALL_RE.sub("", content).strip()
     return content, tool_calls

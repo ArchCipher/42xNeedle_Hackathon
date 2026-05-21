@@ -43,3 +43,23 @@ What happened: Test runner path was stale after repository structure changed.
 Impact: Agent could not run public tests.
 Action taken: Updated agent config path. Logged intervention separately in human_interventions.log.
 Resolved: yes
+
+[2026-05-21 13:13] ERROR
+Summary: Public tests failed
+Details: Python was not found; run without arguments to install from the Microsoft Store, or disable this shortcut from Settings > Apps > Advanced app settings > App execution aliases.
+Recovery attempt: patch and retry
+
+[2026-05-21 13:13] ERROR
+Summary: Public tests failed
+Details: Python was not found; run without arguments to install from the Microsoft Store, or disable this shortcut from Settings > Apps > Advanced app settings > App execution aliases.
+Recovery attempt: patch and retry
+
+[2026-05-21 13:13] ERROR
+Summary: Public tests failed
+Details: Python was not found; run without arguments to install from the Microsoft Store, or disable this shortcut from Settings > Apps > Advanced app settings > App execution aliases.
+Recovery attempt: patch and retry
+
+[2026-05-21 13:13] ERROR
+Summary: Max iterations reached
+Details: limit=3
+Recovery attempt: 

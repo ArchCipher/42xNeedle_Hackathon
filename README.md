@@ -64,7 +64,21 @@ v2 writes `<input>.out.json` (structured IR, symbols, stdout) and prints runtime
 ollama serve && ollama pull qwen2.5-coder:7b
 python3 agent/agent.py doctor
 python3 agent/agent.py run "Read secret_spec and implement knit.py"
+python3 agent/agent.py run-once "Read secret_spec/SECRET_SPEC.md"   # single iteration
 ```
+
+**Windows:** use `py -3` instead of `python3`. Full guide: [docs/RUN_AND_TEST.md](docs/RUN_AND_TEST.md).
+
+### Overnight monitor UI
+
+```bash
+python3 log_server.py
+# open http://127.0.0.1:8765/index.html
+```
+
+See [docs/MONITOR_UI.md](docs/MONITOR_UI.md).
+
+**Your prompt** goes on the `run` command line, in `$env:AGENT_TASK`, or at the interactive `Task:` prompt — not in a repo file by default.
 
 Do **not** set `OPENAI_API_KEY` or `ANTHROPIC_API_KEY` — the agent refuses paid APIs.
 

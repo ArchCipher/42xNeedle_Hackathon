@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import sys
 from pathlib import Path
 from typing import Any
@@ -26,19 +27,74 @@ from tools import ROOT, execute_tool, run_bash, tools_as_ollama_json  # noqa: E4
 LOG = AgentLogger()
 MANIFEST = ROOT / "agent_manifest.json"
 SPEC_PATH = ROOT / "secret_spec" / "SECRET_SPEC.md"
+PENDING_PROMPT_PATH = ROOT / "agent_logs" / "pending_prompt.txt"
+STRATEGY_PATH = Path(__file__).resolve().parent / "strategy.md"
 
-SYSTEM_PROMPT = """You are an autonomous coding agent for the 42 x Needle Hackathon.
+SCORE_RE = re.compile(r"(\d+)\s*/\s*(\d+)")
+CATEGORY_RE = re.compile(
+    r"([a-z][a-z0-9_]*)\s*:\s*(\d+)\s*/\s*(\d+)",
+    re.IGNORECASE,
+)
 
-Rules:
-- Build and fix the Knit compiler (knit.py and src/) to match secret_spec/SECRET_SPEC.md.
-- Use tools: bash, read_file, write_file, run_tests.
-- Make small, targeted changes. Rerun run_tests after meaningful edits.
-- When public tests pass and the spec is satisfied, reply with a short summary and stop calling tools.
+DEFAULT_AGENT_TASK = (
+    "Read secret_spec/SECRET_SPEC.md and agent/strategy.md first (read_file). "
+    "Implement knit.py compile and src/ per the spec. "
+    "Priority order: (1) CLI + exit codes, (2) output JSON schema on stdout only, "
+    "(3) row_expansion, (4) invalid_schema / invalid input, (5) edge cases. "
+    "No debug prints on stdout. Rerun run_tests after each meaningful change."
+)
 
-If native tool calls fail, use:
+SYSTEM_PROMPT = """You are an autonomous coding agent for the 42 x Needle Hackathon hidden task.
+
+## Goal
+Build the submission CLI: `knit.py compile <input_file>` implemented in `src/`, matching
+secret_spec/SECRET_SPEC.md exactly. Likely a data-transformation CLI: read structured input,
+expand rows, emit strict JSON on stdout, correct exit codes.
+
+## Mandatory first steps
+1. read_file secret_spec/SECRET_SPEC.md
+2. read_file agent/strategy.md
+3. Log mentally: CLI args, input format, output JSON schema (every key/type), row_expansion rules,
+   invalid input → exit code, stdout vs stderr rules.
+
+## Build order (do not skip)
+1. CLI wiring in knit.py → src/compile.py
+2. UTF-8 input reader + empty file handling
+3. Output JSON schema (exact key names from spec)
+4. row_expansion (highest score category)
+5. invalid_schema / bad input → exit 1, stderr only
+6. Edge cases (nulls, special chars, duplicates)
+
+## Discipline (score killers)
+- stdout: ONLY the final JSON document (one line or pretty per spec). NO debug prints.
+- stderr: all errors and diagnostics
+- exit 0 = success, non-zero = failure (unless spec defines other codes)
+- Match JSON field names and types exactly
+
+## Tools
+bash, read_file, write_file, run_tests — small targeted edits; run_tests after each fix.
+
+## Tool call format (required if native tools fail)
 <tool_call>
 {"name": "read_file", "input": {"path": "secret_spec/SECRET_SPEC.md"}}
 </tool_call>
+
+## Do NOT edit
+agent/, compiler_v2/, agent_logs/
+
+When tests pass and spec is satisfied, reply with a short summary and stop calling tools.
+"""
+
+BUILD_CHECKLIST = """
+SPEC CHECKLIST (complete before coding):
+  [ ] CLI command and arguments
+  [ ] Input format (CSV/JSON/text, encoding)
+  [ ] Output JSON schema — all keys and types
+  [ ] row_expansion definition in this spec
+  [ ] Invalid input -> exit code
+  [ ] Edge cases listed in spec
+  [ ] stdout vs stderr rules
+IMPLEMENTATION ORDER: CLI -> reader -> JSON schema -> row_expansion -> invalid handler -> edges
 """
 
 
@@ -57,6 +113,81 @@ def _load_spec_excerpt(max_chars: int = 12000) -> str:
     return text if len(text) <= max_chars else text[:max_chars] + "\n...(truncated)..."
 
 
+def _log_spec_status() -> None:
+    if SPEC_PATH.is_file():
+        size = SPEC_PATH.stat().st_size
+        LOG.decision(
+            "Spec loaded from secret_spec/SECRET_SPEC.md",
+            evidence=f"{size} bytes at {SPEC_PATH.relative_to(ROOT)}",
+            next_action="use read_file for full spec when implementing",
+        )
+    else:
+        LOG.decision(
+            "Spec file missing",
+            evidence=str(SPEC_PATH.relative_to(ROOT)),
+            next_action="copy SECRET_SPEC.md into secret_spec/ from the event repo",
+        )
+
+
+def _load_strategy_excerpt(max_chars: int = 6000) -> str:
+    if not STRATEGY_PATH.is_file():
+        return "(agent/strategy.md missing)"
+    text = STRATEGY_PATH.read_text(encoding="utf-8")
+    return text if len(text) <= max_chars else text[:max_chars] + "\n...(truncated)..."
+
+
+def _parse_test_score(output: str) -> str:
+    match = SCORE_RE.search(output)
+    if match:
+        return f"{match.group(1)}/{match.group(2)}"
+    return "see output"
+
+
+def _parse_failure_categories(output: str) -> str:
+    matches = CATEGORY_RE.findall(output)
+    if not matches:
+        return ""
+    return ", ".join(f"{name}: {got}/{total}" for name, got, total in matches)
+
+
+def _priority_failures(output: str) -> list[str]:
+    """Categories to fix first (zero score or known high-value names)."""
+    priority_names = (
+        "row_expansion",
+        "invalid_schema",
+        "invalid output schema",
+        "basic_cli",
+    )
+    found: list[str] = []
+    lower = output.lower()
+    for name in priority_names:
+        if name.replace(" ", "_") in lower or name in lower:
+            found.append(name)
+    for name, got, total in CATEGORY_RE.findall(output):
+        if int(got) == 0 and int(total) > 0:
+            label = f"{name} ({got}/{total})"
+            if label not in found:
+                found.append(label)
+    return found[:5]
+
+
+def _build_repair_message(code: int, out: str) -> str:
+    categories = _parse_failure_categories(out)
+    priorities = _priority_failures(out)
+    score = _parse_test_score(out)
+    lines = [
+        f"Tests failed (exit={code}, score={score}).",
+        "Fix with small edits in knit.py and src/ only.",
+        "stdout must be JSON only; errors on stderr.",
+    ]
+    if priorities:
+        lines.append(f"Fix FIRST: {', '.join(priorities)}")
+    if categories:
+        lines.append(f"Categories: {categories}")
+    lines.append(f"Output excerpt:\n{out[:3500]}")
+    return "\n".join(lines)
+
+
 def _sync_manifest(config: dict[str, Any]) -> None:
     if not MANIFEST.exists():
         return
@@ -71,14 +202,27 @@ def _sync_manifest(config: dict[str, Any]) -> None:
 
 def run_public_tests(command: str) -> tuple[int, str]:
     code, out = run_bash(command)
+    score = _parse_test_score(out)
+    categories = _parse_failure_categories(out)
+    priorities = _priority_failures(out)
     LOG.command(command, exit_code=code, output=out)
     LOG.test_run(
         command,
         exit_code=code,
-        score="see output",
-        failures=out[:800] if code != 0 else "",
-        notes="check after agent iteration",
+        score=score,
+        failures=categories or out[:800] if code != 0 else "",
+        notes=(
+            f"fix first: {', '.join(priorities)}"
+            if priorities
+            else ("parsed score" if score != "see output" else "check after iteration")
+        ),
     )
+    if priorities:
+        LOG.decision(
+            "Test failure priorities",
+            evidence=", ".join(priorities),
+            next_action="patch row_expansion / invalid_schema before other changes",
+        )
     return code, out
 
 
@@ -123,12 +267,31 @@ def _tool_rounds(
     return last_text
 
 
+def _consume_pending_prompt() -> str | None:
+    if not PENDING_PROMPT_PATH.is_file():
+        return None
+    text = PENDING_PROMPT_PATH.read_text(encoding="utf-8").strip()
+    if not text:
+        return None
+    if text.upper().startswith("STOP:"):
+        LOG.decision("Operator stop requested via pending_prompt.txt", evidence=text[:200])
+    else:
+        LOG.user_prompt(text, context="pending_prompt.txt from monitor UI")
+    PENDING_PROMPT_PATH.write_text("", encoding="utf-8")
+    return text
+
+
 def _run_iteration(
     client: OllamaClient,
     messages: list[dict[str, Any]],
     config: dict[str, Any],
     iteration: int,
 ) -> tuple[bool, list[dict[str, Any]]]:
+    pending = _consume_pending_prompt()
+    if pending:
+        messages.append(
+            {"role": "user", "content": f"Operator instruction (pending_prompt.txt):\n{pending}"}
+        )
     LOG.decision(f"Start iteration {iteration}", next_action="tool rounds then tests")
     summary = _tool_rounds(client, messages, config, iteration)
     done = summary and any(k in summary.lower() for k in ("done", "complete", "finished"))
@@ -138,13 +301,12 @@ def _run_iteration(
         LOG.decision("Public tests passed", reason=out[:300])
         return True, messages
 
-    LOG.error("Public tests failed", details=out[:2000], recovery="patch and retry")
-    messages.append(
-        {
-            "role": "user",
-            "content": f"Tests failed (exit={code}):\n{out[:4000]}\nFix with small edits.",
-        }
+    LOG.error(
+        "Public tests failed",
+        details=out[:2000],
+        recovery="target row_expansion and invalid_schema first",
     )
+    messages.append({"role": "user", "content": _build_repair_message(code, out)})
     return done, messages
 
 
@@ -166,13 +328,26 @@ def run_agent(task: str, max_iterations: int | None = None) -> None:
 
     LOG.user_prompt(task, context=f"model={config['primary_model']} (Ollama, free)")
     LOG.decision("Agent run started", reason=task, next_action=f"max {limit} iterations")
+    LOG.decision(
+        "Test command configured",
+        evidence=str(config["public_test_command"]),
+    )
+    _log_spec_status()
 
     client.ensure_model()
     _sync_manifest(config)
 
     messages: list[dict[str, Any]] = [
         {"role": "system", "content": SYSTEM_PROMPT},
-        {"role": "user", "content": f"Task:\n{task}\n\nSpecification:\n{_load_spec_excerpt()}"},
+        {
+            "role": "user",
+            "content": (
+                f"Task:\n{task}\n\n"
+                f"Strategy (agent/strategy.md):\n{_load_strategy_excerpt()}\n\n"
+                f"Specification:\n{_load_spec_excerpt()}\n\n"
+                f"{BUILD_CHECKLIST}"
+            ),
+        },
     ]
 
     crashes = 0
@@ -195,6 +370,21 @@ def run_agent(task: str, max_iterations: int | None = None) -> None:
         LOG.error("Max iterations reached", details=f"limit={limit}")
 
 
+def cmd_plan(_args: argparse.Namespace) -> None:
+    """Print spec checklist and log planning decisions (no Ollama)."""
+    _reject_paid_api_env()
+    config = load_config()
+    _log_spec_status()
+    LOG.decision("Planning mode", next_action="read spec then implement in src/")
+    print(BUILD_CHECKLIST)
+    print("\n--- strategy excerpt ---\n")
+    print(_load_strategy_excerpt(2000))
+    print("\n--- spec excerpt ---\n")
+    print(_load_spec_excerpt(2000))
+    print(f"\nTest command: {config['public_test_command']}")
+    LOG.decision("Plan printed", evidence="agent/strategy.md + spec excerpt")
+
+
 def cmd_doctor(_args: argparse.Namespace) -> None:
     _reject_paid_api_env()
     config = load_config()
@@ -209,6 +399,7 @@ def cmd_doctor(_args: argparse.Namespace) -> None:
         print(f"FAIL: {exc}")
         sys.exit(1)
     LOG.decision("doctor smoke test")
+    print(f"OK: test command -> {config['public_test_command']}")
     print("OK: logging works")
 
 
@@ -233,9 +424,12 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="42 x Needle agent (Ollama only)")
     sub = parser.add_subparsers(dest="cmd", required=True)
     sub.add_parser("doctor", help="Check Ollama setup")
+    sub.add_parser("plan", help="Print spec checklist and strategy (no model call)")
     run_p = sub.add_parser("run", help="Run agent loop")
     run_p.add_argument("task", nargs="?", default=os.getenv("AGENT_TASK", ""))
     run_p.add_argument("--max-iterations", type=int, default=None)
+    once_p = sub.add_parser("run-once", help="Run a single agent iteration (smoke test)")
+    once_p.add_argument("task", nargs="?", default=os.getenv("AGENT_TASK", ""))
     human_p = sub.add_parser("log-human")
     human_p.add_argument("--type", required=True)
     human_p.add_argument("--what", required=True)
@@ -251,11 +445,15 @@ def main() -> None:
     args = parser.parse_args()
     if args.cmd == "doctor":
         cmd_doctor(args)
-    elif args.cmd == "run":
-        task = args.task or input("Task: ").strip()
-        if not task:
-            sys.exit("Provide a task or set AGENT_TASK.")
-        run_agent(task, args.max_iterations)
+    elif args.cmd == "plan":
+        cmd_plan(args)
+    elif args.cmd in ("run", "run-once"):
+        task = args.task or os.getenv("AGENT_TASK", "").strip() or DEFAULT_AGENT_TASK
+        if args.cmd == "run" and not (args.task or os.getenv("AGENT_TASK")):
+            entered = input("Task (Enter for default hidden-task prompt): ").strip()
+            task = entered or DEFAULT_AGENT_TASK
+        max_iter = 1 if args.cmd == "run-once" else args.max_iterations
+        run_agent(task, max_iter)
     elif args.cmd == "log-human":
         cmd_log_human(args)
     elif args.cmd == "log-prompt":

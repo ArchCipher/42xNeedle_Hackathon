@@ -33,3 +33,8 @@ Expected agent action: Create self-tests, run them, patch if needed.
 Prompt: test prompt
 Context: scaffold
 Expected agent action: 
+
+[2026-05-21 13:12] USER_PROMPT
+Prompt: E2E audit: read secret_spec/SECRET_SPEC.md if present, then improve knit.py compile in src/ only. Run run_tests after edits.
+Context: model=qwen2.5-coder:7b (Ollama, free)
+Expected agent action: 

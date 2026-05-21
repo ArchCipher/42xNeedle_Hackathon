@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SPRK Agent Monitor</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" />
+  <style>
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --surface2: #21262d;
+      --border: #30363d;
+      --text: #e6edf3;
+      --text-muted: #8b949e;
+      --blue: #58a6ff;
+      --green: #3fb950;
+      --red: #f85149;
+      --orange: #d29922;
+      --gold: #e3b341;
+      --purple: #bc8cff;
+      --cyan: #39d353;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { min-width: 1280px; background: var(--bg); color: var(--text); font: 14px/1.5 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+    code, pre, .mono { font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace; }
+
+    @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.05)} }
+    @keyframes spin { to{transform:rotate(360deg)} }
+    @keyframes slideInRight { from{transform:translateX(120%);opacity:0} to{transform:translateX(0);opacity:1} }
+    @keyframes flashGreen { 0%,100%{background:transparent} 50%{background:rgba(63,185,80,.25)} }
+    @keyframes flashOrange { 0%,100%{background:transparent} 50%{background:rgba(210,153,34,.25)} }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.45} }
+    @keyframes dots { 0%{content:'.'} 33%{content:'..'} 66%{content:'...'} }
+
+    .topbar {
+      position: fixed; top: 0; left: 0; right: 0; height: 56px; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+      padding: 0 20px; background: var(--surface); border-bottom: 1px solid var(--border);
+    }
+    .brand { display: flex; align-items: baseline; gap: 8px; }
+    .brand strong { font-size: 18px; color: var(--blue); }
+    .brand span { font-size: 12px; color: var(--text-muted); }
+    .top-center { display: flex; align-items: center; gap: 14px; flex: 1; justify-content: center; flex-wrap: wrap; }
+    .badge { padding: 4px 12px; border-radius: 999px; font-size: 12px; font-weight: 600; text-transform: uppercase; }
+    .badge.waiting { background: var(--surface2); color: var(--text-muted); }
+    .badge.running { background: var(--green); color: #0d1117; animation: blink 1.2s infinite; }
+    .badge.repairing { background: var(--orange); color: #0d1117; }
+    .badge.done { background: var(--gold); color: #0d1117; }
+    .badge.failed { background: var(--red); color: #fff; }
+    .score-inline { display: flex; align-items: center; gap: 8px; color: var(--text-muted); font-size: 13px; }
+    .mini-bar { width: 80px; height: 6px; background: var(--surface2); border-radius: 3px; overflow: hidden; }
+    .mini-bar i { display: block; height: 100%; transition: width .5s ease; }
+    .top-right { display: flex; align-items: center; gap: 12px; }
+    .live { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; }
+    .live .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); animation: pulse 1.5s infinite; }
+    .live.idle .dot { background: var(--text-muted); animation: none; }
+    .btn { border: 1px solid var(--border); background: var(--surface2); color: var(--text); padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 13px; transition: .2s; }
+    .btn:hover { filter: brightness(1.1); }
+    .btn.start { background: var(--green); color: #0d1117; border-color: var(--green); font-weight: 600; }
+    .btn.stop { background: var(--red); color: #fff; border-color: var(--red); font-weight: 600; }
+
+    .page { padding-top: 56px; min-height: 100vh; }
+    .upper { display: flex; min-height: 400px; border-bottom: 1px solid var(--border); }
+    .pipeline-panel { width: 320px; flex-shrink: 0; background: var(--surface); border-right: 1px solid var(--border); padding: 16px; position: sticky; top: 56px; align-self: flex-start; max-height: calc(100vh - 56px); overflow-y: auto; }
+    .panel-title { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 12px; }
+    .steps { display: flex; flex-direction: column; gap: 0; }
+    .step { display: flex; gap: 10px; position: relative; padding: 10px 0; }
+    .step::before { content: ''; position: absolute; left: 11px; top: 36px; bottom: -10px; width: 2px; background: var(--border); }
+    .step:last-child::before { display: none; }
+    .step-bar { width: 4px; border-radius: 2px; background: var(--border); flex-shrink: 0; }
+    .step.waiting .step-bar { background: var(--border); }
+    .step.active .step-bar { background: var(--blue); box-shadow: 0 0 8px var(--blue); }
+    .step.done .step-bar { background: var(--green); }
+    .step.failed .step-bar { background: var(--red); }
+    .step-body { flex: 1; }
+    .step-name { font-weight: 600; font-size: 13px; }
+    .step.active .step-name { color: #fff; }
+    .step.active .step-name .spin { display: inline-block; animation: spin 1s linear infinite; }
+    .step-meta { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+    .step.done .step-meta { color: var(--text); }
+    .step.failed .step-meta { color: var(--red); }
+    .iter-box { margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--border); }
+    .progress-track { height: 8px; background: var(--surface2); border-radius: 4px; overflow: hidden; margin: 6px 0; }
+    .progress-fill { height: 100%; background: var(--blue); transition: width .5s ease; }
+
+    .feed-panel { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+    .feed-head { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid var(--border); gap: 12px; }
+    .feed-head h2 { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--text-muted); }
+    .feed-tools { display: flex; gap: 8px; align-items: center; }
+    .feed-tools input, .feed-tools select { background: var(--surface2); border: 1px solid var(--border); color: var(--text); padding: 6px 10px; border-radius: 6px; font-size: 12px; }
+    .feed-list { height: 400px; overflow-y: auto; padding: 8px 12px; }
+    .log-entry { padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 8px; background: var(--surface); transition: background .2s; }
+    .log-entry:hover { background: var(--surface2); }
+    .log-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 6px; }
+    .log-ts { color: var(--text-muted); font-size: 12px; }
+    .pill { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; }
+    .pill.USER_PROMPT { background: var(--blue); color: #0d1117; }
+    .pill.DECISION { background: var(--gold); color: #0d1117; }
+    .pill.COMMAND { background: var(--surface2); color: var(--cyan); border: 1px solid var(--border); }
+    .pill.OUTPUT { background: var(--surface2); color: var(--text-muted); }
+    .pill.TEST_RUN { background: var(--green); color: #0d1117; }
+    .pill.TEST_RUN.fail { background: var(--orange); }
+    .pill.ERROR { background: var(--red); color: #fff; }
+    .pill.HUMAN_INTERVENTION, .pill.HUMAN { background: var(--purple); color: #0d1117; }
+    .log-src { margin-left: auto; font-size: 10px; color: var(--text-muted); }
+    .log-msg { font-size: 12px; white-space: pre-wrap; word-break: break-word; line-height: 1.45; }
+    .log-msg.collapsed { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+    .show-more { color: var(--blue); cursor: pointer; font-size: 11px; margin-top: 4px; }
+
+    .score-section { background: var(--surface); border-bottom: 1px solid var(--border); padding: 14px 20px; }
+    .score-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; cursor: pointer; }
+    .score-rows { display: flex; flex-direction: column; gap: 8px; }
+    .score-row { display: grid; grid-template-columns: 90px 1fr 70px 50px 32px; gap: 10px; align-items: center; font-size: 12px; padding: 6px 8px; border-radius: 6px; transition: background .2s; }
+    .score-row.best { border-left: 3px solid var(--gold); }
+    .score-row.flash-up { animation: flashGreen .8s; }
+    .score-row.flash-down { animation: flashOrange .8s; }
+    .bar-wrap { height: 10px; background: var(--surface2); border-radius: 5px; overflow: hidden; }
+    .bar-fill { height: 100%; transition: width .5s ease; }
+    .delta.up { color: var(--green); }
+    .delta.down { color: var(--red); }
+    .delta.zero { color: var(--text-muted); }
+    .running-dots::after { content: ''; animation: dots 1.2s infinite; }
+
+    .bottom-half { display: flex; min-height: 280px; border-bottom: 1px solid var(--border); }
+    .failure-panel, .code-panel { flex: 1; padding: 16px; overflow: auto; }
+    .failure-panel { border-right: 1px solid var(--border); }
+    .sub { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 10px; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); }
+    th { color: var(--text-muted); font-weight: 600; font-size: 11px; text-transform: uppercase; }
+    tr.row-fail td { background: rgba(248,81,73,.08); }
+    tr.row-partial td { background: rgba(210,153,34,.08); }
+    tr.row-pass td { background: rgba(63,185,80,.06); }
+    .cat-bar { height: 6px; background: var(--surface2); border-radius: 3px; overflow: hidden; }
+    .cat-bar i { display: block; height: 100%; }
+
+    .code-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .code-wrap { max-height: 400px; overflow: auto; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; position: relative; }
+    .code-wrap pre { margin: 0; padding: 12px 12px 12px 48px; font-size: 12px; }
+    .line-nums { position: absolute; left: 0; top: 0; padding: 12px 8px; color: var(--text-muted); font-size: 11px; text-align: right; user-select: none; border-right: 1px solid var(--border); background: var(--surface); }
+    .placeholder { padding: 40px; text-align: center; color: var(--text-muted); animation: pulse 2s infinite; }
+
+    .tabs-wrap { background: var(--surface); }
+    .tab-bar { display: flex; border-bottom: 1px solid var(--border); padding: 0 12px; gap: 4px; overflow-x: auto; }
+    .tab-btn { background: none; border: none; color: var(--text-muted); padding: 12px 16px; cursor: pointer; font-size: 13px; border-bottom: 2px solid transparent; transition: .2s; white-space: nowrap; }
+    .tab-btn.active { color: var(--blue); border-bottom-color: var(--blue); }
+    .tab-badge { background: var(--red); color: #fff; font-size: 10px; padding: 1px 6px; border-radius: 10px; margin-left: 4px; }
+    .tab-badge.purple { background: var(--purple); color: #0d1117; }
+    .tab-pane { display: none; padding: 16px 20px; min-height: 320px; max-height: 420px; overflow-y: auto; }
+    .tab-pane.active { display: block; }
+    .control-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    textarea { width: 100%; background: var(--surface2); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 10px; font: 13px/1.4 inherit; resize: vertical; }
+    .quick-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 10px 0; }
+    .quick-grid .btn { font-size: 12px; }
+    .btn-send { width: 100%; background: var(--green); color: #0d1117; border: none; font-weight: 700; padding: 10px; margin-top: 8px; }
+    .btn-human { width: 100%; background: var(--purple); color: #0d1117; border: none; font-weight: 700; padding: 10px; margin-top: 8px; }
+    .history { margin-top: 12px; font-size: 12px; }
+    .history-item { display: flex; justify-content: space-between; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--border); }
+    .history-item button { font-size: 11px; color: var(--blue); background: none; border: none; cursor: pointer; }
+    .tab-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin-bottom: 10px; }
+    .tab-card.prompt { border-left: 3px solid var(--blue); }
+    .tab-card.decision { border-left: 3px solid var(--gold); }
+    .tab-card.error { border-left: 3px solid var(--red); }
+    .tab-card.human { border-left: 3px solid var(--purple); }
+    .tab-toolbar { display: flex; gap: 8px; margin-bottom: 12px; align-items: center; }
+    .tab-toolbar input { flex: 1; }
+    .empty { color: var(--text-muted); text-align: center; padding: 24px; }
+
+    .toasts { position: fixed; bottom: 20px; right: 20px; z-index: 200; display: flex; flex-direction: column; gap: 8px; max-width: 360px; }
+    .toast { padding: 12px 16px; border-radius: 8px; color: #0d1117; font-size: 13px; font-weight: 600; animation: slideInRight .3s ease; box-shadow: 0 4px 20px rgba(0,0,0,.4); }
+    .toast.ok { background: var(--green); }
+    .toast.warn { background: var(--orange); }
+    .toast.err { background: var(--red); color: #fff; }
+    .toast.info { background: var(--blue); color: #0d1117; }
+
+    .modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.6); z-index: 150; align-items: center; justify-content: center; }
+    .modal-bg.open { display: flex; }
+    .modal { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; width: 480px; max-width: 90vw; }
+    .modal h3 { margin-bottom: 12px; }
+    .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
+
+    .help-btn { position: fixed; bottom: 20px; left: 20px; z-index: 50; width: 36px; height: 36px; border-radius: 50%; background: var(--surface2); border: 1px solid var(--border); color: var(--text); cursor: pointer; }
+    .error-banner { display: none; background: rgba(248,81,73,.15); border-bottom: 1px solid var(--red); color: var(--red); padding: 8px 20px; font-size: 13px; text-align: center; }
+    .error-banner.show { display: block; }
+    .load-more { width: 100%; margin-bottom: 8px; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div class="error-banner" id="errorBanner"></div>
+
+  <header class="topbar">
+    <div class="brand"><span>🤖</span><strong>SPRK</strong><span>AGENT MONITOR</span></div>
+    <div class="top-center">
+      <span class="badge waiting" id="statusBadge">WAITING</span>
+      <span id="attemptText" class="mono">Attempt 0 / 15</span>
+      <div class="score-inline">
+        <span id="scoreText">Score: —</span>
+        <div class="mini-bar"><i id="scoreMiniBar" style="width:0%"></i></div>
+      </div>
+      <span id="elapsedText" class="mono">Running for 0m</span>
+    </div>
+    <div class="top-right">
+      <span id="lastUpdateText" style="font-size:11px;color:var(--text-muted)">Last updated —</span>
+      <div class="live idle" id="liveIndicator"><span class="dot"></span><span id="liveLabel">IDLE</span></div>
+      <button class="btn start" id="btnStart">▶ START</button>
+      <button class="btn stop" id="btnStop">■ STOP</button>
+    </div>
+  </header>
+
+  <div class="page">
+    <div class="upper">
+      <aside class="pipeline-panel">
+        <div class="panel-title">Pipeline</div>
+        <div class="steps" id="pipelineSteps"></div>
+        <div class="iter-box">
+          <div class="panel-title">Progress</div>
+          <div>Iterations: <strong id="iterCount">0 / 15</strong></div>
+          <div class="progress-track"><div class="progress-fill" id="iterBar" style="width:0%"></div></div>
+          <div style="margin-top:8px;font-size:12px">Best score: <strong id="bestScore">—</strong></div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:4px" id="lastImprove">Last improvement: —</div>
+        </div>
+      </aside>
+      <section class="feed-panel">
+        <div class="feed-head">
+          <h2>Live Log Feed <span id="feedCount" style="color:var(--text-muted)">0</span></h2>
+          <div class="feed-tools">
+            <button class="btn load-more" id="btnLoadMore" style="display:none">Load more</button>
+            <select id="feedFilter"><option value="ALL">ALL</option><option value="USER_PROMPT">PROMPT</option><option value="DECISION">DECISION</option><option value="COMMAND">COMMAND</option><option value="TEST_RUN">TEST</option><option value="ERROR">ERROR</option><option value="HUMAN">HUMAN</option></select>
+            <input type="search" id="feedSearch" placeholder="Search logs…" style="width:200px" />
+          </div>
+        </div>
+        <div class="feed-list" id="feedList"><div class="empty">No log entries yet. Start your agent to begin monitoring.</div></div>
+      </section>
+    </div>
+
+    <section class="score-section" id="scoreSection">
+      <div class="score-head" id="scoreToggle">
+        <div><span class="panel-title" style="margin:0">Score progression</span> <span class="badge done" id="currentScoreBadge" style="font-size:11px">—</span></div>
+        <span style="color:var(--text-muted);font-size:12px">▼ click to collapse</span>
+      </div>
+      <div class="score-rows" id="scoreRows"><div class="empty">No test runs yet.</div></div>
+    </section>
+
+    <div class="bottom-half">
+      <div class="failure-panel">
+        <div class="panel-title">Failure analysis</div>
+        <div class="sub">from latest test run</div>
+        <div id="failureSummary" style="font-size:12px;margin-top:8px;color:var(--text-muted)"></div>
+        <table id="failureTable"><thead><tr><th>Category</th><th>Passed</th><th>Total</th><th>Progress</th><th>Status</th></tr></thead><tbody id="failureBody"><tr><td colspan="5" class="empty">Waiting for first test run…</td></tr></tbody></table>
+      </div>
+      <div class="code-panel">
+        <div class="code-head">
+          <div><div class="panel-title" style="margin:0">solution.py</div><div class="sub" id="codeMeta">Last updated —</div></div>
+          <button class="btn" id="btnCopyCode">Copy</button>
+        </div>
+        <div class="code-wrap" id="codeWrap"><div class="placeholder" id="codePlaceholder">solution.py not created yet. Agent will write it soon.</div></div>
+      </div>
+    </div>
+
+    <section class="tabs-wrap">
+      <div class="tab-bar" id="tabBar"></div>
+      <div class="tab-pane active" id="tab-control" data-tab="control">
+        <div class="control-grid">
+          <div>
+            <h3>Send instruction to agent</h3>
+            <p class="sub">Agent picks up <code class="mono">agent_logs/pending_prompt.txt</code> on next loop iteration</p>
+            <textarea id="promptInput" rows="4" placeholder="Type your instruction for the agent…"></textarea>
+            <div class="quick-grid" id="quickPrompts"></div>
+            <button class="btn-send" id="btnSendPrompt">🚀 SEND TO AGENT</button>
+            <div class="history" id="promptHistory"></div>
+          </div>
+          <div>
+            <h3>Log human intervention</h3>
+            <p class="sub">Required by hackathon rules. All manual actions must be logged.</p>
+            <textarea id="humanInput" rows="3" placeholder="Describe what you did manually…"></textarea>
+            <div class="quick-grid" id="quickHuman"></div>
+            <button class="btn-human" id="btnLogHuman">⚠️ LOG INTERVENTION</button>
+            <div class="history" id="humanHistory"></div>
+          </div>
+        </div>
+      </div>
+      <div class="tab-pane" id="tab-prompts" data-tab="prompts"></div>
+      <div class="tab-pane" id="tab-decisions" data-tab="decisions"></div>
+      <div class="tab-pane" id="tab-commands" data-tab="commands"></div>
+      <div class="tab-pane" id="tab-tests" data-tab="tests"></div>
+      <div class="tab-pane" id="tab-errors" data-tab="errors"></div>
+      <div class="tab-pane" id="tab-human" data-tab="human"></div>
+    </section>
+  </div>
+
+  <button class="help-btn" id="btnHelp" title="Keyboard shortcuts">?</button>
+  <div class="toasts" id="toasts"></div>
+
+  <div class="modal-bg" id="stopModal">
+    <div class="modal">
+      <h3>Stop agent</h3>
+      <p class="sub" style="margin-bottom:10px">Log what you are doing before stopping (hackathon requirement).</p>
+      <textarea id="stopReason" rows="3" placeholder="e.g. Stopping agent for the night. Will restart tomorrow."></textarea>
+      <div class="modal-actions">
+        <button class="btn" id="stopCancel">Cancel</button>
+        <button class="btn stop" id="stopConfirm">Log &amp; queue stop</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-bg" id="helpModal">
+    <div class="modal">
+      <h3>Keyboard shortcuts</h3>
+      <pre class="mono" style="font-size:12px;color:var(--text-muted)">Ctrl+Enter  Send prompt (textarea focused)
+Ctrl+K      Focus prompt textarea
+Ctrl+1-7    Switch tabs
+Escape      Close modal / clear search
+R           Force refresh logs now</pre>
+      <div class="modal-actions"><button class="btn" id="helpClose">Close</button></div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+  <script>
+(function () {
+  'use strict';
+
+  const API = 'http://127.0.0.1:8765/write';
+  const REFRESH_MS = 3000;
+  const MAX_ATTEMPTS = 15;
+  const MAX_FEED = 200;
+  const IDLE_SEC = 10;
+  const STALE_SEC = 30;
+
+  const PIPELINE = [
+    { n: 1, icon: '📄', name: 'Read Spec', keys: ['reading spec', 'read spec', 'secret_spec', 'spec.md', 'secret_spec.md'] },
+    { n: 2, icon: '🧠', name: 'Plan Implementation', keys: ['plan', 'planning', 'implementation plan'] },
+    { n: 3, icon: '✍️', name: 'Write Code', keys: ['writing', 'implementing', 'generated code', 'wrote ', 'solution.py', 'knit.py'] },
+    { n: 4, icon: '🧪', name: 'Run Tests', keys: ['running tests', 'test run', 'test_run', 'public test'] },
+    { n: 5, icon: '🔍', name: 'Analyze Failures', keys: ['analyzing', 'failure', 'inspect', 'categories', 'failing'] },
+    { n: 6, icon: '🔧', name: 'Repair Code', keys: ['repair', 'fixing', 'patching', 'fix with', 'recovery'] },
+    { n: 7, icon: '🔁', name: 'Next Attempt / Loop', keys: ['attempt', 'loop', 'retry', 'iteration', 'max iterations'] }
+  ];
+
+  const QUICK_PROMPTS = [
+    ['🔁 Re-run Tests', 'Run the public tests again and report the exact score and failing categories.'],
+    ['🔍 Fix Top Errors', 'Look at the most common failing test category and fix those cases specifically.'],
+    ['✍️ Rewrite Code', 'The current approach is not working. Scrap solution.py and rewrite from scratch based on the spec.'],
+    ['📄 Re-read Spec', 'Re-read secret_spec/SECRET_SPEC.md and secret_spec/spec.md carefully. Did we miss any requirements? List what we might have missed.'],
+    ['💪 Try Harder', 'Review all failing tests. What is the root cause? Fix the most impactful issue first.'],
+    ['🎯 Focus Edge Cases', 'Look at the edge cases in the spec. Are we handling all of them? Fix any missing ones.']
+  ];
+
+  const QUICK_HUMAN = [
+    ['Restarted agent', 'Restarted agent after it froze. Did not edit solution.py.'],
+    ['Fixed dependencies', 'Fixed missing dependency manually (pip install).'],
+    ['Changed prompt', 'Changed agent prompt / pending_prompt.txt manually.'],
+    ['Killed frozen process', 'Killed frozen agent process and restarted monitor.']
+  ];
+
+  const state = {
+    status: 'WAITING',
+    attempt: 0,
+    scores: [],
+    currentStep: 0,
+    lastUpdate: null,
+    startTime: Date.now(),
+    errors: [],
+    interventions: [],
+    allEntries: [],
+    feedLimit: MAX_FEED,
+    logs: {},
+    solution: '',
+    prevSolution: '',
+    promptHistory: JSON.parse(localStorage.getItem('sprk_prompts') || '[]'),
+    humanHistory: JSON.parse(localStorage.getItem('sprk_human') || '[]'),
+    lastScore: null,
+    lastErrorCount: 0,
+    scoreCollapsed: false
+  };
+
+  const $ = (id) => document.getElementById(id);
+
+  function tsNow() {
+    const d = new Date();
+    const p = (n) => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
+  }
+
+  function toast(msg, type = 'ok') {
+    const el = document.createElement('div');
+    el.className = 'toast ' + (type === 'success' ? 'ok' : type === 'error' ? 'err' : type === 'warning' ? 'warn' : type === 'info' ? 'info' : 'ok');
+    el.textContent = msg;
+    $('toasts').appendChild(el);
+    const list = $('toasts').children;
+    while (list.length > 3) list[0].remove();
+    setTimeout(() => el.remove(), 3000);
+  }
+
+  async function postFile(file, content, mode = 'w') {
+    const res = await fetch(API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ file, content, mode })
+    });
+    if (!res.ok) throw new Error(await res.text());
+    return res.json();
+  }
+
+  async function fetchText(path) {
+    try {
+      const r = await fetch(path + '?t=' + Date.now());
+      if (!r.ok) return '';
+      return await r.text();
+    } catch (e) {
+      return '';
+    }
+  }
+
+  function normalizeLabel(label) {
+    const u = (label || '').toUpperCase();
+    if (u === 'USER_PROMPT' || u.startsWith('USER')) return 'USER_PROMPT';
+    if (u === 'TEST_RUN') return 'TEST_RUN';
+    if (u === 'DECISION') return 'DECISION';
+    if (u === 'COMMAND') return 'COMMAND';
+    if (u === 'ERROR') return 'ERROR';
+    if (u.includes('HUMAN') || u === 'PROMPT_EDIT' || u === 'AGENT_RESTART' || u === 'SETUP_FIX') return 'HUMAN_INTERVENTION';
+    return label || 'OUTPUT';
+  }
+
+  function parseLogFile(text, source) {
+    if (!text || !text.trim()) return [];
+    const cleaned = text.replace(/^#.*\n/gm, '').trim();
+    const parts = cleaned.split(/\n(?=\[\d{4}-\d{2}-\d{2} \d{2}:\d{2}\])/);
+    const entries = [];
+    for (const part of parts) {
+      const m = part.match(/^\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2})\]\s*([A-Z_]+)/);
+      if (!m) continue;
+      const label = normalizeLabel(m[2]);
+      let message = part.slice(m[0].length).trim();
+      if (!message && part.includes('\n')) message = part.split('\n').slice(1).join('\n').trim();
+      entries.push({ timestamp: m[1], label, message, source });
+    }
+    return entries;
+  }
+
+  function parseScores(text) {
+    const entries = parseLogFile(text, 'test_runs.log');
+    const scores = [];
+    entries.forEach((e) => {
+      let passed = 0, total = 100;
+      const sm = e.message.match(/Score:\s*(\d+)\/(\d+)/i);
+      const gm = !sm ? e.message.match(/(\d+)\/(\d+)/) : null;
+      if (sm) { passed = +sm[1]; total = +sm[2]; }
+      else if (gm) { passed = +gm[1]; total = +gm[2]; }
+      if (sm || gm || /exit code:\s*0/i.test(e.message)) {
+        scores.push({
+          attempt: scores.length + 1,
+          passed,
+          total,
+          raw: e.message,
+          timestamp: e.timestamp,
+          exitOk: /exit code:\s*0/i.test(e.message),
+        });
+      }
+    });
+    const global = [...text.matchAll(/Score:\s*(\d+)\/(\d+)/gi)];
+    if (!scores.length && global.length) {
+      global.forEach((m, i) => scores.push({ attempt: i + 1, passed: +m[1], total: +m[2], raw: m[0], timestamp: '' }));
+    }
+    return scores;
+  }
+
+  function parseCategories(text) {
+    const cats = {};
+    const latest = parseLogFile(text, 'test_runs.log').pop();
+    if (!latest) return cats;
+    const block = latest.message;
+    const failLine = block.match(/Failure categories:\s*(.+)/i);
+    if (failLine) {
+      failLine[1].split(',').forEach((chunk) => {
+        const cm = chunk.trim().match(/([a-z_]+):\s*(\d+)\s*\/\s*(\d+)/i);
+        if (cm) cats[cm[1]] = { passed: +cm[2], total: +cm[3] };
+        else if (chunk.trim()) cats[chunk.trim().replace(/\s+/g, '_')] = { passed: 0, total: 1 };
+      });
+    }
+    [...block.matchAll(/([a-z][a-z0-9_]*)\s*:\s*(\d+)\s*\/\s*(\d+)/gi)].forEach((m) => {
+      cats[m[1]] = { passed: +m[2], total: +m[3] };
+    });
+    return cats;
+  }
+
+  function detectStep(decisionsText) {
+    const tail = (decisionsText || '').slice(-800).toLowerCase();
+    let step = 0;
+    for (const s of PIPELINE) {
+      if (s.keys.some((k) => tail.includes(k))) step = s.n;
+    }
+    return step || (tail ? 1 : 0);
+  }
+
+  function barColor(pct) {
+    if (pct < 50) return 'var(--red)';
+    if (pct < 80) return 'var(--orange)';
+    return 'var(--green)';
+  }
+
+  function determineStatus(logs, scores) {
+    const err = (logs.errors || '').toLowerCase();
+    const dec = (logs.decisions || '').toLowerCase();
+    const tests = (logs.test_runs || '').toLowerCase();
+    const any = Object.values(logs).some((v) => v && v.trim());
+    if (!any) return 'WAITING';
+    if (err.includes('fatal') || err.includes('crash') || err.includes('agent crash')) return 'FAILED';
+    const last = scores[scores.length - 1];
+    if (last && last.passed >= last.total && last.total > 0) return 'DONE';
+    if (tests.includes('all passed') || dec.includes('public tests passed')) return 'DONE';
+    if (dec.includes('repair') || dec.includes('fixing') || dec.includes('patch') || err.includes('public tests failed')) return 'REPAIRING';
+    if (any) return 'RUNNING';
+    return 'WAITING';
+  }
+
+  function formatElapsed(ms) {
+    const s = Math.floor(ms / 1000);
+    const h = Math.floor(s / 3600);
+    const m = Math.floor((s % 3600) / 60);
+    return h ? `${h}h ${m}m` : `${m}m`;
+  }
+
+  function renderPipeline(step, scores) {
+    const html = PIPELINE.map((s) => {
+      let st = 'waiting', meta = 'Waiting', prefix = '⏳';
+      if (s.n < step) { st = 'done'; meta = 'Completed'; prefix = '✅'; }
+      else if (s.n === step) { st = 'active'; meta = 'Running…'; prefix = '<span class="spin">⚙️</span>'; }
+      if (state.status === 'FAILED' && s.n === step) { st = 'failed'; meta = 'Failed'; prefix = '❌'; }
+      return `<div class="step ${st}" data-step="${s.n}"><div class="step-bar"></div><div class="step-body"><div class="step-name">${prefix} ${s.icon} ${s.name}</div><div class="step-meta">${meta}</div></div></div>`;
+    }).join('');
+    $('pipelineSteps').innerHTML = html;
+    const att = Math.min(scores.length, MAX_ATTEMPTS);
+    state.attempt = att;
+    $('iterCount').textContent = `${att} / ${MAX_ATTEMPTS}`;
+    $('iterBar').style.width = `${(att / MAX_ATTEMPTS) * 100}%`;
+    const best = scores.reduce((a, b) => (!a || b.passed / b.total > a.passed / a.total ? b : a), null);
+    $('bestScore').textContent = best ? `${best.passed}/${best.total}` : '—';
+  }
+
+  function renderTop() {
+    const badge = $('statusBadge');
+    badge.textContent = state.status;
+    badge.className = 'badge ' + state.status.toLowerCase();
+    $('attemptText').textContent = `Attempt ${state.attempt} / ${MAX_ATTEMPTS}`;
+    const last = state.scores[state.scores.length - 1];
+    if (last && last.total) {
+      const pct = Math.round((last.passed / last.total) * 100);
+      $('scoreText').textContent = `Score: ${last.passed}/${last.total}`;
+      $('scoreMiniBar').style.width = pct + '%';
+      $('scoreMiniBar').style.background = barColor(pct);
+    } else $('scoreText').textContent = 'Score: —';
+    $('elapsedText').textContent = 'Running for ' + formatElapsed(Date.now() - state.startTime);
+    const sec = state.lastUpdate ? Math.floor((Date.now() - state.lastUpdate) / 1000) : null;
+    $('lastUpdateText').textContent = sec != null ? `Last updated ${sec}s ago` : 'Last updated —';
+    const live = $('liveIndicator');
+    const idle = sec == null || sec >= IDLE_SEC;
+    live.classList.toggle('idle', idle);
+    $('liveLabel').textContent = idle ? 'IDLE' : 'LIVE';
+    if (sec != null && sec >= STALE_SEC && state.status === 'RUNNING') {
+      toast('⏸️ No agent activity for 30s', 'warn');
+    }
+  }
+
+  function renderFeed() {
+    const q = ($('feedSearch').value || '').toLowerCase();
+    const filt = $('feedFilter').value;
+    let entries = state.allEntries.slice().reverse();
+    if (filt !== 'ALL') entries = entries.filter((e) => e.label === filt || (filt === 'HUMAN' && e.label.includes('HUMAN')));
+    if (q) entries = entries.filter((e) => (e.message + e.label + e.timestamp).toLowerCase().includes(q));
+    const shown = entries.slice(0, state.feedLimit);
+    $('feedCount').textContent = shown.length;
+    $('btnLoadMore').style.display = entries.length > state.feedLimit ? 'block' : 'none';
+    if (!shown.length) {
+      $('feedList').innerHTML = '<div class="empty">No log entries yet. Start your agent to begin monitoring.</div>';
+      return;
+    }
+    $('feedList').innerHTML = shown.map((e) => {
+      const fail = e.label === 'TEST_RUN' && /exit code:\s*[^0\n]|fail/i.test(e.message);
+      const pillClass = e.label + (fail ? ' fail' : '');
+      const id = 'msg_' + e.timestamp.replace(/\W/g, '') + e.label;
+      return `<div class="log-entry"><div class="log-head"><span class="log-ts">[${e.timestamp}]</span><span class="pill ${pillClass}">${e.label}</span><span class="log-src">${e.source}</span></div><div class="log-msg collapsed" id="${id}">${escapeHtml(e.message)}</div><div class="show-more" data-target="${id}">show more</div></div>`;
+    }).join('');
+    $('feedList').querySelectorAll('.show-more').forEach((btn) => {
+      btn.onclick = () => {
+        const t = $(btn.dataset.target);
+        if (t.classList.contains('collapsed')) { t.classList.remove('collapsed'); btn.textContent = 'show less'; }
+        else { t.classList.add('collapsed'); btn.textContent = 'show more'; }
+      };
+    });
+    if (state.autoScrollFeed !== false) $('feedList').scrollTop = $('feedList').scrollHeight;
+  }
+
+  function escapeHtml(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function renderScores() {
+    const rows = $('scoreRows');
+    if (!state.scores.length) {
+      rows.innerHTML = '<div class="empty">No test runs yet.</div>';
+      $('currentScoreBadge').textContent = '—';
+      return;
+    }
+    let bestI = 0;
+    state.scores.forEach((s, i) => { if (s.passed / s.total > state.scores[bestI].passed / state.scores[bestI].total) bestI = i; });
+    rows.innerHTML = state.scores.map((s, i) => {
+      const pct = s.total ? (s.passed / s.total) * 100 : 0;
+      const prev = i ? state.scores[i - 1] : null;
+      const delta = prev && s.total ? s.passed - prev.passed : 0;
+      const deltaCls = delta > 0 ? 'up' : delta < 0 ? 'down' : 'zero';
+      const deltaTxt = i === 0 ? '—' : (delta > 0 ? `+${delta}` : String(delta));
+      const running = i === state.scores.length - 1 && state.status === 'RUNNING' && !s.exitOk;
+      const flash = s._flash || '';
+      return `<div class="score-row ${i === bestI ? 'best' : ''} ${flash}" title="${escapeHtml(s.raw || '')}"><span>Attempt ${s.attempt}</span><div class="bar-wrap"><div class="bar-fill" style="width:${pct}%;background:${barColor(pct)}"></div></div><span>${s.passed}/${s.total}</span><span class="delta ${deltaCls}">${deltaTxt}</span><span>${running ? '<span class="running-dots">🔄</span>' : (s.exitOk || pct >= 100 ? '✅' : '❌')}</span></div>`;
+    }).join('');
+    const last = state.scores[state.scores.length - 1];
+    $('currentScoreBadge').textContent = `${last.passed}/${last.total}`;
+    if (state.lastScore != null && last.passed > state.lastScore) toast(`🎉 Score improved! +${last.passed - state.lastScore} points`, 'success');
+    state.lastScore = last.passed;
+  }
+
+  function renderFailures() {
+    const cats = parseCategories(state.logs.test_runs || '');
+    const tbody = $('failureBody');
+    const keys = Object.keys(cats);
+    if (!keys.length) {
+      tbody.innerHTML = '<tr><td colspan="5" class="empty">No test data yet. Waiting for first run…</td></tr>';
+      $('failureSummary').textContent = '';
+      return;
+    }
+    const rows = keys.map((k) => {
+      const { passed, total } = cats[k];
+      const pct = total ? (passed / total) * 100 : 0;
+      let cls = 'row-partial', status = '⚠️ PARTIAL';
+      if (passed === 0) { cls = 'row-fail'; status = '❌ FAILING'; }
+      else if (passed >= total) { cls = 'row-pass'; status = '✅ PASSING'; }
+      return { k, passed, total, pct, cls, status };
+    }).sort((a, b) => a.pct - b.pct);
+    tbody.innerHTML = rows.map((r) => `<tr class="${r.cls}"><td>${r.k}</td><td>${r.passed}</td><td>${r.total}</td><td><div class="cat-bar"><i style="width:${r.pct}%;background:${barColor(r.pct)}"></i></div></td><td>${r.status}</td></tr>`).join('');
+    const failN = rows.filter((r) => r.passed === 0).length;
+    const partN = rows.filter((r) => r.passed > 0 && r.passed < r.total).length;
+    const passN = rows.filter((r) => r.passed >= r.total).length;
+    const totP = rows.reduce((a, r) => a + r.passed, 0);
+    const totT = rows.reduce((a, r) => a + r.total, 0);
+    $('failureSummary').innerHTML = `Total: ${totP}/${totT} category points · <span style="color:var(--red)">${failN} fully failing</span> · <span style="color:var(--orange)">${partN} partial</span> · <span style="color:var(--green)">${passN} passing</span>`;
+  }
+
+  function renderCode() {
+    const code = state.solution;
+    const wrap = $('codeWrap');
+    if (!code.trim()) {
+      wrap.innerHTML = '<div class="placeholder" id="codePlaceholder">solution.py not created yet. Agent will write it soon.</div>';
+      $('codeMeta').textContent = 'Last updated —';
+      return;
+    }
+    const lines = code.split('\n');
+    const showAll = wrap.dataset.showAll === '1';
+    const display = showAll ? code : lines.slice(0, 200).join('\n');
+    const nums = display.split('\n').map((_, i) => i + 1).join('\n');
+    wrap.innerHTML = `<div class="line-nums">${nums}</div><pre><code class="language-python" id="solutionCode">${escapeHtml(display)}</code></pre>`;
+    if (lines.length > 200 && !showAll) {
+      const btn = document.createElement('button');
+      btn.className = 'btn';
+      btn.style.margin = '8px';
+      btn.textContent = `Show all ${lines.length} lines`;
+      btn.onclick = () => { wrap.dataset.showAll = '1'; renderCode(); };
+      wrap.appendChild(btn);
+    }
+    hljs.highlightElement($('solutionCode'));
+    $('codeMeta').textContent = `Last updated recently · ${lines.length} lines`;
+    if (state.prevSolution && state.prevSolution !== code) wrap.classList.add('flash-up'), setTimeout(() => wrap.classList.remove('flash-up'), 800);
+    state.prevSolution = code;
+  }
+
+  function renderTab(name, entries, theme) {
+    const pane = $('tab-' + name);
+    const q = pane.querySelector('.tab-search');
+    const search = q ? q.value.toLowerCase() : '';
+    let list = entries;
+    if (search) list = list.filter((e) => (e.message + e.timestamp).toLowerCase().includes(search));
+    if (!list.length) {
+      pane.innerHTML = `<div class="tab-toolbar"><input class="tab-search" type="search" placeholder="Search…" data-tab="${name}" /><span class="sub">0 entries</span><button class="btn copy-tab" data-copy="${name}">📋 Copy All</button></div><div class="empty">${theme.empty}</div>`;
+      bindTabTools(name);
+      return;
+    }
+    const cards = list.map((e) => `<div class="tab-card ${theme.cls}"><div class="mono" style="font-size:11px;color:var(--text-muted)">[${e.timestamp}] ${e.label}</div><pre style="white-space:pre-wrap;font-size:12px;margin-top:6px">${escapeHtml(e.message)}</pre></div>`).join('');
+    pane.innerHTML = `<div class="tab-toolbar"><input class="tab-search" type="search" placeholder="Search…" data-tab="${name}" /><span class="sub">${list.length} entries</span><button class="btn copy-tab" data-copy="${name}">📋 Copy All</button></div>${cards}`;
+    bindTabTools(name);
+  }
+
+  function bindTabTools(name) {
+    const pane = $('tab-' + name);
+    const inp = pane.querySelector('.tab-search');
+    if (inp) inp.oninput = () => renderAllTabs();
+    pane.querySelector('.copy-tab')?.addEventListener('click', () => {
+      const entries = getTabEntries(name);
+      navigator.clipboard.writeText(entries.map((e) => `[${e.timestamp}] ${e.label}\n${e.message}`).join('\n\n'));
+      toast('Copied to clipboard', 'info');
+    });
+  }
+
+  function getTabEntries(name) {
+    const map = { prompts: 'USER_PROMPT', decisions: 'DECISION', commands: 'COMMAND', tests: 'TEST_RUN', errors: 'ERROR', human: 'HUMAN' };
+    const want = map[name];
+    return state.allEntries.filter((e) => e.label === want || (name === 'human' && e.label.includes('HUMAN')));
+  }
+
+  function renderAllTabs() {
+    renderTab('prompts', getTabEntries('prompts'), { cls: 'prompt', empty: 'Log file is empty.' });
+    renderTab('decisions', getTabEntries('decisions'), { cls: 'decision', empty: 'Log file is empty.' });
+    renderTab('commands', getTabEntries('commands'), { cls: '', empty: 'Log file is empty.' });
+    renderTab('tests', getTabEntries('tests'), { cls: '', empty: 'Log file is empty.' });
+    const errs = getTabEntries('errors');
+    renderTab('errors', errs, { cls: 'error', empty: '✅ No errors logged yet.' });
+    renderTab('human', getTabEntries('human'), { cls: 'human', empty: '✅ No interventions logged. Agent is running autonomously.' });
+    $('tab-errors').dataset.count = errs.length;
+    updateTabBadges();
+  }
+
+  function updateTabBadges() {
+    document.querySelectorAll('.tab-btn').forEach((btn) => {
+      const tab = btn.dataset.tab;
+      let badge = btn.querySelector('.tab-badge');
+      if (tab === 'errors') {
+        const n = getTabEntries('errors').length;
+        if (n) { if (!badge) { badge = document.createElement('span'); badge.className = 'tab-badge'; btn.appendChild(badge); } badge.textContent = n; }
+        else if (badge) badge.remove();
+      }
+      if (tab === 'human') {
+        const n = getTabEntries('human').length + state.humanHistory.length;
+        if (n) { if (!badge) { badge = document.createElement('span'); badge.className = 'tab-badge purple'; btn.appendChild(badge); } badge.textContent = n; }
+        else if (badge) badge.remove();
+      }
+    });
+    const errN = getTabEntries('errors').length;
+    $('errorBanner').classList.toggle('show', errN > 0);
+    $('errorBanner').textContent = errN ? `⚠️ ${errN} errors detected — check Errors tab` : '';
+    if (errN > state.lastErrorCount) toast('⚠️ New error in errors.log', 'warn');
+    state.lastErrorCount = errN;
+  }
+
+  function initTabs() {
+    const tabs = [
+      ['control', '🎮 Control', 1], ['prompts', '📋 Prompts', 2], ['decisions', '🧠 Decisions', 3],
+      ['commands', '⚙️ Commands', 4], ['tests', '🧪 Tests', 5], ['errors', '❌ Errors', 6], ['human', '👤 Human', 7]
+    ];
+    $('tabBar').innerHTML = tabs.map(([id, label], i) =>
+      `<button class="tab-btn${i === 0 ? ' active' : ''}" data-tab="${id}">${label}</button>`
+    ).join('');
+    document.querySelectorAll('.tab-btn').forEach((btn) => {
+      btn.onclick = () => {
+        document.querySelectorAll('.tab-btn').forEach((b) => b.classList.remove('active'));
+        document.querySelectorAll('.tab-pane').forEach((p) => p.classList.remove('active'));
+        btn.classList.add('active');
+        $('tab-' + btn.dataset.tab).classList.add('active');
+      };
+    });
+  }
+
+  async function refresh() {
+    const paths = {
+      prompts: 'agent_logs/prompts.log',
+      decisions: 'agent_logs/decisions.log',
+      commands: 'agent_logs/commands.log',
+      test_runs: 'agent_logs/test_runs.log',
+      errors: 'agent_logs/errors.log',
+      human: 'agent_logs/human_interventions.log'
+    };
+    for (const [k, p] of Object.entries(paths)) state.logs[k] = await fetchText(p);
+    state.solution = await fetchText('solution.py');
+    state.allEntries = [];
+    for (const [k, p] of Object.entries(paths)) {
+      parseLogFile(state.logs[k], p).forEach((e) => state.allEntries.push(e));
+    }
+    state.allEntries.sort((a, b) => a.timestamp.localeCompare(b.timestamp));
+    const newScores = parseScores(state.logs.test_runs || '');
+    newScores.forEach((s, i) => {
+      const old = state.scores[i];
+      if (old && s.passed > old.passed) s._flash = 'flash-up';
+      if (old && s.passed < old.passed) s._flash = 'flash-down';
+    });
+    state.scores = newScores;
+    state.currentStep = detectStep(state.logs.decisions);
+    state.status = determineStatus(state.logs, state.scores);
+    state.lastUpdate = Date.now();
+    if (state.scores.length && state.status === 'WAITING') state.status = 'RUNNING';
+    renderPipeline(state.currentStep, state.scores);
+    renderTop();
+    renderFeed();
+    renderScores();
+    renderFailures();
+    renderCode();
+    renderAllTabs();
+    updateTabBadges();
+  }
+
+  function initQuickButtons() {
+    const pg = $('quickPrompts');
+    QUICK_PROMPTS.forEach(([label, text]) => {
+      const b = document.createElement('button');
+      b.className = 'btn';
+      b.textContent = label;
+      b.onclick = () => { $('promptInput').value = text; };
+      pg.appendChild(b);
+    });
+    const hg = $('quickHuman');
+    QUICK_HUMAN.forEach(([label, text]) => {
+      const b = document.createElement('button');
+      b.className = 'btn';
+      b.textContent = label;
+      b.onclick = () => { $('humanInput').value = text; };
+      hg.appendChild(b);
+    });
+  }
+
+  function renderHistories() {
+    $('promptHistory').innerHTML = state.promptHistory.slice(0, 10).map((h, i) =>
+      `<div class="history-item"><span>[${h.t}] "${escapeHtml(h.text.slice(0, 60))}${h.text.length > 60 ? '…' : ''}"</span><button data-i="${i}" class="resend">↩ Resend</button></div>`
+    ).join('') || '<div class="sub">No prompts sent from UI yet.</div>';
+    $('promptHistory').querySelectorAll('.resend').forEach((btn) => {
+      btn.onclick = () => { $('promptInput').value = state.promptHistory[+btn.dataset.i].text; };
+    });
+    $('humanHistory').innerHTML = state.humanHistory.slice(0, 10).map((h) =>
+      `<div class="history-item"><span>[${h.t}] ${escapeHtml(h.text)}</span></div>`
+    ).join('') || '<div class="sub">No interventions logged from UI yet.</div>';
+  }
+
+  $('btnSendPrompt').onclick = async () => {
+    const text = $('promptInput').value.trim();
+    if (!text) return toast('Enter a prompt first', 'warn');
+    try {
+      await postFile('agent_logs/pending_prompt.txt', text, 'w');
+      const block = `\n[${tsNow()}] USER_PROMPT\nPrompt: ${text}\nContext: sent from SPRK monitor UI\nExpected agent action: pick up on next iteration\n`;
+      await postFile('agent_logs/prompts.log', block, 'a');
+      state.promptHistory.unshift({ t: tsNow().slice(11), text });
+      localStorage.setItem('sprk_prompts', JSON.stringify(state.promptHistory.slice(0, 20)));
+      toast('✅ Prompt queued! Agent picks it up next iteration.', 'success');
+      $('promptInput').value = '';
+      renderHistories();
+      refresh();
+    } catch (e) {
+      toast('❌ Failed to send. Is log_server.py running?', 'error');
+    }
+  };
+
+  $('btnLogHuman').onclick = async () => {
+    const text = $('humanInput').value.trim();
+    if (!text) return toast('Describe the intervention', 'warn');
+    try {
+      const block = `\n[${tsNow()}] HUMAN_INTERVENTION\nWhat happened: ${text}\nWhy: logged from monitor UI\nFiles or settings affected: n/a\nTouched final task code directly: no\nNotes: \n`;
+      await postFile('agent_logs/human_interventions.log', block, 'a');
+      state.humanHistory.unshift({ t: tsNow().slice(11), text });
+      localStorage.setItem('sprk_human', JSON.stringify(state.humanHistory.slice(0, 20)));
+      toast('⚠️ Intervention logged.', 'warn');
+      $('humanInput').value = '';
+      renderHistories();
+      refresh();
+    } catch (e) {
+      toast('❌ Failed to log. Is log_server.py running?', 'error');
+    }
+  };
+
+  $('btnStart').onclick = async () => {
+    try {
+      await postFile('agent_logs/pending_prompt.txt', 'Start the agent loop. Read the spec and begin implementation.', 'w');
+      toast('▶ Start signal queued', 'info');
+      state.startTime = Date.now();
+      refresh();
+    } catch (e) { toast('❌ Start failed — run log_server.py', 'error'); }
+  };
+
+  $('btnStop').onclick = () => { $('stopModal').classList.add('open'); };
+  $('stopCancel').onclick = () => { $('stopModal').classList.remove('open'); };
+  $('stopConfirm').onclick = async () => {
+    const text = $('stopReason').value.trim() || 'Operator requested stop from monitor UI.';
+    $('stopModal').classList.remove('open');
+    $('humanInput').value = text;
+    $('btnLogHuman').click();
+    try {
+      await postFile('agent_logs/pending_prompt.txt', 'STOP: operator requested halt. Finish current step and stop.', 'w');
+      toast('Stop request queued', 'warn');
+    } catch (e) { toast('❌ Stop queue failed', 'error'); }
+  };
+
+  $('btnCopyCode').onclick = () => {
+    if (state.solution) navigator.clipboard.writeText(state.solution), toast('Code copied', 'info');
+  };
+
+  $('btnLoadMore').onclick = () => { state.feedLimit += 100; renderFeed(); };
+  $('feedSearch').oninput = renderFeed;
+  $('feedFilter').onchange = renderFeed;
+  $('scoreToggle').onclick = () => {
+    state.scoreCollapsed = !state.scoreCollapsed;
+    $('scoreRows').style.display = state.scoreCollapsed ? 'none' : 'flex';
+  };
+
+  $('btnHelp').onclick = () => $('helpModal').classList.add('open');
+  $('helpClose').onclick = () => $('helpModal').classList.remove('open');
+
+  document.addEventListener('keydown', (e) => {
+    if (e.ctrlKey && e.key === 'Enter' && document.activeElement === $('promptInput')) { e.preventDefault(); $('btnSendPrompt').click(); }
+    if (e.ctrlKey && e.key === 'k') { e.preventDefault(); $('promptInput').focus(); }
+    if (e.ctrlKey && e.key >= '1' && e.key <= '7') {
+      const tabs = ['control','prompts','decisions','commands','tests','errors','human'];
+      document.querySelector(`.tab-btn[data-tab="${tabs[+e.key - 1]}"]`)?.click();
+    }
+    if (e.key === 'Escape') { $('stopModal').classList.remove('open'); $('helpModal').classList.remove('open'); $('feedSearch').value = ''; renderFeed(); }
+    if (e.key === 'r' && !e.ctrlKey && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') refresh();
+  });
+
+  initTabs();
+  initQuickButtons();
+  renderHistories();
+  renderPipeline(0, []);
+  refresh();
+  setInterval(refresh, REFRESH_MS);
+})();
+  </script>
+</body>
+</html>
