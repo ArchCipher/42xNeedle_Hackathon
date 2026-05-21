@@ -1,7 +1,7 @@
 # Implementation plan (template)
 
 ## Operator task
-Build the CLI calculator from secret_spec/SECRET_SPEC.md in knit.py
+Build the CLI calculator from secret_spec/SECRET_SPEC.md in knit.py (use src/ if needed).
 
 ## knit.py is the app
 All user-facing behavior lives in knit.py (helpers in src/).

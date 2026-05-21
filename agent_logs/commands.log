@@ -173,3 +173,599 @@ python3 knit.py calc add 2 3
 - `python3 knit.py` runs without syntax errors.
 - A few manual cases work (e.g. add, div, bad input).
 
+
+[2026-05-21 18:32] COMMAND
+Run by: agent
+Command: read_file({"path": "secret_spec/SECRET_SPEC.md"})
+Exit code: n/a
+Output summary: 
+
+[2026-05-21 18:32] COMMAND
+Run by: agent
+Command: read_file result
+Exit code: 0
+Output summary: # Mock task — CLI calculator (intentionally brief)
+
+> **Test only.** Copy to `SECRET_SPEC.md` to run the agent against this spec:
+> `cp secret_spec/MOCK_CALCULATOR_SPEC.md secret_spec/SECRET_SPEC.md`
+
+## Product
+
+A **command-line calculator**. The program users run is **`knit.py`** (helpers may live in `src/`).
+
+## Behavior (minimal)
+
+- Support **add**, **subtract**, **multiply**, **divide** on two numbers.
+- Invalid input or divide-by-zero → non-zero exit, message on **stderr**.
+- Successful operation → print the numeric result on **stdout**, exit **0**.
+
+## Interface (not fully specified — agent must decide)
+
+Design a reasonable CLI, for example subcommands or positional arguments. Document usage in a short comment at the top of `knit.py`.
+
+Example shapes (pick one or similar):
+
+```text
+python3 knit.py add 2 3
+python3 knit.py calc add 2 3
+```
+
+## Non-goals
+
+- No GUI, no network, no database.
+- Does not need to keep the existing `compile` / `compile-v2` commands unless you wire them as aliases.
+
+## Done when
+
+- `python3 knit.py` runs without syntax errors.
+- A few manual cases work (e.g. add, div, bad input).
+
+
+[2026-05-21 18:33] COMMAND
+Run by: agent
+Command: read_file({"path": "secret_spec/SECRET_SPEC.md"})
+Exit code: n/a
+Output summary: 
+
+[2026-05-21 18:33] COMMAND
+Run by: agent
+Command: read_file result
+Exit code: 0
+Output summary: # Mock task — CLI calculator (intentionally brief)
+
+> **Test only.** Copy to `SECRET_SPEC.md` to run the agent against this spec:
+> `cp secret_spec/MOCK_CALCULATOR_SPEC.md secret_spec/SECRET_SPEC.md`
+
+## Product
+
+A **command-line calculator**. The program users run is **`knit.py`** (helpers may live in `src/`).
+
+## Behavior (minimal)
+
+- Support **add**, **subtract**, **multiply**, **divide** on two numbers.
+- Invalid input or divide-by-zero → non-zero exit, message on **stderr**.
+- Successful operation → print the numeric result on **stdout**, exit **0**.
+
+## Interface (not fully specified — agent must decide)
+
+Design a reasonable CLI, for example subcommands or positional arguments. Document usage in a short comment at the top of `knit.py`.
+
+Example shapes (pick one or similar):
+
+```text
+python3 knit.py add 2 3
+python3 knit.py calc add 2 3
+```
+
+## Non-goals
+
+- No GUI, no network, no database.
+- Does not need to keep the existing `compile` / `compile-v2` commands unless you wire them as aliases.
+
+## Done when
+
+- `python3 knit.py` runs without syntax errors.
+- A few manual cases work (e.g. add, div, bad input).
+
+
+[2026-05-21 18:33] COMMAND
+Run by: agent
+Command: read_file({"path": "secret_spec/SECRET_SPEC.md"})
+Exit code: n/a
+Output summary: 
+
+[2026-05-21 18:33] COMMAND
+Run by: agent
+Command: read_file result
+Exit code: 0
+Output summary: # Mock task — CLI calculator (intentionally brief)
+
+> **Test only.** Copy to `SECRET_SPEC.md` to run the agent against this spec:
+> `cp secret_spec/MOCK_CALCULATOR_SPEC.md secret_spec/SECRET_SPEC.md`
+
+## Product
+
+A **command-line calculator**. The program users run is **`knit.py`** (helpers may live in `src/`).
+
+## Behavior (minimal)
+
+- Support **add**, **subtract**, **multiply**, **divide** on two numbers.
+- Invalid input or divide-by-zero → non-zero exit, message on **stderr**.
+- Successful operation → print the numeric result on **stdout**, exit **0**.
+
+## Interface (not fully specified — agent must decide)
+
+Design a reasonable CLI, for example subcommands or positional arguments. Document usage in a short comment at the top of `knit.py`.
+
+Example shapes (pick one or similar):
+
+```text
+python3 knit.py add 2 3
+python3 knit.py calc add 2 3
+```
+
+## Non-goals
+
+- No GUI, no network, no database.
+- Does not need to keep the existing `compile` / `compile-v2` commands unless you wire them as aliases.
+
+## Done when
+
+- `python3 knit.py` runs without syntax errors.
+- A few manual cases work (e.g. add, div, bad input).
+
+
+[2026-05-21 18:34] COMMAND
+Run by: agent
+Command: read_file({"path": "secret_spec/SECRET_SPEC.md"})
+Exit code: n/a
+Output summary: 
+
+[2026-05-21 18:34] COMMAND
+Run by: agent
+Command: read_file result
+Exit code: 0
+Output summary: # Mock task — CLI calculator (intentionally brief)
+
+> **Test only.** Copy to `SECRET_SPEC.md` to run the agent against this spec:
+> `cp secret_spec/MOCK_CALCULATOR_SPEC.md secret_spec/SECRET_SPEC.md`
+
+## Product
+
+A **command-line calculator**. The program users run is **`knit.py`** (helpers may live in `src/`).
+
+## Behavior (minimal)
+
+- Support **add**, **subtract**, **multiply**, **divide** on two numbers.
+- Invalid input or divide-by-zero → non-zero exit, message on **stderr**.
+- Successful operation → print the numeric result on **stdout**, exit **0**.
+
+## Interface (not fully specified — agent must decide)
+
+Design a reasonable CLI, for example subcommands or positional arguments. Document usage in a short comment at the top of `knit.py`.
+
+Example shapes (pick one or similar):
+
+```text
+python3 knit.py add 2 3
+python3 knit.py calc add 2 3
+```
+
+## Non-goals
+
+- No GUI, no network, no database.
+- Does not need to keep the existing `compile` / `compile-v2` commands unless you wire them as aliases.
+
+## Done when
+
+- `python3 knit.py` runs without syntax errors.
+- A few manual cases work (e.g. add, div, bad input).
+
+
+[2026-05-21 18:37] COMMAND
+Run by: agent
+Command: run_tests({})
+Exit code: n/a
+Output summary: 
+
+[2026-05-21 18:37] COMMAND
+Run by: agent
+Command: run_tests result
+Exit code: 0
+Output summary: exit=0
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-9.0.3, pluggy-1.6.0 -- /home/pcg91/projects/hackathons/42xNeedle_Hackathon/.venv/bin/python
+cachedir: .pytest_cache
+metadata: {'Python': '3.12.3', 'Platform': 'Linux-6.6.114.1-microsoft-standard-WSL2-x86_64-with-glibc2.39', 'Packages': {'pytest': '9.0.3', 'pluggy': '1.6.0'}, 'Plugins': {'json-report': '1.5.0', 'metadata': '3.1.1'}}
+rootdir: /home/pcg91/projects/hackathons/42xNeedle_Hackathon
+plugins: json-report-1.5.0, metadata-3.1.1
+collecting ... collected 4 items
+
+tests/test_knit.py::TestKnitCli::test_requires_subcommand PASSED         [ 25%]
+tests/test_knit.py::TestKnitCli::test_compile_v2_hello_exits_zero PASSED [ 50%]
+tests/test_knit.py::TestKnitCli::test_compile_v2_hello_stdout PASSED     [ 75%]
+tests/test_knit.py::TestKnitCli::test_compile_hello_not_implemented_yet PASSED [100%]
+
+--------------------------------- JSON report ----------------------------------
+report saved to: /home/pcg91/projects/hackathons/42xNeedle_Hackathon/.pytest_json_report.json
+============================== 4 passed in 1.41s ===============================
+
+[2026-05-21 18:37] COMMAND
+Run by: agent
+Command: run_tests({})
+Exit code: n/a
+Output summary: 
+
+[2026-05-21 18:37] COMMAND
+Run by: agent
+Command: run_tests result
+Exit code: 0
+Output summary: exit=0
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-9.0.3, pluggy-1.6.0 -- /home/pcg91/projects/hackathons/42xNeedle_Hackathon/.venv/bin/python
+cachedir: .pytest_cache
+metadata: {'Python': '3.12.3', 'Platform': 'Linux-6.6.114.1-microsoft-standard-WSL2-x86_64-with-glibc2.39', 'Packages': {'pytest': '9.0.3', 'pluggy': '1.6.0'}, 'Plugins': {'json-report': '1.5.0', 'metadata': '3.1.1'}}
+rootdir: /home/pcg91/projects/hackathons/42xNeedle_Hackathon
+plugins: json-report-1.5.0, metadata-3.1.1
+collecting ... collected 4 items
+
+tests/test_knit.py::TestKnitCli::test_requires_subcommand PASSED         [ 25%]
+tests/test_knit.py::TestKnitCli::test_compile_v2_hello_exits_zero PASSED [ 50%]
+tests/test_knit.py::TestKnitCli::test_compile_v2_hello_stdout PASSED     [ 75%]
+tests/test_knit.py::TestKnitCli::test_compile_hello_not_implemented_yet PASSED [100%]
+
+--------------------------------- JSON report ----------------------------------
+report saved to: /home/pcg91/projects/hackathons/42xNeedle_Hackathon/.pytest_json_report.json
+============================== 4 passed in 0.90s ===============================
+
+[2026-05-21 18:38] COMMAND
+Run by: agent
+Command: run_tests({})
+Exit code: n/a
+Output summary: 
+
+[2026-05-21 18:38] COMMAND
+Run by: agent
+Command: run_tests result
+Exit code: 0
+Output summary: exit=0
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-9.0.3, pluggy-1.6.0 -- /home/pcg91/projects/hackathons/42xNeedle_Hackathon/.venv/bin/python
+cachedir: .pytest_cache
+metadata: {'Python': '3.12.3', 'Platform': 'Linux-6.6.114.1-microsoft-standard-WSL2-x86_64-with-glibc2.39', 'Packages': {'pytest': '9.0.3', 'pluggy': '1.6.0'}, 'Plugins': {'json-report': '1.5.0', 'metadata': '3.1.1'}}
+rootdir: /home/pcg91/projects/hackathons/42xNeedle_Hackathon
+plugins: json-report-1.5.0, metadata-3.1.1
+collecting ... collected 4 items
+
+tests/test_knit.py::TestKnitCli::test_requires_subcommand PASSED         [ 25%]
+tests/test_knit.py::TestKnitCli::test_compile_v2_hello_exits_zero PASSED [ 50%]
+tests/test_knit.py::TestKnitCli::test_compile_v2_hello_stdout PASSED     [ 75%]
+tests/test_knit.py::TestKnitCli::test_compile_hello_not_implemented_yet PASSED [100%]
+
+--------------------------------- JSON report ----------------------------------
+report saved to: /home/pcg91/projects/hackathons/42xNeedle_Hackathon/.pytest_json_report.json
+============================== 4 passed in 1.15s ===============================
+
+[2026-05-21 18:38] COMMAND
+Run by: agent
+Command: run_tests({})
+Exit code: n/a
+Output summary: 
+
+[2026-05-21 18:38] COMMAND
+Run by: agent
+Command: run_tests result
+Exit code: 0
+Output summary: exit=0
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-9.0.3, pluggy-1.6.0 -- /home/pcg91/projects/hackathons/42xNeedle_Hackathon/.venv/bin/python
+cachedir: .pytest_cache
+metadata: {'Python': '3.12.3', 'Platform': 'Linux-6.6.114.1-microsoft-standard-WSL2-x86_64-with-glibc2.39', 'Packages': {'pytest': '9.0.3', 'pluggy': '1.6.0'}, 'Plugins': {'json-report': '1.5.0', 'metadata': '3.1.1'}}
+rootdir: /home/pcg91/projects/hackathons/42xNeedle_Hackathon
+plugins: json-report-1.5.0, metadata-3.1.1
+collecting ... collected 4 items
+
+tests/test_knit.py::TestKnitCli::test_requires_subcommand PASSED         [ 25%]
+tests/test_knit.py::TestKnitCli::test_compile_v2_hello_exits_zero PASSED [ 50%]
+tests/test_knit.py::TestKnitCli::test_compile_v2_hello_stdout PASSED     [ 75%]
+tests/test_knit.py::TestKnitCli::test_compile_hello_not_implemented_yet PASSED [100%]
+
+--------------------------------- JSON report ----------------------------------
+report saved to: /home/pcg91/projects/hackathons/42xNeedle_Hackathon/.pytest_json_report.json
+============================== 4 passed in 0.72s ===============================
+
+[2026-05-21 18:38] COMMAND
+Run by: agent
+Command: run_tests({})
+Exit code: n/a
+Output summary: 
+
+[2026-05-21 18:38] COMMAND
+Run by: agent
+Command: run_tests result
+Exit code: 0
+Output summary: exit=0
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-9.0.3, pluggy-1.6.0 -- /home/pcg91/projects/hackathons/42xNeedle_Hackathon/.venv/bin/python
+cachedir: .pytest_cache
+metadata: {'Python': '3.12.3', 'Platform': 'Linux-6.6.114.1-microsoft-standard-WSL2-x86_64-with-glibc2.39', 'Packages': {'pytest': '9.0.3', 'pluggy': '1.6.0'}, 'Plugins': {'json-report': '1.5.0', 'metadata': '3.1.1'}}
+rootdir: /home/pcg91/projects/hackathons/42xNeedle_Hackathon
+plugins: json-report-1.5.0, metadata-3.1.1
+collecting ... collected 4 items
+
+tests/test_knit.py::TestKnitCli::test_requires_subcommand PASSED         [ 25%]
+tests/test_knit.py::TestKnitCli::test_compile_v2_hello_exits_zero PASSED [ 50%]
+tests/test_knit.py::TestKnitCli::test_compile_v2_hello_stdout PASSED     [ 75%]
+tests/test_knit.py::TestKnitCli::test_compile_hello_not_implemented_yet PASSED [100%]
+
+--------------------------------- JSON report ----------------------------------
+report saved to: /home/pcg91/projects/hackathons/42xNeedle_Hackathon/.pytest_json_report.json
+============================== 4 passed in 0.70s ===============================
+
+[2026-05-21 18:39] COMMAND
+Run by: agent
+Command: run_tests({})
+Exit code: n/a
+Output summary: 
+
+[2026-05-21 18:39] COMMAND
+Run by: agent
+Command: run_tests result
+Exit code: 0
+Output summary: exit=0
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-9.0.3, pluggy-1.6.0 -- /home/pcg91/projects/hackathons/42xNeedle_Hackathon/.venv/bin/python
+cachedir: .pytest_cache
+metadata: {'Python': '3.12.3', 'Platform': 'Linux-6.6.114.1-microsoft-standard-WSL2-x86_64-with-glibc2.39', 'Packages': {'pytest': '9.0.3', 'pluggy': '1.6.0'}, 'Plugins': {'json-report': '1.5.0', 'metadata': '3.1.1'}}
+rootdir: /home/pcg91/projects/hackathons/42xNeedle_Hackathon
+plugins: json-report-1.5.0, metadata-3.1.1
+collecting ... collected 4 items
+
+tests/test_knit.py::TestKnitCli::test_requires_subcommand PASSED         [ 25%]
+tests/test_knit.py::TestKnitCli::test_compile_v2_hello_exits_zero PASSED [ 50%]
+tests/test_knit.py::TestKnitCli::test_compile_v2_hello_stdout PASSED     [ 75%]
+tests/test_knit.py::TestKnitCli::test_compile_hello_not_implemented_yet PASSED [100%]
+
+--------------------------------- JSON report ----------------------------------
+report saved to: /home/pcg91/projects/hackathons/42xNeedle_Hackathon/.pytest_json_report.json
+============================== 4 passed in 0.83s ===============================
+
+[2026-05-21 18:40] COMMAND
+Run by: agent
+Command: run_tests({})
+Exit code: n/a
+Output summary: 
+
+[2026-05-21 18:40] COMMAND
+Run by: agent
+Command: run_tests result
+Exit code: 0
+Output summary: exit=0
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-9.0.3, pluggy-1.6.0 -- /home/pcg91/projects/hackathons/42xNeedle_Hackathon/.venv/bin/python
+cachedir: .pytest_cache
+metadata: {'Python': '3.12.3', 'Platform': 'Linux-6.6.114.1-microsoft-standard-WSL2-x86_64-with-glibc2.39', 'Packages': {'pytest': '9.0.3', 'pluggy': '1.6.0'}, 'Plugins': {'json-report': '1.5.0', 'metadata': '3.1.1'}}
+rootdir: /home/pcg91/projects/hackathons/42xNeedle_Hackathon
+plugins: json-report-1.5.0, metadata-3.1.1
+collecting ... collected 4 items
+
+tests/test_knit.py::TestKnitCli::test_requires_subcommand PASSED         [ 25%]
+tests/test_knit.py::TestKnitCli::test_compile_v2_hello_exits_zero PASSED [ 50%]
+tests/test_knit.py::TestKnitCli::test_compile_v2_hello_stdout PASSED     [ 75%]
+tests/test_knit.py::TestKnitCli::test_compile_hello_not_implemented_yet PASSED [100%]
+
+--------------------------------- JSON report ----------------------------------
+report saved to: /home/pcg91/projects/hackathons/42xNeedle_Hackathon/.pytest_json_report.json
+============================== 4 passed in 0.98s ===============================
+
+[2026-05-21 18:40] COMMAND
+Run by: agent
+Command: run_tests({})
+Exit code: n/a
+Output summary: 
+
+[2026-05-21 18:40] COMMAND
+Run by: agent
+Command: run_tests result
+Exit code: 0
+Output summary: exit=0
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-9.0.3, pluggy-1.6.0 -- /home/pcg91/projects/hackathons/42xNeedle_Hackathon/.venv/bin/python
+cachedir: .pytest_cache
+metadata: {'Python': '3.12.3', 'Platform': 'Linux-6.6.114.1-microsoft-standard-WSL2-x86_64-with-glibc2.39', 'Packages': {'pytest': '9.0.3', 'pluggy': '1.6.0'}, 'Plugins': {'json-report': '1.5.0', 'metadata': '3.1.1'}}
+rootdir: /home/pcg91/projects/hackathons/42xNeedle_Hackathon
+plugins: json-report-1.5.0, metadata-3.1.1
+collecting ... collected 4 items
+
+tests/test_knit.py::TestKnitCli::test_requires_subcommand PASSED         [ 25%]
+tests/test_knit.py::TestKnitCli::test_compile_v2_hello_exits_zero PASSED [ 50%]
+tests/test_knit.py::TestKnitCli::test_compile_v2_hello_stdout PASSED     [ 75%]
+tests/test_knit.py::TestKnitCli::test_compile_hello_not_implemented_yet PASSED [100%]
+
+--------------------------------- JSON report ----------------------------------
+report saved to: /home/pcg91/projects/hackathons/42xNeedle_Hackathon/.pytest_json_report.json
+============================== 4 passed in 0.70s ===============================
+
+[2026-05-21 18:40] COMMAND
+Run by: agent
+Command: /home/pcg91/projects/hackathons/42xNeedle_Hackathon/.venv/bin/python run_tests.py
+Exit code: 0
+Output summary: pytest score: 4/4 passed, 0 failed
+
+[2026-05-21 18:40] COMMAND
+Run by: agent
+Command: /home/pcg91/projects/hackathons/42xNeedle_Hackathon/.venv/bin/python run_tests.py
+Exit code: 0
+Output summary: pytest score: 4/4 passed, 0 failed
+
+[2026-05-21 18:56] COMMAND
+Run by: agent
+Command: read_file({"path": "secret_spec/SECRET_SPEC.md"})
+Exit code: n/a
+Output summary: 
+
+[2026-05-21 18:56] COMMAND
+Run by: agent
+Command: read_file result
+Exit code: 0
+Output summary: # Mock task — CLI calculator (intentionally brief)
+
+> **Test only.** Copy to `SECRET_SPEC.md` to run the agent against this spec:
+> `cp secret_spec/MOCK_CALCULATOR_SPEC.md secret_spec/SECRET_SPEC.md`
+
+## Product
+
+A **command-line calculator**. The program users run is **`knit.py`** (helpers may live in `src/`).
+
+## Behavior (minimal)
+
+- Support **add**, **subtract**, **multiply**, **divide** on two numbers.
+- Invalid input or divide-by-zero → non-zero exit, message on **stderr**.
+- Successful operation → print the numeric result on **stdout**, exit **0**.
+
+## Interface (not fully specified — agent must decide)
+
+Design a reasonable CLI, for example subcommands or positional arguments. Document usage in a short comment at the top of `knit.py`.
+
+Example shapes (pick one or similar):
+
+```text
+python3 knit.py add 2 3
+python3 knit.py calc add 2 3
+```
+
+## Non-goals
+
+- No GUI, no network, no database.
+- Does not need to keep the existing `compile` / `compile-v2` commands unless you wire them as aliases.
+
+## Done when
+
+- `python3 knit.py` runs without syntax errors.
+- A few manual cases work (e.g. add, div, bad input).
+
+
+[2026-05-21 18:56] COMMAND
+Run by: agent
+Command: read_file({"path": "secret_spec/SECRET_SPEC.md"})
+Exit code: n/a
+Output summary: 
+
+[2026-05-21 18:56] COMMAND
+Run by: agent
+Command: read_file result
+Exit code: 0
+Output summary: # Mock task — CLI calculator (intentionally brief)
+
+> **Test only.** Copy to `SECRET_SPEC.md` to run the agent against this spec:
+> `cp secret_spec/MOCK_CALCULATOR_SPEC.md secret_spec/SECRET_SPEC.md`
+
+## Product
+
+A **command-line calculator**. The program users run is **`knit.py`** (helpers may live in `src/`).
+
+## Behavior (minimal)
+
+- Support **add**, **subtract**, **multiply**, **divide** on two numbers.
+- Invalid input or divide-by-zero → non-zero exit, message on **stderr**.
+- Successful operation → print the numeric result on **stdout**, exit **0**.
+
+## Interface (not fully specified — agent must decide)
+
+Design a reasonable CLI, for example subcommands or positional arguments. Document usage in a short comment at the top of `knit.py`.
+
+Example shapes (pick one or similar):
+
+```text
+python3 knit.py add 2 3
+python3 knit.py calc add 2 3
+```
+
+## Non-goals
+
+- No GUI, no network, no database.
+- Does not need to keep the existing `compile` / `compile-v2` commands unless you wire them as aliases.
+
+## Done when
+
+- `python3 knit.py` runs without syntax errors.
+- A few manual cases work (e.g. add, div, bad input).
+
+
+[2026-05-21 18:56] COMMAND
+Run by: agent
+Command: read_file({"path": "secret_spec/SECRET_SPEC.md"})
+Exit code: n/a
+Output summary: 
+
+[2026-05-21 18:56] COMMAND
+Run by: agent
+Command: read_file result
+Exit code: 0
+Output summary: # Mock task — CLI calculator (intentionally brief)
+
+> **Test only.** Copy to `SECRET_SPEC.md` to run the agent against this spec:
+> `cp secret_spec/MOCK_CALCULATOR_SPEC.md secret_spec/SECRET_SPEC.md`
+
+## Product
+
+A **command-line calculator**. The program users run is **`knit.py`** (helpers may live in `src/`).
+
+## Behavior (minimal)
+
+- Support **add**, **subtract**, **multiply**, **divide** on two numbers.
+- Invalid input or divide-by-zero → non-zero exit, message on **stderr**.
+- Successful operation → print the numeric result on **stdout**, exit **0**.
+
+## Interface (not fully specified — agent must decide)
+
+Design a reasonable CLI, for example subcommands or positional arguments. Document usage in a short comment at the top of `knit.py`.
+
+Example shapes (pick one or similar):
+
+```text
+python3 knit.py add 2 3
+python3 knit.py calc add 2 3
+```
+
+## Non-goals
+
+- No GUI, no network, no database.
+- Does not need to keep the existing `compile` / `compile-v2` commands unless you wire them as aliases.
+
+## Done when
+
+- `python3 knit.py` runs without syntax errors.
+- A few manual cases work (e.g. add, div, bad input).
+
+
+[2026-05-21 18:59] COMMAND
+Run by: agent
+Command: write_file({"path": "knit.py", "content": "# CLI Calculator\n# Usage: python3 knit.py <command> <num1> <num2>\n\nimport sys\n\ndef add(a, b):\n    return a + b\n\ndef subtract(a, b):\n    return a - b\n\ndef mul)
+Exit code: n/a
+Output summary: 
+
+[2026-05-21 18:59] COMMAND
+Run by: agent
+Command: write_file result
+Exit code: 0
+Output summary: wrote 934 bytes to knit.py | reminder: JSON to stdout only, errors to stderr, match spec schema
+
+[2026-05-21 18:59] COMMAND
+Run by: agent
+Command: run_tests({})
+Exit code: n/a
+Output summary: 
+
+[2026-05-21 18:59] COMMAND
+Run by: agent
+Command: run_tests result
+Exit code: 0
+Output summary: exit=0
+5.0
+
+[2026-05-21 19:00] COMMAND
+Run by: agent
+Command: /usr/bin/python3 knit.py add 2 3
+Exit code: 0
+Output summary: 5.0

@@ -48,3 +48,13 @@ Expected agent action:
 Prompt: Build the CLI calculator from secret_spec/SECRET_SPEC.md in knit.py
 Context: model=qwen2.5-coder:7b (Ollama, free)
 Expected agent action: 
+
+[2026-05-21 18:30] USER_PROMPT
+Prompt: implement a simple calculator in knit.py that can add two numbers
+Context: model=qwen2.5-coder:7b (Ollama, free)
+Expected agent action: 
+
+[2026-05-21 18:53] USER_PROMPT
+Prompt: Build the CLI calculator from secret_spec/SECRET_SPEC.md in knit.py (use src/ if needed).
+Context: model=qwen2.5-coder:7b (Ollama, free)
+Expected agent action: 

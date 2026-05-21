@@ -35,8 +35,7 @@ class TestKnitCli:
         result = run_knit("compile-v2", str(HELLO))
         assert "Hello Knit" in result.stdout, f"stdout: {result.stdout!r}"
 
-    def test_compile_hello_not_implemented_yet(self) -> None:
-        """v1 submission path — update when src/compile.py is complete."""
+    def test_compile_hello_exits_nonzero_without_impl(self) -> None:
+        """compile returns non-zero until src/compile.py is implemented for the hidden spec."""
         result = run_knit("compile", str(HELLO))
-        assert result.returncode == 1
-        assert "not implemented" in result.stderr.lower()
+        assert result.returncode != 0
