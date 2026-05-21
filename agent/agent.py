@@ -68,6 +68,8 @@ def _format_tool_summary(name: str, inputs: dict[str, Any], result: str) -> str:
 MANIFEST = ROOT / "agent_manifest.json"
 SPEC_PATH = ROOT / "secret_spec" / "SECRET_SPEC.md"
 PENDING_PROMPT_PATH = ROOT / "agent_logs" / "pending_prompt.txt"
+PLAN_PATH = ROOT / "agent_logs" / "plan.md"
+SPEC_SUMMARY_PATH = ROOT / "agent_logs" / "spec_summary.md"
 STRATEGY_PATH = Path(__file__).resolve().parent / "strategy.md"
 
 SCORE_RE = re.compile(r"(\d+)\s*/\s*(\d+)")
@@ -76,12 +78,15 @@ CATEGORY_RE = re.compile(
     re.IGNORECASE,
 )
 
-DEFAULT_AGENT_TASK = (
-    "Read secret_spec/SECRET_SPEC.md and agent/strategy.md first (read_file). "
-    "Implement knit.py compile and src/ per the spec. "
-    "Priority order: (1) CLI + exit codes, (2) output JSON schema on stdout only, "
-    "(3) row_expansion, (4) invalid_schema / invalid input, (5) edge cases. "
-    "No debug prints on stdout. Rerun run_tests after each meaningful change."
+DEFAULT_AGENT_TASK_HACKATHON = (
+    "Implement knit.py compile and src/ per secret_spec/SECRET_SPEC.md and agent_logs/plan.md. "
+    "Priority: CLI + exit codes, JSON on stdout only, row_expansion, invalid input, edge cases. "
+    "Use run_tests after each meaningful change."
+)
+
+DEFAULT_AGENT_TASK_FLEXIBLE = (
+    "Implement the operator's application entirely in knit.py (use src/ for helpers). "
+    "knit.py is the only user-facing program. Verify with bash (python knit.py ...)."
 )
 
 SYSTEM_PROMPT = """You are an autonomous coding agent for the 42 x Needle Hackathon hidden task.
@@ -137,6 +142,66 @@ SPEC CHECKLIST (complete before coding):
 IMPLEMENTATION ORDER: CLI -> reader -> JSON schema -> row_expansion -> invalid handler -> edges
 """
 
+PHASE_SETUP_SYSTEM = """You are the setup planner for a hackathon coding agent.
+Read the specification excerpt and operator task. Produce ONE markdown document with:
+## Spec summary (CLI, input, output JSON schema, row_expansion, exit codes, stdout/stderr)
+## Implementation plan (numbered steps, files under src/ and knit.py only)
+Keep it concise (under 80 lines). No code. No tool calls."""
+
+PHASE_DIAGNOSE_SYSTEM = """You are the failure analyst for a hackathon coding agent.
+Given test failures and the current plan, diagnose ONLY. Do NOT write code. Do NOT call tools.
+Output markdown with:
+## Root cause (one short paragraph)
+## Fix first (top 3 file-level actions with paths)
+## Verify next (what should change in test output)
+Focus on knit.py and src/ only."""
+
+IMPLEMENT_SYSTEM_PROMPT = """You are the implementer for the 42 x Needle Hackathon.
+
+Follow agent_logs/plan.md and agent_logs/spec_summary.md. Edit only knit.py and src/.
+Use tools: read_file, write_file, bash, run_tests (runs the configured public test command).
+
+Rules:
+- stdout: ONLY spec-compliant JSON on success
+- stderr: errors and diagnostics only
+- Small targeted edits; call run_tests after meaningful changes
+- Do NOT edit agent/, compiler_v2/, agent_logs/
+
+When stuck, re-read secret_spec/SECRET_SPEC.md with read_file.
+Stop calling tools when you need the outer loop to run full public tests again."""
+
+IMPLEMENT_SYSTEM_FLEXIBLE = """You are an autonomous coding agent. The operator's task defines the product.
+
+## Entry point (required)
+`knit.py` is the ONLY program users run (e.g. `python3 knit.py ...`).
+Implement the operator's app there — calculator, calendar, task manager, etc.
+Put helpers in `src/`. You MAY replace the current compile/compile-v2 CLI if the task needs a different interface.
+
+## Workflow
+1. read_file agent_logs/plan.md
+2. write_file / edit knit.py and src/
+3. bash — run `python3 knit.py ...` with real inputs to verify behavior
+4. run_tests — checks knit.py compiles (syntax); functional proof is your bash runs
+
+## Rules
+- Small steps; re-run bash smoke tests after each change
+- Do NOT edit agent/, compiler_v2/, agent_logs/
+- When knit.py compiles and bash smoke tests match the task, stop calling tools"""
+
+
+def _is_flexible_mode(config: dict[str, Any]) -> bool:
+    return str(config.get("task_mode", "hackathon")).lower() == "flexible"
+
+
+def _implement_system_prompt(config: dict[str, Any]) -> str:
+    return IMPLEMENT_SYSTEM_FLEXIBLE if _is_flexible_mode(config) else IMPLEMENT_SYSTEM_PROMPT
+
+
+def _default_task(config: dict[str, Any]) -> str:
+    if _is_flexible_mode(config):
+        return DEFAULT_AGENT_TASK_FLEXIBLE
+    return DEFAULT_AGENT_TASK_HACKATHON
+
 
 def _reject_paid_api_env() -> None:
     for key in ("ANTHROPIC_API_KEY", "OPENAI_API_KEY", "OPENROUTER_API_KEY"):
@@ -176,6 +241,174 @@ def _load_strategy_excerpt(max_chars: int = 6000) -> str:
     return text if len(text) <= max_chars else text[:max_chars] + "\n...(truncated)..."
 
 
+def _write_artifact(path: Path, content: str, label: str) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(content.strip() + "\n", encoding="utf-8")
+    LOG.decision(f"Wrote {label}", evidence=str(path.relative_to(ROOT)))
+
+
+def _read_artifact(path: Path, max_chars: int = 8000) -> str:
+    if not path.is_file():
+        return f"({path.name} not written yet)"
+    text = path.read_text(encoding="utf-8")
+    return text if len(text) <= max_chars else text[:max_chars] + "\n...(truncated)..."
+
+
+def _chat_no_tools(
+    client: OllamaClient,
+    system: str,
+    user: str,
+    *,
+    num_predict: int = 1024,
+    retries: int = 2,
+) -> str:
+    messages: list[dict[str, Any]] = [
+        {"role": "system", "content": system},
+        {"role": "user", "content": user},
+    ]
+    last_err: OllamaError | None = None
+    for attempt in range(1, retries + 1):
+        _out(
+            f"  Waiting for Ollama (text-only, attempt {attempt}/{retries}, "
+            f"timeout {client.timeout}s)..."
+        )
+        try:
+            resp = client.chat(messages, tools=None, num_predict=num_predict)
+            text, _ = parse_assistant_response(resp.get("message", {}))
+            return text.strip()
+        except OllamaError as exc:
+            last_err = exc
+            LOG.error(f"Ollama text phase attempt {attempt}", details=str(exc))
+            if attempt >= retries:
+                raise
+    raise last_err or OllamaError("Ollama text phase failed")
+
+
+def _phase_diagnose(
+    client: OllamaClient,
+    code: int,
+    test_output: str,
+    *,
+    iteration: int,
+) -> str:
+    _out_section(f"Phase 5 — Diagnose failures (iteration {iteration})")
+    LOG.decision("Phase 5 start", next_action="failure analysis (no tools)")
+    user = (
+        f"Test exit code: {code}\n\n"
+        f"Test output:\n{test_output[:5000]}\n\n"
+        f"Current plan:\n{_read_artifact(PLAN_PATH, 6000)}\n\n"
+        f"Spec summary:\n{_read_artifact(SPEC_SUMMARY_PATH, 4000)}"
+    )
+    analysis = _chat_no_tools(client, PHASE_DIAGNOSE_SYSTEM, user)
+    LOG.decision(
+        f"Phase 5 complete (iter {iteration})",
+        reason=analysis[:500],
+        next_action="Phase 3 implement fixes",
+    )
+    _out(_preview(analysis, max_lines=12))
+    return analysis
+
+
+def _write_template_setup(task: str, *, reason: str) -> None:
+    _out_section("Setup — template (no LLM)")
+    LOG.decision("Template setup", reason=reason, next_action="implement loop")
+    spec_note = (
+        _load_spec_excerpt(8000)
+        if SPEC_PATH.is_file()
+        else "(secret_spec/SECRET_SPEC.md not present — copy from event repo at 20:00.)"
+    )
+    summary = (
+        f"# Spec summary (template)\n\n"
+        f"Setup mode: {reason}\n\n"
+        f"Operator task:\n{task}\n\n"
+        f"Specification excerpt:\n{spec_note}\n\n"
+        f"{BUILD_CHECKLIST}\n"
+    )
+    if SPEC_PATH.is_file():
+        steps = (
+            "1. read_file secret_spec/SECRET_SPEC.md\n"
+            "2. Implement knit.py compile in src/ per spec\n"
+            "3. run_tests after each meaningful change\n"
+        )
+    else:
+        steps = (
+            "1. Design CLI or UX for knit.py matching the operator task\n"
+            "2. Implement logic in knit.py and src/\n"
+            "3. bash: python3 knit.py <smoke args> until behavior matches task\n"
+            "4. run_tests (py_compile) after each meaningful change\n"
+        )
+    plan = (
+        f"# Implementation plan (template)\n\n"
+        f"## Operator task\n{task}\n\n"
+        f"## knit.py is the app\n"
+        f"All user-facing behavior lives in knit.py (helpers in src/).\n\n"
+        f"## Steps\n{steps}\n"
+        f"{BUILD_CHECKLIST if SPEC_PATH.is_file() else ''}\n"
+    )
+    _write_artifact(SPEC_SUMMARY_PATH, summary, "spec_summary.md")
+    _write_artifact(PLAN_PATH, plan, "plan.md")
+    _out("Wrote agent_logs/spec_summary.md and agent_logs/plan.md (instant).")
+
+
+def _phase_setup_combined(client: OllamaClient, task: str) -> None:
+    _out_section("Setup — LLM read + plan (one call)")
+    LOG.decision("Combined LLM setup", next_action="single Ollama call")
+    user = (
+        f"Operator task:\n{task}\n\n"
+        f"Strategy excerpt:\n{_load_strategy_excerpt(2000)}\n\n"
+        f"Specification:\n{_load_spec_excerpt(10000)}\n\n"
+        f"{BUILD_CHECKLIST}"
+    )
+    combined = _chat_no_tools(client, PHASE_SETUP_SYSTEM, user, num_predict=1200)
+    _write_artifact(SPEC_SUMMARY_PATH, combined, "spec_summary.md")
+    _write_artifact(PLAN_PATH, combined, "plan.md")
+    _out(_preview(combined, max_lines=14))
+
+
+def _run_setup_phases(
+    client: OllamaClient,
+    task: str,
+    config: dict[str, Any],
+    *,
+    force: bool,
+    llm_setup: bool,
+) -> None:
+    if not force and PLAN_PATH.is_file() and SPEC_SUMMARY_PATH.is_file():
+        if PLAN_PATH.stat().st_size > 80 and SPEC_SUMMARY_PATH.stat().st_size > 80:
+            LOG.decision(
+                "Skipping setup",
+                evidence="plan.md and spec_summary.md exist",
+                next_action="implement loop (--force-setup to refresh)",
+            )
+            _out_section("Setup skipped (existing plan.md + spec_summary.md)")
+            return
+
+    use_llm = llm_setup and SPEC_PATH.is_file()
+    if not use_llm:
+        why = "no spec file" if not SPEC_PATH.is_file() else "llm_setup disabled (use --llm-setup)"
+        _write_template_setup(task, reason=why)
+        return
+    _phase_setup_combined(client, task)
+
+
+def _format_pytest_result(result: dict[str, Any]) -> str:
+    total = int(result.get("total", 0))
+    passed = int(result.get("passed", 0))
+    failed = int(result.get("failed", 0))
+    lines = [f"pytest score: {passed}/{total} passed, {failed} failed"]
+    for item in result.get("failures", []):
+        lines.append(f"FAILED {item.get('test', '?')}")
+        detail = str(item.get("detail", "")).strip()
+        if detail:
+            lines.append(f"  {detail[:400]}")
+    return "\n".join(lines)
+
+
+def _uses_team_run_tests(command: str) -> bool:
+    c = command.strip().lower()
+    return "run_tests.py" in c and "--program" not in c and "--suite" not in c
+
+
 def _parse_test_score(output: str) -> str:
     match = SCORE_RE.search(output)
     if match:
@@ -211,15 +444,17 @@ def _priority_failures(output: str) -> list[str]:
     return found[:5]
 
 
-def _build_repair_message(code: int, out: str) -> str:
+def _build_repair_message(code: int, out: str, diagnosis: str = "") -> str:
     categories = _parse_failure_categories(out)
     priorities = _priority_failures(out)
     score = _parse_test_score(out)
     lines = [
         f"Tests failed (exit={code}, score={score}).",
-        "Fix with small edits in knit.py and src/ only.",
+        "Follow agent_logs/plan.md. Fix with small edits in knit.py and src/ only.",
         "stdout must be JSON only; errors on stderr.",
     ]
+    if diagnosis:
+        lines.append(f"Failure analysis:\n{diagnosis[:2500]}")
     if priorities:
         lines.append(f"Fix FIRST: {', '.join(priorities)}")
     if categories:
@@ -241,7 +476,22 @@ def _sync_manifest(config: dict[str, Any]) -> None:
 
 
 def run_public_tests(command: str) -> tuple[int, str]:
-    code, out = run_bash(command)
+    if _uses_team_run_tests(command):
+        try:
+            sys.path.insert(0, str(ROOT))
+            from run_tests import run_tests as run_pytest_suite  # noqa: WPS433
+
+            result = run_pytest_suite()
+            out = _format_pytest_result(result)
+            total = int(result.get("total", 0))
+            failed = int(result.get("failed", 0))
+            code = 0 if total > 0 and failed == 0 else 1
+            LOG.command(command, exit_code=code, output=out)
+        except Exception as exc:
+            code, out = 1, f"run_tests import failed: {exc}"
+            LOG.error("Public tests runner failed", details=str(exc))
+    else:
+        code, out = run_bash(command)
     score = _parse_test_score(out)
     categories = _parse_failure_categories(out)
     priorities = _priority_failures(out)
@@ -339,12 +589,16 @@ def _run_iteration(
         messages.append(
             {"role": "user", "content": f"Operator instruction (pending_prompt.txt):\n{pending}"}
         )
-    LOG.decision(f"Start iteration {iteration}", next_action="tool rounds then tests")
-    _out_section(f"Iteration {iteration}")
-    summary = _tool_rounds(client, messages, config, iteration)
+    LOG.decision(
+        f"Start iteration {iteration}",
+        next_action="implement (tools) -> test -> repair if fail",
+    )
+    _out_section(f"Iteration {iteration} — Phase 3 implement")
+    _tool_rounds(client, messages, config, iteration)
 
     test_cmd = str(config["public_test_command"])
-    _out(f"\nRunning public tests:\n  {test_cmd}")
+    _out_section(f"Iteration {iteration} — Phase 4 test")
+    _out(f"Command: {test_cmd}")
     code, out = run_public_tests(test_cmd)
     score = _parse_test_score(out)
     if code == 0:
@@ -356,22 +610,48 @@ def _run_iteration(
     LOG.error(
         "Public tests failed",
         details=out[:2000],
-        recovery="target row_expansion and invalid_schema first",
+        recovery="Phase 5 diagnose then implement fixes",
     )
     _out(f"RESULT: FAILED (exit {code}, score {score})")
     _out(_preview(out, max_lines=10))
-    messages.append({"role": "user", "content": _build_repair_message(code, out)})
+    diagnosis = ""
+    if config.get("diagnose_on_failure"):
+        diagnosis = _phase_diagnose(client, code, out, iteration=iteration)
+    else:
+        LOG.decision(
+            "Repair from test output (no LLM diagnose)",
+            next_action="implement fixes",
+        )
+    messages.append({"role": "user", "content": _build_repair_message(code, out, diagnosis)})
     return False, messages
 
 
-def run_agent(task: str, max_iterations: int | None = None) -> None:
+def run_agent(
+    task: str,
+    max_iterations: int | None = None,
+    *,
+    force_setup: bool = False,
+    skip_setup: bool = False,
+    llm_setup: bool | None = None,
+    diagnose_on_failure: bool | None = None,
+    task_mode: str | None = None,
+) -> None:
     load_dotenv(ROOT / ".env")
     _reject_paid_api_env()
     config = load_config()
+    if task_mode:
+        config["task_mode"] = task_mode
+        from config_loader import apply_task_mode  # noqa: E402
+
+        config = apply_task_mode(config)
     if os.getenv("OLLAMA_BASE_URL"):
         config["ollama_base_url"] = os.environ["OLLAMA_BASE_URL"]
     if os.getenv("AGENT_MODEL"):
         config["primary_model"] = os.environ["AGENT_MODEL"]
+    if llm_setup is not None:
+        config["llm_setup"] = llm_setup
+    if diagnose_on_failure is not None:
+        config["diagnose_on_failure"] = diagnose_on_failure
 
     limit = max_iterations or int(config["max_iterations"])
     client = OllamaClient(
@@ -386,9 +666,15 @@ def run_agent(task: str, max_iterations: int | None = None) -> None:
         "Test command configured",
         evidence=str(config["public_test_command"]),
     )
+    LOG.decision(
+        "Task mode",
+        evidence=str(config.get("task_mode", "hackathon")),
+        next_action="flexible = any app in knit.py; hackathon = compiler + pytest",
+    )
     _log_spec_status()
 
     _out_section("SPARK agent run")
+    _out(f"Mode: {config.get('task_mode', 'hackathon')}")
     _out(f"Model: {config['primary_model']} @ {config['ollama_base_url']}")
     _out(f"Iterations: {limit}")
     _out(f"Task: {task}")
@@ -399,15 +685,41 @@ def run_agent(task: str, max_iterations: int | None = None) -> None:
     client.ensure_model()
     _sync_manifest(config)
 
+    _out("Warming up model (short request)...")
+    try:
+        client.warmup()
+        _out("Model warm-up OK.")
+    except OllamaError as exc:
+        LOG.error("Model warm-up failed", details=str(exc))
+        _out(f"Warm-up failed (continuing anyway): {exc}")
+
+    if not skip_setup:
+        _run_setup_phases(
+            client,
+            task,
+            config,
+            force=force_setup,
+            llm_setup=bool(config.get("llm_setup")),
+        )
+    else:
+        LOG.decision("Setup skipped by flag", next_action="implement loop")
+
+    impl_hint = (
+        "Implement the operator's app in knit.py. Use bash to run python3 knit.py with real inputs."
+        if _is_flexible_mode(config)
+        else "Implement knit.py compile per plan. Call run_tests after meaningful edits."
+    )
     messages: list[dict[str, Any]] = [
-        {"role": "system", "content": SYSTEM_PROMPT},
+        {"role": "system", "content": _implement_system_prompt(config)},
         {
             "role": "user",
             "content": (
                 f"Task:\n{task}\n\n"
-                f"Strategy (agent/strategy.md):\n{_load_strategy_excerpt()}\n\n"
-                f"Specification:\n{_load_spec_excerpt()}\n\n"
-                f"{BUILD_CHECKLIST}"
+                f"Spec summary (agent_logs/spec_summary.md):\n"
+                f"{_read_artifact(SPEC_SUMMARY_PATH)}\n\n"
+                f"Implementation plan (agent_logs/plan.md):\n"
+                f"{_read_artifact(PLAN_PATH)}\n\n"
+                f"Begin implement phase: {impl_hint}"
             ),
         },
     ]
@@ -510,6 +822,32 @@ def main() -> None:
             action="store_true",
             help="Only write to agent_logs/, minimal terminal output",
         )
+        p.add_argument(
+            "--force-setup",
+            action="store_true",
+            help="Re-run Phase 1 (read spec) and Phase 2 (plan) even if plan.md exists",
+        )
+        p.add_argument(
+            "--skip-setup",
+            action="store_true",
+            help="Skip setup; go straight to implement/test loop",
+        )
+        p.add_argument(
+            "--llm-setup",
+            action="store_true",
+            help="Use one Ollama call for spec+plan when SECRET_SPEC.md exists (slow on CPU)",
+        )
+        p.add_argument(
+            "--diagnose",
+            action="store_true",
+            help="After failed tests, add an LLM failure-analysis phase (extra Ollama call)",
+        )
+        p.add_argument(
+            "--mode",
+            choices=("hackathon", "flexible"),
+            default=None,
+            help="hackathon = Knit compiler tests; flexible = any app implemented in knit.py",
+        )
     human_p = sub.add_parser("log-human")
     human_p.add_argument("--type", required=True)
     human_p.add_argument("--what", required=True)
@@ -530,12 +868,28 @@ def main() -> None:
     elif args.cmd in ("run", "run-once"):
         global VERBOSE
         VERBOSE = not getattr(args, "quiet", False)
-        task = args.task or os.getenv("AGENT_TASK", "").strip() or DEFAULT_AGENT_TASK
+        cfg = load_config()
+        if args.mode:
+            cfg["task_mode"] = args.mode
+            from config_loader import apply_task_mode  # noqa: E402
+
+            cfg = apply_task_mode(cfg)
+        default_task = _default_task(cfg)
+        task = args.task or os.getenv("AGENT_TASK", "").strip() or default_task
         if args.cmd == "run" and not (args.task or os.getenv("AGENT_TASK")):
-            entered = input("Task (Enter for default hidden-task prompt): ").strip()
-            task = entered or DEFAULT_AGENT_TASK
+            hint = "calculator in knit.py" if _is_flexible_mode(cfg) else "hidden-task compiler"
+            entered = input(f"Task (Enter for default — {hint}): ").strip()
+            task = entered or default_task
         max_iter = 1 if args.cmd == "run-once" else args.max_iterations
-        run_agent(task, max_iter)
+        run_agent(
+            task,
+            max_iter,
+            force_setup=args.force_setup,
+            skip_setup=args.skip_setup,
+            llm_setup=args.llm_setup or bool(cfg.get("llm_setup")),
+            diagnose_on_failure=args.diagnose or bool(cfg.get("diagnose_on_failure")),
+            task_mode=args.mode,
+        )
     elif args.cmd == "log-human":
         cmd_log_human(args)
     elif args.cmd == "log-prompt":

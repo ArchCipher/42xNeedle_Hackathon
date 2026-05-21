@@ -63,10 +63,13 @@ v2 writes `<input>.out.json` (structured IR, symbols, stdout) and prints runtime
 ```bash
 ollama serve && ollama pull qwen2.5-coder:7b
 python3 agent/agent.py doctor
-python3 agent/agent.py run "Read secret_spec and implement knit.py"
-python3 agent/agent.py run-once "Read secret_spec/SECRET_SPEC.md"   # single iteration (verbose terminal output)
+python3 agent/agent.py run              # default: fast template setup, then implement loop
+python3 agent/agent.py run-once         # one implement → test → repair cycle
+python3 agent/agent.py run --llm-setup  # optional: one LLM call for plan (only if SECRET_SPEC.md exists)
 # use -q for logs-only (quiet)
 ```
+
+**If Ollama is slow or times out:** warm up first with `ollama run qwen2.5-coder:7b`, then run the agent. Default setup does **not** call the model (writes `plan.md` from templates). See [Agent architecture](#agent-architecture) below.
 
 **Windows:** use `py -3` instead of `python3`. Full guide: [docs/RUN_AND_TEST.md](docs/RUN_AND_TEST.md).
 
@@ -135,58 +138,105 @@ Fill in `agent_logs/final_report.md` before submitting.
 
 **Collaboration:** [docs/COLLABORATION.md](docs/COLLABORATION.md) — role split, free stack, sync points (assign roles among yourselves).
 
-## Agent docs (fill as you build)
+## Agent architecture
 
-### Overview
+**One Ollama model** (`agent/config.yaml`), **one Python loop** (`agent/agent.py`). No paid APIs.
 
-TBD
+### What is what
 
-### Objective
+| Component | Purpose |
+|-----------|---------|
+| `knit.py` + `src/` | **Final product** — compiler the hackathon judges run |
+| `run_tests.py` + `tests/` | **Team test harness** — pytest smoke tests for `knit.py` |
+| `agent/agent.py` | **Autonomous agent** — reads spec, edits code, runs tests, logs |
 
-Build the Knit compiler autonomously from `secret_spec/`, iterating on public tests.
+### Loop (where the code lives)
 
-### Architecture
+Entry: `main()` → `run_agent()` in `agent/agent.py`.
 
-Ollama loop in `agent/agent.py`: read spec → model+tools (`bash`, `read_file`, `write_file`, `run_tests`) → public tests → log → repeat. Modules: `ollama_client.py`, `tools.py`, `logger.py`.
+```text
+run_agent()
+  │
+  ├─ doctor path: ensure Ollama + model
+  ├─ warm-up: tiny Ollama request (loads model into RAM)
+  ├─ setup (fast by default):
+  │     • template → agent_logs/spec_summary.md + plan.md  (no LLM)
+  │     • OR --llm-setup + SECRET_SPEC.md → one LLM summary/plan call
+  │
+  └─ for iteration = 1 .. max_iterations (config: 40):
+        _run_iteration()
+          ├─ Phase 3 IMPLEMENT: _tool_rounds() — Ollama + tools
+          │     read_file, write_file, bash, run_tests
+          ├─ Phase 4 TEST: run_public_tests() — python3 run_tests.py (no LLM)
+          ├─ if pass → stop
+          └─ if fail → repair message (+ optional --diagnose LLM) → next iteration
+```
+
+**`run-once`** sets `max_iterations = 1` (one implement → test → repair cycle).
+
+**Config:** `agent/config.yaml` — model, timeouts, `public_test_command`, `llm_setup`, `diagnose_on_failure`.
+
+**Logs:** all steps append to `agent_logs/` via `agent/logger.py` (`decisions.log`, `commands.log`, `test_runs.log`, `errors.log`, …).
+
+### Why a run might “hang” or crash
+
+1. **First Ollama call on CPU** can take many minutes (not frozen — loading 7B weights).
+2. **Old default** ran two LLM setup calls before any tools; that is now **template setup** (instant) unless you pass `--llm-setup`.
+3. **`socket.timeout`** after `request_timeout_seconds` (default 900s) — warm up with `ollama run qwen2.5-coder:7b` or increase timeout in config.
+
+### Task modes (`knit.py` is always the app)
+
+| Mode | When | What the agent builds |
+|------|------|------------------------|
+| **`hackathon`** (default) | After spec / submission | `knit.py compile` compiler in `src/`; tests = `run_tests.py` |
+| **`flexible`** | Before spec, demos | **Any app** the prompt describes, implemented **inside `knit.py`** (calculator, calendar, …) |
+
+Mock calculator spec (minimal, for testing): [`secret_spec/MOCK_CALCULATOR_SPEC.md`](secret_spec/MOCK_CALCULATOR_SPEC.md) — steps in [`docs/TEST_CALCULATOR.md`](docs/TEST_CALCULATOR.md).
+
+```bash
+# Calculator (or any app) as knit.py:
+cp secret_spec/MOCK_CALCULATOR_SPEC.md secret_spec/SECRET_SPEC.md
+python3 agent/agent.py run --mode flexible --force-setup \
+  "Build the calculator from secret_spec/SECRET_SPEC.md in knit.py"
+# or: ./scripts/test_calculator_agent.sh
+```
+
+# After SECRET_SPEC.md arrives — switch back:
+python3 agent/agent.py run --mode hackathon --force-setup
+```
+
+Flexible mode checks `python3 -m py_compile knit.py` each iteration; the model should use **bash** to run `python3 knit.py ...` and verify behavior. Set `AGENT_VERIFY_COMMAND` for a custom smoke command.
+
+### Commands
+
+| Command | Effect |
+|---------|--------|
+| `agent/agent.py run` | Full loop, template setup |
+| `agent/agent.py run --mode flexible "..."` | Build prompt's app in `knit.py` |
+| `agent/agent.py run-once` | Single iteration (good smoke test) |
+| `agent/agent.py run --skip-setup` | Reuse existing `plan.md` |
+| `agent/agent.py run --force-setup` | Regenerate template plan |
+| `agent/agent.py run --llm-setup` | One LLM plan call (needs spec file) |
+| `agent/agent.py run --diagnose` | Extra LLM call after test failures |
+| `agent/agent.py plan` | Print checklist (no Ollama) |
+
+## Agent docs (submission)
 
 ### Models used
 
-See `agent_manifest.json` and `agent/config.yaml`.
+See `agent_manifest.json` and `agent/config.yaml` (Ollama `qwen2.5-coder:7b`).
 
-### Tools available
+### Tools
 
-TBD — bash, read/write files, public test runner, etc.
-
-### Prompt strategy
-
-TBD
-
-### Test loop
-
-TBD — document command in `test_runs.log` via `AgentLogger.test_run()`.
-
-### Score progression
-
-TBD — log each public run in `test_runs.log`.
-
-### Failures + recovery
-
-TBD — log in `errors.log` and `decisions.log`.
+`bash`, `read_file`, `write_file`, `run_tests` (runs `public_test_command` from config).
 
 ### Human interventions
-
-Log every post-release human action:
 
 ```bash
 python3 agent/agent.py log-human --type <TYPE> --what "..."
 ```
 
-If none: ensure `human_interventions.log` contains  
-`No human interventions after hidden task release.`
-
-### What we would improve
-
-TBD
+If none: `human_interventions.log` should state no post-release human edits.
 
 ## Resources
 

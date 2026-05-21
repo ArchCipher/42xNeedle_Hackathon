@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import re
+import socket
 import urllib.error
 import urllib.request
 from typing import Any
@@ -36,16 +37,30 @@ class OllamaClient:
                 f"Model '{self.model}' not found locally. Run: ollama pull {self.model}"
             )
 
+    def warmup(self) -> None:
+        """Load the model with a tiny request so the first real call is faster."""
+        payload: dict[str, Any] = {
+            "model": self.model,
+            "messages": [{"role": "user", "content": "Reply with OK"}],
+            "stream": False,
+            "options": {"num_predict": 8, "temperature": 0},
+        }
+        self._post("/api/chat", payload)
+
     def chat(
         self,
         messages: list[dict[str, Any]],
         tools: list[dict[str, Any]] | None = None,
+        *,
+        num_predict: int | None = None,
     ) -> dict[str, Any]:
         payload: dict[str, Any] = {
             "model": self.model,
             "messages": messages,
             "stream": False,
         }
+        if num_predict is not None:
+            payload["options"] = {"num_predict": num_predict, "temperature": 0.2}
         if tools:
             payload["tools"] = tools
         return self._post("/api/chat", payload)
@@ -71,6 +86,18 @@ class OllamaClient:
         try:
             with urllib.request.urlopen(req, timeout=self.timeout) as resp:
                 return json.loads(resp.read().decode())
+        except socket.timeout as exc:
+            raise OllamaError(
+                f"Ollama timed out after {self.timeout}s. "
+                "First run on CPU can take many minutes — try: "
+                f"ollama run {self.model} (warm up), increase request_timeout_seconds in "
+                "agent/config.yaml, or use agent/agent.py run --skip-setup."
+            ) from exc
+        except TimeoutError as exc:
+            raise OllamaError(
+                f"Ollama timed out after {self.timeout}s. Warm up the model or raise "
+                "request_timeout_seconds in agent/config.yaml."
+            ) from exc
         except urllib.error.URLError as exc:
             raise OllamaError(f"Ollama request failed: {exc}") from exc
 

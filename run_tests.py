@@ -2,8 +2,8 @@
 """Test runner entry point.
 
 Usage:
-    python run_tests.py               # run all tests against dummy stub
-    KNIT_TARGET=knit.py python run_tests.py   # run against real knit.py
+    python run_tests.py
+    KNIT_TARGET=/path/to/knit.py python run_tests.py   # optional override
 """
 
 from __future__ import annotations
@@ -70,7 +70,7 @@ def _write_test_log(report: dict) -> None:
     errored = summary.get("error", 0)
     total = summary.get("total", 0)
     duration = report.get("duration", 0.0)
-    knit_target = __import__("os").environ.get("KNIT_TARGET", "tests/dummy_knit.py")
+    knit_target = __import__("os").environ.get("KNIT_TARGET", "knit.py")
 
     failures = [t for t in report.get("tests", []) if t.get("outcome") in ("failed", "error")]
 

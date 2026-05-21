@@ -55,16 +55,27 @@ py -3 agent\agent.py run
 py -3 agent\agent.py plan
 ```
 
+**Phased loop (one Ollama model):** read spec → plan → implement (tools) → test → diagnose → repeat.
+
+Artifacts: `agent_logs/spec_summary.md`, `agent_logs/plan.md`.
+
 **Default hidden-task prompt (press Enter at Task: or use run-once):**
 
 ```powershell
 py -3 agent\agent.py run-once
 ```
 
+**Full run (refreshes plan if missing; use `--force-setup` to regenerate plan):**
+
+```powershell
+py -3 agent\agent.py run
+py -3 agent\agent.py run --force-setup
+```
+
 **Single iteration with custom prompt:**
 
 ```powershell
-py -3 agent\agent.py run-once "Read secret_spec/SECRET_SPEC.md and implement row_expansion first"
+py -3 agent\agent.py run-once "Implement row_expansion in src/ per plan.md"
 ```
 
 **Health check:**
@@ -80,10 +91,10 @@ Logs: `agent_logs\` (`prompts.log`, `decisions.log`, `commands.log`, `test_runs.
 ## Config
 
 - Model / iterations: `agent\config.yaml`
-- Test command: auto-uses current Python (`sys.executable`); rewrites `python3` on load
+- Test command: default `python3 run_tests.py` (see `agent/config.yaml`)
 - Override Python: `$env:AGENT_PYTHON = "py -3"`
 
-When `secret_spec/test_runner/run_tests.py` exists, the agent switches to the public runner automatically.
+When `secret_spec/test_runner/run_tests.py` exists, config loader prefers the official hackathon runner.
 
 ---
 

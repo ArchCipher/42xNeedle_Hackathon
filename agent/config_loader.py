@@ -29,9 +29,12 @@ def python_launcher() -> str:
 def default_public_test_command() -> str:
     py = python_launcher()
     knit = f'"{py}" knit.py' if " " in py else f"{py} knit.py"
-    runner = ROOT / "secret_spec" / "test_runner" / "run_tests.py"
-    if runner.is_file():
-        return f'"{py}" "{runner}" --program "{knit}" --suite public'
+    official = ROOT / "secret_spec" / "test_runner" / "run_tests.py"
+    if official.is_file():
+        return f'"{py}" "{official}" --program "{knit}" --suite public'
+    team_runner = ROOT / "run_tests.py"
+    if team_runner.is_file():
+        return f"{py} run_tests.py" if " " not in py else f'"{py}" run_tests.py'
     return f"{knit} compile examples/hello.knit 2>&1"
 
 
@@ -42,6 +45,28 @@ def normalize_test_command(command: str) -> str:
     return command
 
 
+def flexible_verify_command() -> str:
+    """Default check for flexible mode: knit.py must at least compile."""
+    if os.getenv("AGENT_VERIFY_COMMAND"):
+        return normalize_test_command(os.environ["AGENT_VERIFY_COMMAND"].strip())
+    py = python_launcher()
+    return normalize_test_command(f"{py} -m py_compile knit.py")
+
+
+def apply_task_mode(data: dict[str, Any]) -> dict[str, Any]:
+    mode = str(data.get("task_mode", "hackathon")).strip().lower()
+    if os.getenv("AGENT_MODE"):
+        mode = os.environ["AGENT_MODE"].strip().lower()
+    data["task_mode"] = mode
+    if mode == "flexible":
+        custom = data.get("flexible_verify_command")
+        if custom:
+            data["public_test_command"] = normalize_test_command(str(custom))
+        else:
+            data["public_test_command"] = flexible_verify_command()
+    return data
+
+
 def load_config() -> dict[str, Any]:
     defaults: dict[str, Any] = {
         "primary_model": "qwen2.5-coder:7b",
@@ -49,11 +74,14 @@ def load_config() -> dict[str, Any]:
         "ollama_base_url": "http://127.0.0.1:11434",
         "max_iterations": 40,
         "max_tool_rounds_per_iteration": 12,
-        "request_timeout_seconds": 300,
+        "request_timeout_seconds": 900,
         "public_test_command": default_public_test_command(),
+        "llm_setup": False,
+        "diagnose_on_failure": False,
+        "task_mode": "hackathon",
     }
     if not CONFIG_PATH.exists():
-        return defaults
+        return apply_task_mode(defaults)
 
     data = dict(defaults)
     for raw in CONFIG_PATH.read_text(encoding="utf-8").splitlines():
@@ -71,4 +99,4 @@ def load_config() -> dict[str, Any]:
         else:
             data[key] = value
     data["public_test_command"] = normalize_test_command(str(data["public_test_command"]))
-    return data
+    return apply_task_mode(data)

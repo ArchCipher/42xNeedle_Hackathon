@@ -52,6 +52,18 @@ When `SECRET_SPEC.md` exists, extract and log:
 - `src/` — implementation
 - Do **not** edit `agent/`, `compiler_v2/` (parallel experiment), or `agent_logs/` by hand
 
+## Agent loop (one Ollama model)
+
+Each `agent/agent.py run`:
+
+1. **Setup (default: template, no LLM)** — writes `agent_logs/plan.md` + `spec_summary.md`
+2. **Implement** — tools: `read_file`, `write_file`, `bash`, `run_tests` (per iteration)
+3. **Test** — `python3 run_tests.py` (no LLM)
+4. **Repair** — test output fed back to the model (optional `--diagnose` adds an LLM analysis)
+5. Repeat 2–4 until pass or `max_iterations`
+
+Use `--llm-setup` only after `SECRET_SPEC.md` exists and you want one LLM planning call.
+
 ## After each change
 
 Call `run_tests` or let the iteration runner execute the configured public test command.
