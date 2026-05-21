@@ -406,3 +406,21 @@ Decision: Run finished
 Reason: tests passed
 Evidence/input used: 
 Next action: 
+
+[2026-05-21 19:50] DECISION
+Decision: Spec loaded from secret_spec/SECRET_SPEC.md
+Reason: 
+Evidence/input used: 168 bytes at secret_spec/SECRET_SPEC.md
+Next action: use read_file for full spec when implementing
+
+[2026-05-21 19:50] DECISION
+Decision: Planning mode
+Reason: 
+Evidence/input used: 
+Next action: read spec then implement in src/
+
+[2026-05-21 19:50] DECISION
+Decision: Plan printed
+Reason: 
+Evidence/input used: agent/strategy.md + spec excerpt
+Next action: 
