@@ -48,3 +48,31 @@ Suite: public
 Score/result: 226/250
 Main failing categories: stress boundary and rare edge policy
 Agent response/next step: Final run before submission. No manual code edits.
+
+[2026-05-21 14:06] TEST_RUN
+Run by: run_tests.py (automated)
+Command: /home/pcg91/projects/hackathons/42xNeedle_Hackathon/.venv/bin/python run_tests.py 
+Suite: tests/ | target: tests/dummy_knit.py
+Score/result: 2/2 passed | duration: 0.12s
+Main failing categories:
+  (none)
+Agent response/next step: All tests passing. No action needed.
+
+[2026-05-21 14:07] TEST_RUN
+Run by: run_tests.py (automated)
+Command: /home/pcg91/projects/hackathons/42xNeedle_Hackathon/.venv/bin/python run_tests.py 
+Suite: tests/ | target: tests/dummy_knit.py
+Score/result: 1/1 passed, 1 failed | duration: 0.09s
+Main failing categories:
+  - tests/test_knit.py::TestDummyStub::test_exits_zero [FAILED tests/test_knit.py::TestDummyStub::test_exits_zero - AssertionError: Expected exit 0, got 1]
+    detail: E   AssertionError: Expected exit 0, got 1 | E   assert result.returncode == 0
+Agent response/next step: Investigate failures above. Each detail line shows what was expected vs. returned.
+
+[2026-05-21 15:31] TEST_RUN
+Run by: run_tests.py (automated)
+Command: /home/pcg91/projects/hackathons/42xNeedle_Hackathon/.venv/bin/python run_tests.py 
+Suite: tests/ | target: tests/dummy_knit.py
+Score/result: 2/2 passed | duration: 0.44s
+Main failing categories:
+  (none)
+Agent response/next step: All tests passing. No action needed.
