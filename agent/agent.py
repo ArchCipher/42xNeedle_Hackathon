@@ -167,6 +167,13 @@ Rules:
 - Small targeted edits; call run_tests after meaningful changes
 - Do NOT edit agent/, compiler_v2/, agent_logs/
 
+Self-generated tests (do this once public tests pass):
+- Write edge-case tests to tests/test_self.py using pytest and subprocess
+- Derive cases directly from secret_spec/SECRET_SPEC.md: boundary values, empty input,
+  missing fields, invalid types, maximum row counts, special characters
+- Use the same run_knit() pattern as tests/test_knit.py
+- Run the new tests with bash: python3 -m pytest tests/test_self.py -v
+
 When stuck, re-read secret_spec/SECRET_SPEC.md with read_file.
 Stop calling tools when you need the outer loop to run full public tests again."""
 
