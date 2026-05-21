@@ -42,20 +42,22 @@ python3 knit.py compile <input_file>
 
 Stub returns exit code 1 until `src/` is implemented.
 
-### Agent
+### Agent (free — Ollama only)
 
 ```bash
-# Run agent loop (logs to agent_logs/)
+ollama serve && ollama pull qwen2.5-coder:7b
+python3 agent/agent.py doctor
 python3 agent/agent.py run "Read secret_spec and implement knit.py"
-
-# Log a human prompt (after hidden task release)
-python3 agent/agent.py log-prompt "Focus on level_03 failures" --context "Score 94/250"
-
-# Log human intervention (required format for judges)
-python3 agent/agent.py log-human --type PROMPT_EDIT --what "Narrowed scope to parser only"
 ```
 
-**Rule:** anything the agent or a human does after the hidden task release should be reflected in `agent_logs/`. Use `agent/logger.py` — do not write logs by hand unless logging a human action via CLI.
+Do **not** set `OPENAI_API_KEY` or `ANTHROPIC_API_KEY` — the agent refuses paid APIs.
+
+```bash
+python3 agent/agent.py log-prompt "..." --context "..."
+python3 agent/agent.py log-human --type PROMPT_EDIT --what "..."
+```
+
+Config: `agent/config.yaml`. **Rule:** use `agent/logger.py` for all agent activity logs.
 
 ## 19:45 checkpoint (Thursday)
 
@@ -114,7 +116,7 @@ Build the Knit compiler autonomously from `secret_spec/`, iterating on public te
 
 ### Architecture
 
-TBD — describe loop, tools, and where LLM calls live in `agent/agent.py`.
+Ollama loop in `agent/agent.py`: read spec → model+tools (`bash`, `read_file`, `write_file`, `run_tests`) → public tests → log → repeat. Modules: `ollama_client.py`, `tools.py`, `logger.py`.
 
 ### Models used
 

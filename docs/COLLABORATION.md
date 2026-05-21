@@ -12,6 +12,8 @@ Assign roles among the four teammates yourselves. Each role owns specific paths 
 
 **Owns:** `agent/agent.py`, `agent/config.yaml`, agent architecture notes in `README.md`
 
+**Status:** Implemented (Ollama only, no paid APIs). Verify: `python3 agent/agent.py doctor`
+
 **Responsibilities:**
 
 - Main loop: read spec → plan → act → test → repair

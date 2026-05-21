@@ -1,5 +1,1 @@
 python-dotenv>=1.0.0
-
-# Uncomment when wiring LLM calls in agent/agent.py:
-# anthropic>=0.40.0
-# openai>=1.50.0

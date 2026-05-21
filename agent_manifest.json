@@ -1,12 +1,12 @@
 {
   "team_name": "YOUR_TEAM_NAME",
-  "primary_model": "",
-  "provider": "",
-  "runtime_or_tool": "custom Python agent (agent/agent.py)",
+  "primary_model": "qwen2.5-coder:7b",
+  "provider": "Ollama",
+  "runtime_or_tool": "custom Python agent (agent/agent.py) + Ollama",
   "additional_models": [],
   "paid_frontier_models_used_after_spec_release": false,
   "copilot_or_paid_ide_assistant_used_after_spec_release": false,
   "institutional_or_work_model_quota_used_after_spec_release": false,
   "model_configuration_location": "agent/config.yaml",
-  "notes": "Fill in before final submission. No API keys in this file."
+  "notes": "Agent uses Ollama local inference only; no paid LLM API calls."
 }

@@ -1,4 +1,11 @@
-# Model configuration (referenced by agent_manifest.json)
-primary_model: ""
-provider: ""
-additional_models: []
+# Free local inference only (Ollama). No paid API keys used by this agent.
+
+primary_model: qwen2.5-coder:7b
+provider: Ollama
+ollama_base_url: http://127.0.0.1:11434
+
+max_iterations: 40
+max_tool_rounds_per_iteration: 12
+request_timeout_seconds: 300
+
+public_test_command: python3 knit.py compile examples/hello.knit 2>&1

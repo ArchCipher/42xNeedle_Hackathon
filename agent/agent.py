@@ -1,125 +1,215 @@
 #!/usr/bin/env python3
-"""Main agent loop for the 42 x Needle Hackathon.
-
-All activity should go through AgentLogger so agent_logs/ stays submission-ready.
-Extend _run_iteration() with your model + tools after the 19:45 checkpoint.
-"""
+"""Main agent loop — free local Ollama only (no paid LLM APIs)."""
 
 from __future__ import annotations
 
 import argparse
 import json
 import os
-import subprocess
 import sys
 from pathlib import Path
+from typing import Any
 
 try:
     from dotenv import load_dotenv
 except ImportError:
+
     def load_dotenv(*_args: object, **_kwargs: object) -> bool:
         return False
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+from config_loader import load_config  # noqa: E402
 from logger import AgentLogger  # noqa: E402
+from ollama_client import OllamaClient, OllamaError, parse_assistant_response  # noqa: E402
+from tools import ROOT, execute_tool, run_bash, tools_as_ollama_json  # noqa: E402
 
-ROOT = Path(__file__).resolve().parent.parent
 LOG = AgentLogger()
 MANIFEST = ROOT / "agent_manifest.json"
 SPEC_PATH = ROOT / "secret_spec" / "SECRET_SPEC.md"
 
+SYSTEM_PROMPT = """You are an autonomous coding agent for the 42 x Needle Hackathon.
 
-def run_bash(command: str, cwd: Path | None = None) -> tuple[int, str]:
-    proc = subprocess.run(
-        command,
-        shell=True,
-        cwd=cwd or ROOT,
-        capture_output=True,
-        text=True,
-        timeout=120,
-    )
-    out = (proc.stdout or "") + (proc.stderr or "")
-    return proc.returncode, out.strip()
+Rules:
+- Build and fix the Knit compiler (knit.py and src/) to match secret_spec/SECRET_SPEC.md.
+- Use tools: bash, read_file, write_file, run_tests.
+- Make small, targeted changes. Rerun run_tests after meaningful edits.
+- When public tests pass and the spec is satisfied, reply with a short summary and stop calling tools.
+
+If native tool calls fail, use:
+<tool_call>
+{"name": "read_file", "input": {"path": "secret_spec/SECRET_SPEC.md"}}
+</tool_call>
+"""
 
 
-def run_public_tests() -> tuple[int, str]:
-    """Replace with the real public test command once released."""
-    for cmd in (
-        "python3 knit.py compile examples/hello.knit 2>&1",
-        "pytest -q 2>&1",
-    ):
-        code, out = run_bash(cmd)
-        LOG.command(cmd, exit_code=code, output=out)
-        if code != 127:
-            LOG.test_run(
-                cmd,
-                exit_code=code,
-                score="unknown",
-                failures=out[:500] if code != 0 else "",
-                notes="public test runner placeholder",
+def _reject_paid_api_env() -> None:
+    for key in ("ANTHROPIC_API_KEY", "OPENAI_API_KEY", "OPENROUTER_API_KEY"):
+        if os.getenv(key):
+            raise OllamaError(
+                f"{key} is set. This agent uses free Ollama only. Unset it or use a clean shell."
             )
-            return code, out
-    return 1, "no test command found"
 
 
-def _run_iteration(task: str, iteration: int) -> bool:
-    """One plan-act-test cycle. Return True when the agent should stop."""
-    LOG.decision(
-        f"Start iteration {iteration}",
-        reason="Main agent loop tick",
-        next_action="Read spec, edit src/, run tests",
+def _load_spec_excerpt(max_chars: int = 12000) -> str:
+    if not SPEC_PATH.exists():
+        return "(secret_spec/SECRET_SPEC.md not present yet.)"
+    text = SPEC_PATH.read_text(encoding="utf-8")
+    return text if len(text) <= max_chars else text[:max_chars] + "\n...(truncated)..."
+
+
+def _sync_manifest(config: dict[str, Any]) -> None:
+    if not MANIFEST.exists():
+        return
+    data = json.loads(MANIFEST.read_text(encoding="utf-8"))
+    data["primary_model"] = config["primary_model"]
+    data["provider"] = config["provider"]
+    data["runtime_or_tool"] = "custom Python agent (agent/agent.py) + Ollama"
+    data["paid_frontier_models_used_after_spec_release"] = False
+    data["notes"] = "Agent uses Ollama local inference only; no paid LLM API calls."
+    MANIFEST.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
+
+
+def run_public_tests(command: str) -> tuple[int, str]:
+    code, out = run_bash(command)
+    LOG.command(command, exit_code=code, output=out)
+    LOG.test_run(
+        command,
+        exit_code=code,
+        score="see output",
+        failures=out[:800] if code != 0 else "",
+        notes="check after agent iteration",
     )
+    return code, out
 
-    if SPEC_PATH.exists():
-        spec = SPEC_PATH.read_text(encoding="utf-8")
-        LOG.decision(
-            "Loaded hidden spec",
-            evidence=f"{SPEC_PATH} ({len(spec)} bytes)",
-            next_action="Implement or patch compiler in src/",
-        )
-    else:
-        LOG.decision(
-            "No hidden spec yet",
-            reason="secret_spec/SECRET_SPEC.md not present",
-            next_action="Prepare agent + knit.py stub until 20:00 release",
-        )
 
-    code, out = run_public_tests()
+def _tool_rounds(
+    client: OllamaClient,
+    messages: list[dict[str, Any]],
+    config: dict[str, Any],
+    iteration: int,
+) -> str:
+    max_rounds = int(config["max_tool_rounds_per_iteration"])
+    last_text = ""
+    test_cmd = str(config["public_test_command"])
+
+    for round_i in range(1, max_rounds + 1):
+        resp = client.chat(messages, tools=tools_as_ollama_json())
+        msg = resp.get("message", {})
+        text, tool_calls = parse_assistant_response(msg)
+        last_text = text or last_text
+
+        if text:
+            LOG.decision(
+                f"Model reply (iter {iteration}, round {round_i})",
+                reason=text[:600],
+            )
+
+        if not tool_calls:
+            return last_text
+
+        messages.append({"role": "assistant", "content": text, "tool_calls": msg.get("tool_calls")})
+        for tc in tool_calls:
+            name, inputs = tc["name"], tc["input"]
+            LOG.command(f"{name}({json.dumps(inputs)[:200]})", run_by="agent")
+            try:
+                result = execute_tool(name, inputs, public_test_command=test_cmd)
+            except Exception as exc:
+                result = f"error: {exc}"
+                LOG.error(f"Tool {name} failed", details=str(exc))
+            LOG.command(f"{name} result", exit_code=0, output=result[:1500])
+            messages.append({"role": "tool", "content": result})
+
+    LOG.error("Tool round cap", details=f"max={max_rounds}")
+    return last_text
+
+
+def _run_iteration(
+    client: OllamaClient,
+    messages: list[dict[str, Any]],
+    config: dict[str, Any],
+    iteration: int,
+) -> tuple[bool, list[dict[str, Any]]]:
+    LOG.decision(f"Start iteration {iteration}", next_action="tool rounds then tests")
+    summary = _tool_rounds(client, messages, config, iteration)
+    done = summary and any(k in summary.lower() for k in ("done", "complete", "finished"))
+
+    code, out = run_public_tests(str(config["public_test_command"]))
     if code == 0:
-        LOG.decision("Tests passed", reason=out[:200], next_action="Stop or refine")
-        return True
+        LOG.decision("Public tests passed", reason=out[:300])
+        return True, messages
 
-    LOG.error(
-        "Tests failed",
-        details=out[:2000],
-        recovery="Patch implementation and rerun",
+    LOG.error("Public tests failed", details=out[:2000], recovery="patch and retry")
+    messages.append(
+        {
+            "role": "user",
+            "content": f"Tests failed (exit={code}):\n{out[:4000]}\nFix with small edits.",
+        }
     )
-    return False
+    return done, messages
 
 
-def run_agent(task: str, max_iterations: int = 50) -> None:
+def run_agent(task: str, max_iterations: int | None = None) -> None:
     load_dotenv(ROOT / ".env")
-    LOG.user_prompt(
-        task,
-        context="Agent run started",
-        expected_action="Implement compiler per spec; iterate on test failures",
-    )
-    LOG.decision(
-        "Agent run started",
-        reason=task,
-        next_action=f"Up to {max_iterations} iterations",
+    _reject_paid_api_env()
+    config = load_config()
+    if os.getenv("OLLAMA_BASE_URL"):
+        config["ollama_base_url"] = os.environ["OLLAMA_BASE_URL"]
+    if os.getenv("AGENT_MODEL"):
+        config["primary_model"] = os.environ["AGENT_MODEL"]
+
+    limit = max_iterations or int(config["max_iterations"])
+    client = OllamaClient(
+        config["ollama_base_url"],
+        config["primary_model"],
+        timeout=int(config["request_timeout_seconds"]),
     )
 
-    for i in range(1, max_iterations + 1):
+    LOG.user_prompt(task, context=f"model={config['primary_model']} (Ollama, free)")
+    LOG.decision("Agent run started", reason=task, next_action=f"max {limit} iterations")
+
+    client.ensure_model()
+    _sync_manifest(config)
+
+    messages: list[dict[str, Any]] = [
+        {"role": "system", "content": SYSTEM_PROMPT},
+        {"role": "user", "content": f"Task:\n{task}\n\nSpecification:\n{_load_spec_excerpt()}"},
+    ]
+
+    crashes = 0
+    for i in range(1, limit + 1):
         try:
-            if _run_iteration(task, i):
-                LOG.decision("Run finished", reason="Stop condition met")
+            stop, messages = _run_iteration(client, messages, config, i)
+            crashes = 0
+            if stop:
+                LOG.decision("Run finished", reason="stop condition met")
                 break
+        except OllamaError as exc:
+            crashes += 1
+            LOG.error("Iteration failed", details=str(exc))
+            if crashes >= 3:
+                raise
         except Exception as exc:
             LOG.error("Agent crash", details=str(exc))
             raise
     else:
-        LOG.error("Max iterations reached", details=f"limit={max_iterations}")
+        LOG.error("Max iterations reached", details=f"limit={limit}")
+
+
+def cmd_doctor(_args: argparse.Namespace) -> None:
+    _reject_paid_api_env()
+    config = load_config()
+    print("Setup check (Ollama only)\n")
+    client = OllamaClient(config["ollama_base_url"], config["primary_model"], timeout=30)
+    try:
+        client.health()
+        print(f"OK: Ollama at {config['ollama_base_url']}")
+        client.ensure_model()
+        print(f"OK: model {config['primary_model']}")
+    except OllamaError as exc:
+        print(f"FAIL: {exc}")
+        sys.exit(1)
+    LOG.decision("doctor smoke test")
+    print("OK: logging works")
 
 
 def cmd_log_human(args: argparse.Namespace) -> None:
@@ -140,32 +230,31 @@ def cmd_log_prompt(args: argparse.Namespace) -> None:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="42 x Needle agent")
+    parser = argparse.ArgumentParser(description="42 x Needle agent (Ollama only)")
     sub = parser.add_subparsers(dest="cmd", required=True)
-
-    run_p = sub.add_parser("run", help="Run the agent loop")
+    sub.add_parser("doctor", help="Check Ollama setup")
+    run_p = sub.add_parser("run", help="Run agent loop")
     run_p.add_argument("task", nargs="?", default=os.getenv("AGENT_TASK", ""))
-    run_p.add_argument("--max-iterations", type=int, default=50)
-
-    human_p = sub.add_parser("log-human", help="Log a human intervention")
-    human_p.add_argument("--type", required=True, help="e.g. PROMPT_EDIT, AGENT_RESTART")
+    run_p.add_argument("--max-iterations", type=int, default=None)
+    human_p = sub.add_parser("log-human")
+    human_p.add_argument("--type", required=True)
     human_p.add_argument("--what", required=True)
     human_p.add_argument("--why", default="")
     human_p.add_argument("--files", default="")
     human_p.add_argument("--touched-code", action="store_true")
     human_p.add_argument("--notes", default="")
-
-    prompt_p = sub.add_parser("log-prompt", help="Log a user prompt to the agent")
+    prompt_p = sub.add_parser("log-prompt")
     prompt_p.add_argument("prompt")
     prompt_p.add_argument("--context", default="")
     prompt_p.add_argument("--expected", default="")
 
     args = parser.parse_args()
-    if args.cmd == "run":
+    if args.cmd == "doctor":
+        cmd_doctor(args)
+    elif args.cmd == "run":
         task = args.task or input("Task: ").strip()
         if not task:
-            print("Provide a task string or set AGENT_TASK.", file=sys.stderr)
-            sys.exit(1)
+            sys.exit("Provide a task or set AGENT_TASK.")
         run_agent(task, args.max_iterations)
     elif args.cmd == "log-human":
         cmd_log_human(args)
