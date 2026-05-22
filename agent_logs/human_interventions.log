@@ -122,11 +122,32 @@ What happened: Queued steering in agent_logs/pending_prompt.txt (no SECRET_SPEC;
 Why: After iteration 17 (~07:19), agent overwrote src/compile.py with invalid imports (knitting_tools) and printed raw .knit to stdout. Tests at 07:20 and iteration 18 Phase 4 (07:35) stayed 3/150 with ModuleNotFoundError.
 Files or settings affected: agent_logs/pending_prompt.txt
 Touched final task code directly: no
-Notes: Full prompt text in agent_logs/pending_prompt.txt; will appear in agent_logs/prompts.log when the agent consumes it.
+Notes: Full prompt in agent_logs/prompts.log when consumed.
 
 [2026-05-22 07:58] MANUAL_CODE_EDIT
 What happened: Restored src/compile.py to original stub (compile_file, read_input_text, emit_json).
 Why: Agent version broke imports and stdout contract; needed a working entrypoint before the next iteration.
 Files or settings affected: src/compile.py
 Touched final task code directly: yes
-Notes: Reverted agent version only and removed src/knitting_tools.py the agent created; did not implement full compiler by hand. 
+Notes: Reverted agent version only and removed src/knitting_tools.py the agent created; did not implement full compiler by hand.
+
+[2026-05-22 08:32] PROMPT_EDIT
+What happened: Queued steering in agent_logs/pending_prompt.txt after iteration 19 (08:28 write_file to src/compile.py).
+Why: Agent followed prior prompt partially (read_input_text, py_compile) but left broken code: missing import json, UnboundLocalError on sys in except, wrong JSON shape, and wrong success check (needle/knit strings). Tests at 08:30 stayed 3/150.
+Files or settings affected: agent_logs/pending_prompt.txt
+Touched final task code directly: no
+Notes: Did not restore stub — kept agent src/compile.py for in-place repair. Prompt instructs: fix imports, read expected JSON and test .knit for pub_level_01_valid_basics_001, match stdout exactly, no SECRET_SPEC.md. Full text in pending_prompt.txt; see prompts.log when consumed.
+
+[2026-05-22 09:58] PROMPT_EDIT
+What happened: Queued surgical steering in agent_logs/pending_prompt.txt after iteration 20 (~09:52): score still 3/150; compile.py has right JSON keys but parses raw lines (pattern "No Rows", cast_on 8) instead of DSL tokens.
+Why: stderr shows Invalid cast_on value: cast_on 8 — agent used isdigit() on full line. Prompt names regex parsing, expected JSON + test 001 paths, py_compile, single knit.py smoke, then run_tests; no SECRET_SPEC re-read.
+Files or settings affected: agent_logs/pending_prompt.txt
+Touched final task code directly: no
+Notes: Kept current src/compile.py for in-place fix. Enabled diagnose_on_failure not changed. Full prompt in pending_prompt.txt.
+
+[2026-05-22 10:15] PROMPT_EDIT
+What happened: Queued follow-up steering in agent_logs/pending_prompt.txt after 09:58 prompt consumed at 10:12 (iteration 21).
+Why: Prior prompt did not change code — src/compile.py still uses readline + isdigit(); smoke test still fails Invalid cast_on value: cast_on 8; score remains 3/150.
+Files or settings affected: agent_logs/pending_prompt.txt
+Touched final task code directly: no
+Notes: Follow-up includes explicit re.match loop skeleton and forbids readline/isdigit. Consumed on next iteration start.

@@ -1,33 +1,29 @@
-"""Core compile logic — agent implements per secret_spec/SECRET_SPEC.md."""
-
-from __future__ import annotations
-
 import json
 import sys
+def emit_json(data):
+    print(json.dumps(data), file=sys.stdout)
 
-from src.io import is_empty_content, read_input_text
-
-
-def compile_file(input_path: str) -> int:
-    """
-    Success: print spec-compliant JSON to stdout, return 0.
-    Invalid: print diagnostics to stderr only, return 1.
-    """
+def compile_file(input_file):
     try:
-        raw = read_input_text(input_path)
-    except FileNotFoundError as exc:
-        print(str(exc), file=sys.stderr)
+        with open(input_file, 'r') as f:
+            pattern = f.readline().strip()
+            cast_on_line = f.readline().strip()
+
+            if not cast_on_line.isdigit():
+                raise ValueError(f"Invalid cast_on value: {cast_on_line}")
+            cast_on = int(cast_on_line)
+
+            result = {
+                "pattern_name": pattern,
+                "cast_on": cast_on,
+                "bind_off": False,
+                "errors": [],
+                "expanded_rows": [],
+                "final_stitch_count": cast_on,
+                "valid": True
+            }
+        emit_json(result)
+        return 0
+    except Exception as e:
+        print(str(e), file=sys.stderr)
         return 1
-
-    if is_empty_content(raw):
-        print("empty input", file=sys.stderr)
-        return 1
-
-    # TODO(agent): parse input, row expansion, emit exact JSON schema from spec.
-    print("compile logic not implemented — read secret_spec/SECRET_SPEC.md", file=sys.stderr)
-    return 1
-
-
-def emit_json(payload: dict) -> None:
-    """Write final result to stdout only (no extra lines)."""
-    sys.stdout.write(json.dumps(payload, ensure_ascii=False) + "\n")

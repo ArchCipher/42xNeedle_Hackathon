@@ -1,14 +1,15 @@
 # 42 x Needle Hackathon — SPARK
 
-Autonomous coding agent that builds the **Knit compiler** (`knit.py`). This repo is the team workspace for checkpoint, logs, agent code, and final submission.
+Autonomous coding agent that builds the **Knitting Compiler** (`python3 knit.py compile <file.knit>` → JSON on stdout). This repo contains the agent loop, official public tests, logs, and `src/` implementation work.
 
 ## Repository layout
 
 ```text
 ├── agent/
 │   ├── agent.py          # main agent loop
-│   ├── logger.py         # writes to agent_logs/ (use this everywhere)
-│   └── config.yaml       # model settings (see agent_manifest.json)
+│   ├── config.yaml       # model, timeouts, public_test_command
+│   ├── logger.py         # writes to agent_logs/
+│   └── strategy.md
 ├── agent_logs/
 │   ├── prompts.log
 │   ├── decisions.log
@@ -16,147 +17,170 @@ Autonomous coding agent that builds the **Knit compiler** (`knit.py`). This repo
 │   ├── test_runs.log
 │   ├── errors.log
 │   ├── human_interventions.log
+│   ├── pending_prompt.txt   # operator steering (read each iteration)
+│   ├── plan.md
+│   ├── spec_summary.md
 │   └── final_report.md
-├── agent_manifest.json   # model disclosure (required for submission)
-├── knit.py               # final compiler CLI
-├── src/                  # compiler implementation (agent fills in)
-├── secret_spec/          # SECRET_SPEC.md
-├── requirements.txt
-└── README.md
+├── agent_manifest.json
+├── knit.py               # submission CLI entrypoint
+├── src/                  # compile logic (agent implements)
+├── secret_spec/
+│   ├── SECRET_SPEC.md    # hidden task (knitting DSL compiler)
+│   ├── public_tests/
+│   ├── expected_outputs/
+│   └── test_runner/run_tests.py
+├── run_tests.py          # team pytest smoke tests (4 tests)
+├── tests/
+├── benchmark.py          # readiness score script
+├── compiler_v2/          # optional reference pipeline (compile-v2 only)
+├── backups/              # saved knit.py snapshots from practice runs
+└── log_server.py         # monitor UI
 ```
 
 ## Quick start
 
 ```bash
 python3 -m venv .venv
-source .venv/bin/activate
+source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
-cp .env.example .env   # add API keys only locally; never commit .env
+cp .env.example .env        # local only; never commit .env
 ```
 
-### Compiler (final program)
+### Compiler (submission program)
 
 ```bash
-python3 knit.py compile <input_file>
+python3 knit.py compile secret_spec/public_tests/level_01_valid_basics/pub_level_01_valid_basics_001.knit
 ```
 
-Stub returns exit code 1 until `src/` is implemented.
+`src/compile.py` must implement behavior per `secret_spec/SECRET_SPEC.md` (parse, validate, simulate stitch counts, emit **one JSON document on stdout**). Until then, the stub exits non-zero.
 
-### Compiler v1 vs v2
-
-| | v1 (`compile`) | v2 (`compile-v2`) |
-|---|----------------|-------------------|
-| Entry | `knit.py` / `main.py compile` | `knit.py` / `main.py compile-v2` |
-| Code | `knit.py` + `src/` (agent) | `compiler_v2/` (isolated) |
-| Status | Unchanged stub until spec | Runnable pipeline |
+### Public tests (official scoreboard — 150 tests)
 
 ```bash
-python main.py compile examples/hello.knit      # v1 — same as knit.py
-python main.py compile-v2 examples/hello.knit   # v2 — JSON + stdout
-python knit.py compile-v2 examples/hello.knit
+python3 secret_spec/test_runner/run_tests.py --compiler "python3 knit.py" --suite public
 ```
 
-v2 writes `<input>.out.json` (structured IR, symbols, stdout) and prints runtime lines to stdout.
+The agent uses this command in hackathon mode (`agent/config.yaml` → `public_test_command`). A stub compiler typically scores **3/150** (three CLI usage checks only); real progress shows up in `level_01_valid_basics` and above.
 
-### Agent (free — Ollama only)
+### Team smoke tests (pytest, 4 tests)
+
+```bash
+python3 run_tests.py
+```
+
+Quick check that `knit.py` exists, `compile-v2` works on `examples/hello.knit`, and `compile` is wired (may fail until implemented).
+
+### Compiler v1 vs v2 (reference only)
+
+| | v1 (`compile`) — **submission** | v2 (`compile-v2`) — practice |
+|---|----------------------------------|------------------------------|
+| Code | `knit.py` + `src/` | `compiler_v2/` (do not edit for submission) |
+| Tests | Official 150 + team pytest | `examples/hello.knit` smoke |
+
+```bash
+python3 knit.py compile-v2 examples/hello.knit
+```
+
+## Agent (Ollama only — no paid APIs)
 
 ```bash
 ollama serve && ollama pull qwen2.5-coder:7b
 python3 agent/agent.py doctor
-python3 agent/agent.py run              # default: fast template setup, then implement loop
-python3 agent/agent.py run-once         # one implement → test → repair cycle
-python3 agent/agent.py run --llm-setup  # optional: one LLM call for plan (only if SECRET_SPEC.md exists)
-# use -q for logs-only (quiet)
 ```
 
-### Teammate smoke test: calculator in `knit.py` (before the real spec)
-
-Copy-paste on any machine with Ollama installed. Full walkthrough: **[docs/TEST_CALCULATOR.md](docs/TEST_CALCULATOR.md)**.
+**Hackathon run** (real task — after `secret_spec/` is present):
 
 ```bash
-git pull
-cp secret_spec/MOCK_CALCULATOR_SPEC.md secret_spec/SECRET_SPEC.md
-
-python3 agent/agent.py run --mode flexible --force-setup \
-  "Build the CLI calculator from secret_spec/SECRET_SPEC.md in knit.py"
+python3 agent/agent.py run --mode hackathon --skip-setup \
+  "Build the knitting compiler from secret_spec/SECRET_SPEC.md in knit.py and src/"
 ```
 
-One iteration only (faster check):
+Use `--force-setup` on first run to regenerate `agent_logs/plan.md` and `spec_summary.md`. Use `--skip-setup` on restarts.
+
+Other useful flags:
+
+| Flag | Effect |
+|------|--------|
+| `--diagnose` | Extra LLM pass on test failures (slower) |
+| `--llm-setup` | One LLM call for plan (default is fast template setup) |
+| `run-once` | Single iteration only |
+
+**Steer a running agent** — write the next instruction to `agent_logs/pending_prompt.txt` (cleared each iteration). Log it for judges:
 
 ```bash
-./scripts/test_calculator_agent.sh
+python3 agent/agent.py log-human --type PROMPT_EDIT --what "..."
 ```
 
-**Backups:** agent-built apps are saved under [`backups/`](backups/README.md) (e.g. `knit_calculator.py`). Teammate manual test notes go in [`tests/manual/`](tests/manual/README.md).
-
-Then verify by hand:
+**Readiness benchmark** (checkpoint checklist):
 
 ```bash
-python3 knit.py add 2 3   # must print 5 and exit 0 — not compile/compile-v2
+python3 benchmark.py
 ```
 
-With the mock calculator spec, the agent uses `knit.py add 2 3` as the pass condition (not syntax-only). A run that “passes” but still shows `invalid choice: 'add'` means **no calculator was built** — `git pull` and see [docs/TEST_CALCULATOR.md](docs/TEST_CALCULATOR.md#what-changed-why-early-runs-passed-but-add-failed) for what was fixed.
-
-**If Ollama is slow or times out:** warm up first with `ollama run qwen2.5-coder:7b`, then run the agent. Default setup does **not** call the model (writes `plan.md` from templates). See [Agent architecture](#agent-architecture) below.
-
-**Windows:** use `py -3` instead of `python3`. Full guide: [docs/RUN_AND_TEST.md](docs/RUN_AND_TEST.md).
-
-### Overnight monitor UI
+**Monitor UI** (live logs):
 
 ```bash
 python3 log_server.py
-# open http://127.0.0.1:8765/index.html
+# http://127.0.0.1:8765/index.html
 ```
 
 See [docs/MONITOR_UI.md](docs/MONITOR_UI.md).
 
-**Your prompt** goes on the `run` command line, in `$env:AGENT_TASK`, or at the interactive `Task:` prompt — not in a repo file by default.
+**If Ollama is slow or times out:** warm up with `ollama run qwen2.5-coder:7b`, then run the agent. Default `request_timeout_seconds` is **1200** in `agent/config.yaml`. macOS `MallocStackLogging` noise is harmless — `unset MallocStackLogging` optional.
 
 Do **not** set `OPENAI_API_KEY` or `ANTHROPIC_API_KEY` — the agent refuses paid APIs.
 
-```bash
-python3 agent/agent.py log-prompt "..." --context "..."
-python3 agent/agent.py log-human --type PROMPT_EDIT --what "..."
-```
+**Windows:** use `py -3` instead of `python3`. See [docs/RUN_AND_TEST.md](docs/RUN_AND_TEST.md).
 
-Config: `agent/config.yaml`. **Rule:** use `agent/logger.py` for all agent activity logs.
+### Practice only: calculator in `knit.py` (mock spec)
 
-If macOS prints `MallocStackLogging` lines in the terminal, run `unset MallocStackLogging` once before the agent (harmless noise; subprocess output is filtered).
-
-## 19:45 checkpoint (Thursday)
-
-Before the hidden spec drops at 20:00:
+Not the submission task. Full walkthrough: [docs/TEST_CALCULATOR.md](docs/TEST_CALCULATOR.md).
 
 ```bash
-git add -A
-git commit -m "Agent readiness checkpoint"
-git tag agent-readiness-1945
-git push --follow-tags
+cp secret_spec/MOCK_CALCULATOR_SPEC.md secret_spec/SECRET_SPEC.md
+python3 agent/agent.py run --mode flexible --force-setup \
+  "Build the CLI calculator from secret_spec/SECRET_SPEC.md in knit.py"
 ```
 
-## Hidden task (20:00 Thursday)
+Restore real spec before hackathon runs: copy from [event repo `secret_spec/`](https://github.com/anavoronkova/42xNeedle_Hackathon/tree/main/secret_spec).
 
-Copy `SECRET_SPEC.md` from the [event repo](https://github.com/anavoronkova/42xNeedle_Hackathon/tree/main/secret_spec) into `secret_spec/`, then run the agent.
+## Secret spec (released)
+
+The hidden task is the **Knitting Compiler** — a `.knit` DSL, not a calculator. Materials live in `secret_spec/` (also mirrored from the [event repository](https://github.com/anavoronkova/42xNeedle_Hackathon/tree/main/secret_spec)).
+
+To refresh from upstream:
+
+```bash
+# example: re-download into secret_spec/ (keep MOCK_*.md mocks)
+curl -sL https://github.com/anavoronkova/42xNeedle_Hackathon/archive/refs/heads/main.tar.gz \
+  | tar -xz --strip-components=2 '*/secret_spec/SECRET_SPEC.md' '*/secret_spec/public_tests' \
+         '*/secret_spec/expected_outputs' '*/secret_spec/test_runner'
+```
+
+## Checkpoints
+
+```bash
+git tag -l 'agent-readiness*'
+# agent-readiness-1945       → readiness @ 19:45
+# agent-readiness-1945-final → later agent fixes
+```
 
 ## Final submission (Friday 12:00)
 
-Include in this repository:
+Include:
 
-- Final compiler (`knit.py`, `src/`)
+- `knit.py` + `src/` (working `compile` per spec)
 - `agent_manifest.json`
-- `agent_logs/` (all log files + `final_report.md`)
-- `README.md` with exact run command and setup
-- `requirements.txt` (if needed)
+- `agent_logs/` (all logs + completed `final_report.md`)
+- `README.md`, `requirements.txt`
 
-Required command shape:
+Required command:
 
 ```bash
 python3 knit.py compile <input_file>
 ```
 
-Fill in `agent_logs/final_report.md` before submitting.
-
-## Team (edit before submission)
+## Team
 
 | Field | Value |
 |-------|-------|
@@ -164,107 +188,52 @@ Fill in `agent_logs/final_report.md` before submitting.
 | Members | Kiruthika Murugananthan, Sreya Thota, Ran Mo, Pedro Castro |
 | Checkpoint tag | `agent-readiness-1945` |
 
-**Collaboration:** [docs/COLLABORATION.md](docs/COLLABORATION.md) — role split, free stack, sync points (assign roles among yourselves).
+**Collaboration:** [docs/COLLABORATION.md](docs/COLLABORATION.md)
 
 ## Agent architecture
 
-**One Ollama model** (`agent/config.yaml`), **one Python loop** (`agent/agent.py`). No paid APIs.
+One Ollama model (`qwen2.5-coder:7b`), one loop in `agent/agent.py`.
 
 ### What is what
 
 | Component | Purpose |
 |-----------|---------|
-| `knit.py` + `src/` | **Final product** — compiler the hackathon judges run |
-| `run_tests.py` + `tests/` | **Team test harness** — pytest smoke tests for `knit.py` |
-| `agent/agent.py` | **Autonomous agent** — reads spec, edits code, runs tests, logs |
+| `knit.py` + `src/` | **Final product** — judges run `compile` |
+| `secret_spec/test_runner/` | **Official tests** (150 public) — hackathon score |
+| `run_tests.py` + `tests/` | **Team pytest** — fast smoke (4 tests) |
+| `agent/agent.py` | Autonomous implement → test → repair loop |
+| `agent_logs/` | Required audit trail |
 
-### Loop (where the code lives)
-
-Entry: `main()` → `run_agent()` in `agent/agent.py`.
+### Loop
 
 ```text
-run_agent()
-  │
-  ├─ doctor path: ensure Ollama + model
-  ├─ warm-up: tiny Ollama request (loads model into RAM)
-  ├─ setup (fast by default):
-  │     • template → agent_logs/spec_summary.md + plan.md  (no LLM)
-  │     • OR --llm-setup + SECRET_SPEC.md → one LLM summary/plan call
-  │
-  └─ for iteration = 1 .. max_iterations (config: 40):
-        _run_iteration()
-          ├─ Phase 3 IMPLEMENT: _tool_rounds() — Ollama + tools
-          │     read_file, write_file, bash, run_tests
-          ├─ Phase 4 TEST: run_public_tests() — python3 run_tests.py (no LLM)
-          ├─ if pass → stop
-          └─ if fail → repair message (+ optional --diagnose LLM) → next iteration
+setup (once): template plan.md + spec_summary.md  [or --llm-setup]
+for each iteration (max 40):
+  read pending_prompt.txt if present → inject operator instruction
+  Phase 3 IMPLEMENT: Ollama + tools (read_file, write_file, bash, run_tests)
+  Phase 4 TEST:     public_test_command (official runner; no LLM)
+  if fail → append test output (+ optional --diagnose) → next iteration
 ```
 
-**`run-once`** sets `max_iterations = 1` (one implement → test → repair cycle).
+`config_loader.py` auto-prefers `secret_spec/test_runner/run_tests.py` when present; `agent/config.yaml` sets the hackathon command explicitly.
 
-**Config:** `agent/config.yaml` — model, timeouts, `public_test_command`, `llm_setup`, `diagnose_on_failure`.
+### Task modes
 
-**Logs:** all steps append to `agent_logs/` via `agent/logger.py` (`decisions.log`, `commands.log`, `test_runs.log`, `errors.log`, …).
-
-### Why a run might “hang” or crash
-
-1. **First Ollama call on CPU** can take many minutes (not frozen — loading 7B weights).
-2. **Old default** ran two LLM setup calls before any tools; that is now **template setup** (instant) unless you pass `--llm-setup`.
-3. **`socket.timeout`** after `request_timeout_seconds` (default 900s) — warm up with `ollama run qwen2.5-coder:7b` or increase timeout in config.
-
-### Task modes (`knit.py` is always the app)
-
-| Mode | When | What the agent builds |
-|------|------|------------------------|
-| **`hackathon`** (default) | After spec / submission | `knit.py compile` compiler in `src/`; tests = `run_tests.py` |
-| **`flexible`** | Before spec, demos | **Any app** the prompt describes, implemented **inside `knit.py`** (calculator, calendar, …) |
-
-Mock calculator spec (minimal, for testing): [`secret_spec/MOCK_CALCULATOR_SPEC.md`](secret_spec/MOCK_CALCULATOR_SPEC.md) — steps in [`docs/TEST_CALCULATOR.md`](docs/TEST_CALCULATOR.md).
-
-```bash
-# Calculator (or any app) as knit.py:
-cp secret_spec/MOCK_CALCULATOR_SPEC.md secret_spec/SECRET_SPEC.md
-python3 agent/agent.py run --mode flexible --force-setup \
-  "Build the calculator from secret_spec/SECRET_SPEC.md in knit.py"
-# or: ./scripts/test_calculator_agent.sh
-```
-
-# After SECRET_SPEC.md arrives — switch back:
-python3 agent/agent.py run --mode hackathon --force-setup
-```
-
-Flexible mode checks `python3 -m py_compile knit.py` each iteration; the model should use **bash** to run `python3 knit.py ...` and verify behavior. Set `AGENT_VERIFY_COMMAND` for a custom smoke command.
-
-### Commands
-
-| Command | Effect |
-|---------|--------|
-| `agent/agent.py run` | Full loop, template setup |
-| `agent/agent.py run --mode flexible "..."` | Build prompt's app in `knit.py` |
-| `agent/agent.py run-once` | Single iteration (good smoke test) |
-| `agent/agent.py run --skip-setup` | Reuse existing `plan.md` |
-| `agent/agent.py run --force-setup` | Regenerate template plan |
-| `agent/agent.py run --llm-setup` | One LLM plan call (needs spec file) |
-| `agent/agent.py run --diagnose` | Extra LLM call after test failures |
-| `agent/agent.py plan` | Print checklist (no Ollama) |
-
-## Agent docs (submission)
-
-### Models used
-
-See `agent_manifest.json` and `agent/config.yaml` (Ollama `qwen2.5-coder:7b`).
-
-### Tools
-
-`bash`, `read_file`, `write_file`, `run_tests` (runs `public_test_command` from config).
+| Mode | Tests | Builds |
+|------|-------|--------|
+| **`hackathon`** (default) | Official 150 via `test_runner` | Knitting compiler in `src/` |
+| **`flexible`** | `py_compile` or `AGENT_VERIFY_COMMAND` | Any app in `knit.py` (practice) |
 
 ### Human interventions
 
+Log every post-release action that affects the agent, environment, or solution:
+
 ```bash
-python3 agent/agent.py log-human --type <TYPE> --what "..."
+python3 agent/agent.py log-human --type PROMPT_EDIT --what "..."
+python3 agent/agent.py log-human --type MANUAL_CODE_EDIT --what "..."
 ```
 
-If none: `human_interventions.log` should state no post-release human edits.
+See `agent_logs/human_interventions.log` for format. `PROMPT_EDIT` = `pending_prompt.txt` only (`Touched: no`). `MANUAL_CODE_EDIT` = you edited `src/` or restored a broken file (`Touched: yes`).
 
 ## Resources
 
@@ -272,13 +241,14 @@ If none: `human_interventions.log` should state no post-release human edits.
 - [Agent spec](https://github.com/anavoronkova/42xNeedle_Hackathon/blob/main/AGENT_SPEC.md)
 - [Submission rules](https://github.com/anavoronkova/42xNeedle_Hackathon/blob/main/SUBMISSION.md)
 - [Judging criteria](https://github.com/anavoronkova/42xNeedle_Hackathon/blob/main/JUDGING_CRITERIA.md)
-- [Slides](https://docs.google.com/presentation/d/1-aUeomBiClmMT1SPtBEnupSbxZ9Kn3bjvy64RJBgdJI/edit?slide=id.g3a891c5084b_1_6#slide=id.g3a891c5084b_1_6)
 
-## Final submission checklist
+## Submission checklist
 
-- [ ] `python3 knit.py compile <input_file>` works
+- [ ] `python3 knit.py compile <input.knit>` emits spec-compliant JSON
+- [ ] Official tests: `secret_spec/test_runner/run_tests.py --compiler "python3 knit.py" --suite public`
 - [ ] `agent_manifest.json` filled (no secrets)
 - [ ] All `agent_logs/*` populated with timestamps
+- [ ] `human_interventions.log` documents steering and any manual restores
 - [ ] `final_report.md` complete
-- [ ] Checkpoint tag pushed
+- [ ] Tags pushed (`agent-readiness-1945`)
 - [ ] No `.env`, `.venv/`, or API keys committed
