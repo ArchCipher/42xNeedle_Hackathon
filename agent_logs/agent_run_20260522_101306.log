@@ -1,0 +1,7 @@
+Task (Enter for default — hidden-task compiler): Traceback (most recent call last):
+  File "/home/pcg91/projects/hackathons/42xNeedle_Hackathon/agent/agent.py", line 910, in <module>
+    main()
+  File "/home/pcg91/projects/hackathons/42xNeedle_Hackathon/agent/agent.py", line 891, in main
+    entered = input(f"Task (Enter for default — {hint}): ").strip()
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+EOFError: EOF when reading a line

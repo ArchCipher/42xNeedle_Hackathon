@@ -1,7 +1,7 @@
 # Implementation plan (template)
 
 ## Operator task
- Build a knitting compiler from secret_spec/SECRET_SPEC.md in knit.py
+Implement knit.py compile and src/ per secret_spec/SECRET_SPEC.md and agent_logs/plan.md. Priority: CLI + exit codes, JSON on stdout only, row_expansion, invalid input, edge cases. Use run_tests after each meaningful change.
 
 ## knit.py is the app
 All user-facing behavior lives in knit.py (helpers in src/).

@@ -59,85 +59,67 @@ Prompt: Build the CLI calculator from secret_spec/SECRET_SPEC.md in knit.py (use
 Context: model=qwen2.5-coder:7b (Ollama, free)
 Expected agent action: 
 
-[2026-05-21 22:03] USER_PROMPT
+[2026-05-21 22:34] USER_PROMPT
 Prompt:  Build a knitting compiler from secret_spec/SECRET_SPEC.md in knit.py
 Context: model=qwen2.5-coder:7b (Ollama, free)
 Expected agent action: 
 
-[2026-05-22 01:08] USER_PROMPT
-Prompt: Build a knitting compiler from secret_spec/SECRET_SPEC.md in knit.py
+[2026-05-22 02:00] USER_PROMPT
+Prompt: We are at 147/150. Fix these 3 failing tests in src/compile.py:
+- pub_level_05_single_errors_020: $.errors[0].row: expected int, got NoneType
+- pub_level_06_multi_error_recovery_001: $.errors: expected list length 7, got 6
+- pub_level_06_multi_error_recovery_009: $.errors[1].row: expected int, got NoneType
+
+Read the failing test inputs in secret_spec/public_tests/, compare to expected outputs in secret_spec/expected_outputs/, fix src/compile.py, then run_tests to verify.
 Context: model=qwen2.5-coder:7b (Ollama, free)
 Expected agent action: 
 
-[2026-05-22 05:32] USER_PROMPT
-Prompt: Do NOT read the full SECRET_SPEC again. Read src/compile.py only.
-Your next action MUST be write_file on src/compile.py with a minimal level_01 parser.
-Then run_tests.
-Context: pending_prompt.txt from monitor UI
+[2026-05-22 09:31] USER_PROMPT
+Prompt:  Build a knitting compiler from secret_spec/SECRET_SPEC.md in knit.py
+Context: model=qwen2.5-coder:7b (Ollama, free)
 Expected agent action: 
 
-[2026-05-22 06:07] USER_PROMPT
-Prompt: src/compile.py MUST define compile_file(input_path: str) -> int. Do not remove it. Read knit.py line 10-13. Implement compile_file: read file, parse level_01, emit_json to stdout, return 0/1. Do NOT read SECRET_SPEC.md. write_file then run_tests.
-Context: pending_prompt.txt from monitor UI
+[2026-05-22 10:13] USER_PROMPT
+Prompt: Implement knit.py compile and src/ per secret_spec/SECRET_SPEC.md and agent_logs/plan.md. Priority: CLI + exit codes, JSON on stdout only, row_expansion, invalid input, edge cases. Use run_tests after each meaningful change.
+Context: model=qwen2.5-coder:7b (Ollama, free)
 Expected agent action: 
 
-[2026-05-22 07:06] USER_PROMPT
-Prompt: write_file src/compile.py with VALID Python (real newlines, not \n in strings).
-Must compile with py_compile.
-Keep compile_file and emit_json. imports at top.
-Context: pending_prompt.txt from monitor UI
+[2026-05-22 10:32] USER_PROMPT
+Prompt: Implement knit.py compile and src/ per secret_spec/SECRET_SPEC.md and agent_logs/plan.md. Priority: CLI + exit codes, JSON on stdout only, row_expansion, invalid input, edge cases. Use run_tests after each meaningful change.
+Context: model=qwen2.5-coder:7b (Ollama, free)
 Expected agent action: 
 
-[2026-05-22 08:24] USER_PROMPT
-Prompt: STOP. Do NOT read SECRET_SPEC.md or create knitting_tools.
-
-write_file src/compile.py ONLY. Valid Python with REAL newlines.
-
-REQUIREMENTS:
-- from src.io import read_input_text (or from .io import read_input_text)
-- def compile_file(input_path: str) -> int must exist
-- def emit_json(payload: dict): sys.stdout.write(json.dumps(payload)+"\n")  # stdout ONLY
-- On success: parse .knit minimally for pub_level_01_valid_basics_001, emit_json(spec-shaped dict), return 0
-- On error: message to stderr only, return 1
-- Do NOT print raw .knit text to stdout
-- After write_file: bash "python3 -m py_compile src/compile.py" then run_tests
-- Delete or ignore src/knitting_tools.py
-Context: pending_prompt.txt from monitor UI
+[2026-05-22 11:34] USER_PROMPT
+Prompt: Implement knit.py compile and src/ per secret_spec/SECRET_SPEC.md and agent_logs/plan.md. Priority: CLI + exit codes, JSON on stdout only, row_expansion, invalid input, edge cases. Use run_tests after each meaningful change.
+Context: model=qwen-3-235b-a22b-instruct-2507 (ollama)
 Expected agent action: 
 
-[2026-05-22 09:19] USER_PROMPT
-Prompt: Fix src/compile.py only. import json and sys at top. Use emit_json() to stdout.
-
-read_file secret_spec/expected_outputs/public/level_01_valid_basics/pub_level_01_valid_basics_001.expected.json
-read_file secret_spec/public_tests/level_01_valid_basics/pub_level_01_valid_basics_001.knit
-
-Make compile_file return 0 and stdout match the expected JSON exactly for that test.
-Do NOT read SECRET_SPEC.md. bash: python3 -m py_compile src/compile.py then run_tests.
-Context: pending_prompt.txt from monitor UI
+[2026-05-22 11:46] USER_PROMPT
+Prompt: Implement knit.py compile and src/ per secret_spec/SECRET_SPEC.md and agent_logs/plan.md. Priority: CLI + exit codes, JSON on stdout only, row_expansion, invalid input, edge cases. Use run_tests after each meaningful change.
+Context: model=qwen-3-235b-a22b-instruct-2507 (cerebras)
 Expected agent action: 
 
-[2026-05-22 10:12] USER_PROMPT
-Prompt: STOP re-reading SECRET_SPEC.md. Fix src/compile.py only with write_file.
+[2026-05-22 11:49] USER_PROMPT
+Prompt: Implement knit.py compile and src/ per secret_spec/SECRET_SPEC.md and agent_logs/plan.md. Priority: CLI + exit codes, JSON on stdout only, row_expansion, invalid input, edge cases. Use run_tests after each meaningful change.
+Context: model=qwen-3-235b-a22b-instruct-2507 (cerebras)
+Expected agent action: 
 
-Bug: tests fail with "Invalid cast_on value: cast_on 8" because you treat whole lines as numbers. .knit format is:
-  pattern "No Rows"
-  cast_on 8
+[2026-05-22 11:54] USER_PROMPT
+Prompt: Implement knit.py compile and src/ per secret_spec/SECRET_SPEC.md and agent_logs/plan.md. Priority: CLI + exit codes, JSON on stdout only, row_expansion, invalid input, edge cases. Use run_tests after each meaningful change.
+Context: model=qwen-3-235b-a22b-instruct-2507 (cerebras)
+Expected agent action: 
 
-Do this:
-1. read_file secret_spec/public_tests/level_01_valid_basics/pub_level_01_valid_basics_001.knit
-2. read_file secret_spec/expected_outputs/public/level_01_valid_basics/pub_level_01_valid_basics_001.expected.json
-3. write_file src/compile.py:
-   - import json, sys, re; from src.io import read_input_text
-   - def emit_json(data): print(json.dumps(data), file=sys.stdout)
-   - def compile_file(input_path): read text with read_input_text; parse each non-empty line
-   - pattern line: regex pattern\s+"([^"]+)" -> pattern_name (group 1)
-   - cast_on line: regex cast_on\s+(\d+) -> cast_on int (group 1)
-   - emit one JSON object with keys exactly: pattern_name, cast_on, bind_off, errors, expanded_rows, final_stitch_count, valid (match expected file for test 001)
-   - return 0 on success; errors to stderr, return 1 on failure
-4. bash: python3 -m py_compile src/compile.py
-5. bash: python3 knit.py compile secret_spec/public_tests/level_01_valid_basics/pub_level_01_valid_basics_001.knit
-6. run_tests
+[2026-05-22 12:04] USER_PROMPT
+Prompt: Implement knit.py compile and src/ per secret_spec/SECRET_SPEC.md and agent_logs/plan.md. Priority: CLI + exit codes, JSON on stdout only, row_expansion, invalid input, edge cases. Use run_tests after each meaningful change.
+Context: model=qwen-3-235b-a22b-instruct-2507 (cerebras)
+Expected agent action: 
 
-Do not open src/knitting_tools.py or new helper modules. One write_file then py_compile then tests.
-Context: pending_prompt.txt from monitor UI
+[2026-05-22 12:06] USER_PROMPT
+Prompt: Implement knit.py compile and src/ per secret_spec/SECRET_SPEC.md and agent_logs/plan.md. Priority: CLI + exit codes, JSON on stdout only, row_expansion, invalid input, edge cases. Use run_tests after each meaningful change.
+Context: model=qwen-3-235b-a22b-instruct-2507 (cerebras)
+Expected agent action: 
+
+[2026-05-22 12:15] USER_PROMPT
+Prompt: Implement knit.py compile and src/ per secret_spec/SECRET_SPEC.md and agent_logs/plan.md. Priority: CLI + exit codes, JSON on stdout only, row_expansion, invalid input, edge cases. Use run_tests after each meaningful change.
+Context: model=qwen-3-235b-a22b-instruct-2507 (cerebras)
 Expected agent action: 

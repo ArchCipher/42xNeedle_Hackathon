@@ -3,7 +3,7 @@
 Setup mode: llm_setup disabled (use --llm-setup)
 
 Operator task:
- Build a knitting compiler from secret_spec/SECRET_SPEC.md in knit.py
+Implement knit.py compile and src/ per secret_spec/SECRET_SPEC.md and agent_logs/plan.md. Priority: CLI + exit codes, JSON on stdout only, row_expansion, invalid input, edge cases. Use run_tests after each meaningful change.
 
 Specification excerpt:
 # Secret Spec: A Knitting Compiler
