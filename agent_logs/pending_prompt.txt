@@ -1,0 +1,13 @@
+STOP. Do NOT read SECRET_SPEC.md or create knitting_tools.
+
+write_file src/compile.py ONLY. Valid Python with REAL newlines.
+
+REQUIREMENTS:
+- from src.io import read_input_text (or from .io import read_input_text)
+- def compile_file(input_path: str) -> int must exist
+- def emit_json(payload: dict): sys.stdout.write(json.dumps(payload)+"\n")  # stdout ONLY
+- On success: parse .knit minimally for pub_level_01_valid_basics_001, emit_json(spec-shaped dict), return 0
+- On error: message to stderr only, return 1
+- Do NOT print raw .knit text to stdout
+- After write_file: bash "python3 -m py_compile src/compile.py" then run_tests
+- Delete or ignore src/knitting_tools.py

@@ -20,12 +20,12 @@ Autonomous coding agent that builds the **Knit compiler** (`knit.py`). This repo
 ├── agent_manifest.json   # model disclosure (required for submission)
 ├── knit.py               # final compiler CLI
 ├── src/                  # compiler implementation (agent fills in)
-├── secret_spec/          # copy SECRET_SPEC.md here at 20:00 Thursday
+├── secret_spec/          # SECRET_SPEC.md
 ├── requirements.txt
 └── README.md
 ```
 
-## Quick start (teammates)
+## Quick start
 
 ```bash
 python3 -m venv .venv

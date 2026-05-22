@@ -58,3 +58,32 @@ Expected agent action:
 Prompt: Build the CLI calculator from secret_spec/SECRET_SPEC.md in knit.py (use src/ if needed).
 Context: model=qwen2.5-coder:7b (Ollama, free)
 Expected agent action: 
+
+[2026-05-21 22:03] USER_PROMPT
+Prompt:  Build a knitting compiler from secret_spec/SECRET_SPEC.md in knit.py
+Context: model=qwen2.5-coder:7b (Ollama, free)
+Expected agent action: 
+
+[2026-05-22 01:08] USER_PROMPT
+Prompt: Build a knitting compiler from secret_spec/SECRET_SPEC.md in knit.py
+Context: model=qwen2.5-coder:7b (Ollama, free)
+Expected agent action: 
+
+[2026-05-22 05:32] USER_PROMPT
+Prompt: Do NOT read the full SECRET_SPEC again. Read src/compile.py only.
+Your next action MUST be write_file on src/compile.py with a minimal level_01 parser.
+Then run_tests.
+Context: pending_prompt.txt from monitor UI
+Expected agent action: 
+
+[2026-05-22 06:07] USER_PROMPT
+Prompt: src/compile.py MUST define compile_file(input_path: str) -> int. Do not remove it. Read knit.py line 10-13. Implement compile_file: read file, parse level_01, emit_json to stdout, return 0/1. Do NOT read SECRET_SPEC.md. write_file then run_tests.
+Context: pending_prompt.txt from monitor UI
+Expected agent action: 
+
+[2026-05-22 07:06] USER_PROMPT
+Prompt: write_file src/compile.py with VALID Python (real newlines, not \n in strings).
+Must compile with py_compile.
+Keep compile_file and emit_json. imports at top.
+Context: pending_prompt.txt from monitor UI
+Expected agent action: 

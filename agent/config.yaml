@@ -6,13 +6,13 @@ ollama_base_url: http://127.0.0.1:11434
 
 max_iterations: 40
 max_tool_rounds_per_iteration: 12
-request_timeout_seconds: 900
+request_timeout_seconds: 1200
 
 # task_mode: hackathon (Knit compiler + run_tests.py) | flexible (any app inside knit.py)
 task_mode: hackathon
 
 # python3 is rewritten to sys.executable (or py -3 on Windows) at load time
-public_test_command: python3 run_tests.py
+public_test_command: python3 secret_spec/test_runner/run_tests.py --compiler "python3 knit.py" --suite public
 
 # flexible mode only — syntax check by default; override with AGENT_VERIFY_COMMAND
 # flexible_verify_command: python3 -m py_compile knit.py
