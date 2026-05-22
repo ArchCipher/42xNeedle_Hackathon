@@ -1,0 +1,6 @@
+{
+  "expected_exit_code": 2,
+  "stdout": null,
+  "stdout_empty": true,
+  "test_id": "pub_level_07_cli_output_003"
+}

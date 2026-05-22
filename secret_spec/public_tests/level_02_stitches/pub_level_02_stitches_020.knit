@@ -1,0 +1,5 @@
+pattern "Chain Counts"
+cast_on 4
+row 1: k3, inc
+row 2: k2, k2tog
+row 3: p3

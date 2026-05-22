@@ -1,0 +1,35 @@
+{
+  "expected_exit_code": 0,
+  "stdout": {
+    "bind_off": false,
+    "cast_on": 5,
+    "errors": [],
+    "expanded_rows": [
+      {
+        "end_stitches": 5,
+        "expanded_row_index": 1,
+        "instructions": [
+          {
+            "count": 1,
+            "stitch": "k"
+          },
+          {
+            "count": 1,
+            "stitch": "p"
+          },
+          {
+            "count": 3,
+            "stitch": "k"
+          }
+        ],
+        "source_row": 1,
+        "start_stitches": 5
+      }
+    ],
+    "final_stitch_count": 5,
+    "pattern_name": "Instruction Schema",
+    "valid": true
+  },
+  "stdout_empty": false,
+  "test_id": "pub_level_01_valid_basics_018"
+}

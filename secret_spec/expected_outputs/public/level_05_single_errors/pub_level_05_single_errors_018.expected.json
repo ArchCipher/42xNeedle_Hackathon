@@ -1,0 +1,22 @@
+{
+  "expected_exit_code": 1,
+  "stdout": {
+    "bind_off": false,
+    "cast_on": 1,
+    "errors": [
+      {
+        "code": "MALFORMED_BIND_OFF",
+        "line": 4,
+        "message_non_empty": true,
+        "row": null,
+        "type": "error"
+      }
+    ],
+    "expanded_rows": [],
+    "final_stitch_count": null,
+    "pattern_name": "X",
+    "valid": false
+  },
+  "stdout_empty": false,
+  "test_id": "pub_level_05_single_errors_018"
+}

@@ -1,0 +1,14 @@
+{
+  "test_id": "pub_level_03_brackets_008",
+  "suite": "public",
+  "category": "level_03_brackets",
+  "difficulty": "medium",
+  "expected_exit_code": 0,
+  "spec_sections": [
+    "13",
+    "20",
+    "21"
+  ],
+  "reason": "Nested repeats can contain non-counted stitches.",
+  "input_file": "pub_level_03_brackets_008.knit"
+}

@@ -1,0 +1,17 @@
+{
+  "test_id": "pub_level_01_valid_basics_008",
+  "suite": "public",
+  "category": "level_01_valid_basics",
+  "difficulty": "easy",
+  "expected_exit_code": 0,
+  "spec_sections": [
+    "10",
+    "11",
+    "19",
+    "20",
+    "21",
+    "22"
+  ],
+  "reason": "Section 22 valid output example input, included verbatim to validate all top-level and expanded-row JSON fields.",
+  "input_file": "pub_level_01_valid_basics_008.knit"
+}

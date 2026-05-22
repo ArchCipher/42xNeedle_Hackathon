@@ -1,0 +1,14 @@
+{
+  "test_id": "pub_level_03_brackets_021",
+  "suite": "public",
+  "category": "level_03_brackets",
+  "difficulty": "hard",
+  "expected_exit_code": 0,
+  "spec_sections": [
+    "13",
+    "20",
+    "21"
+  ],
+  "reason": "Bracket-expanded end count feeds later rows.",
+  "input_file": "pub_level_03_brackets_021.knit"
+}

@@ -1,0 +1,4 @@
+pattern "X"
+cast_on 1
+bind_off
+row 1: k1

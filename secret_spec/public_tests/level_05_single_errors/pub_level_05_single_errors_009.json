@@ -1,0 +1,13 @@
+{
+  "test_id": "pub_level_05_single_errors_009",
+  "suite": "public",
+  "category": "level_05_single_errors",
+  "difficulty": "easy",
+  "expected_exit_code": 1,
+  "spec_sections": [
+    "9",
+    "18"
+  ],
+  "reason": "Row missing colon is MALFORMED_ROW.",
+  "input_file": "pub_level_05_single_errors_009.knit"
+}

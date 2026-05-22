@@ -1,0 +1,13 @@
+{
+  "test_id": "pub_level_01_valid_basics_019",
+  "suite": "public",
+  "category": "level_01_valid_basics",
+  "difficulty": "medium",
+  "expected_exit_code": 0,
+  "spec_sections": [
+    "6A",
+    "14"
+  ],
+  "reason": "Leading zeros in row repeat syntax normalize and expand.",
+  "input_file": "pub_level_01_valid_basics_019.knit"
+}

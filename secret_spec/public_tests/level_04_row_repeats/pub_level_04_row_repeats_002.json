@@ -1,0 +1,13 @@
+{
+  "test_id": "pub_level_04_row_repeats_002",
+  "suite": "public",
+  "category": "level_04_row_repeats",
+  "difficulty": "easy",
+  "expected_exit_code": 0,
+  "spec_sections": [
+    "14",
+    "20"
+  ],
+  "reason": "Row repeat count is additional iterations.",
+  "input_file": "pub_level_04_row_repeats_002.knit"
+}

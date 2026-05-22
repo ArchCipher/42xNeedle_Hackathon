@@ -1,0 +1,43 @@
+{
+  "expected_exit_code": 0,
+  "stdout": {
+    "bind_off": false,
+    "cast_on": 2,
+    "errors": [],
+    "expanded_rows": [
+      {
+        "end_stitches": 4,
+        "expanded_row_index": 1,
+        "instructions": [
+          {
+            "count": 1,
+            "stitch": "inc"
+          },
+          {
+            "count": 1,
+            "stitch": "inc"
+          }
+        ],
+        "source_row": 1,
+        "start_stitches": 2
+      },
+      {
+        "end_stitches": 4,
+        "expanded_row_index": 2,
+        "instructions": [
+          {
+            "count": 4,
+            "stitch": "k"
+          }
+        ],
+        "source_row": 2,
+        "start_stitches": 4
+      }
+    ],
+    "final_stitch_count": 4,
+    "pattern_name": "Grow Feed",
+    "valid": true
+  },
+  "stdout_empty": false,
+  "test_id": "pub_level_02_stitches_022"
+}

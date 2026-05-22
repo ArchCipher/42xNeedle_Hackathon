@@ -1,0 +1,29 @@
+{
+  "expected_exit_code": 1,
+  "stdout": {
+    "bind_off": false,
+    "cast_on": null,
+    "errors": [
+      {
+        "code": "DUPLICATE_PATTERN",
+        "line": 2,
+        "message_non_empty": true,
+        "row": null,
+        "type": "error"
+      },
+      {
+        "code": "DUPLICATE_CAST_ON",
+        "line": 4,
+        "message_non_empty": true,
+        "row": null,
+        "type": "error"
+      }
+    ],
+    "expanded_rows": [],
+    "final_stitch_count": null,
+    "pattern_name": null,
+    "valid": false
+  },
+  "stdout_empty": false,
+  "test_id": "pub_level_06_multi_error_recovery_013"
+}

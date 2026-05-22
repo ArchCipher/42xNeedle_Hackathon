@@ -1,0 +1,14 @@
+{
+  "test_id": "pub_level_02_stitches_003",
+  "suite": "public",
+  "category": "level_02_stitches",
+  "difficulty": "easy",
+  "expected_exit_code": 0,
+  "spec_sections": [
+    "10",
+    "11",
+    "21"
+  ],
+  "reason": "Yarn over alone produces one stitch from zero start.",
+  "input_file": "pub_level_02_stitches_003.knit"
+}

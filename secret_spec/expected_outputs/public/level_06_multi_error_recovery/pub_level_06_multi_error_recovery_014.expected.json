@@ -1,0 +1,50 @@
+{
+  "expected_exit_code": 1,
+  "stdout": {
+    "bind_off": false,
+    "cast_on": null,
+    "errors": [
+      {
+        "code": "UNKNOWN_STATEMENT",
+        "line": 1,
+        "message_non_empty": true,
+        "row": null,
+        "type": "error"
+      },
+      {
+        "code": "UNKNOWN_STATEMENT",
+        "line": 2,
+        "message_non_empty": true,
+        "row": null,
+        "type": "error"
+      },
+      {
+        "code": "UNKNOWN_STATEMENT",
+        "line": 3,
+        "message_non_empty": true,
+        "row": null,
+        "type": "error"
+      },
+      {
+        "code": "MISSING_PATTERN",
+        "line": null,
+        "message_non_empty": true,
+        "row": null,
+        "type": "error"
+      },
+      {
+        "code": "MISSING_CAST_ON",
+        "line": null,
+        "message_non_empty": true,
+        "row": null,
+        "type": "error"
+      }
+    ],
+    "expanded_rows": [],
+    "final_stitch_count": null,
+    "pattern_name": null,
+    "valid": false
+  },
+  "stdout_empty": false,
+  "test_id": "pub_level_06_multi_error_recovery_014"
+}

@@ -1,0 +1,4 @@
+pattern "X"
+cast_on 1
+row 1: k1
+repeat rows 2-4 x0

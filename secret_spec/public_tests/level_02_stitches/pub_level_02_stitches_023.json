@@ -1,0 +1,13 @@
+{
+  "test_id": "pub_level_02_stitches_023",
+  "suite": "public",
+  "category": "level_02_stitches",
+  "difficulty": "hard",
+  "expected_exit_code": 0,
+  "spec_sections": [
+    "10",
+    "11"
+  ],
+  "reason": "A row can shrink and then feed a smaller counted row.",
+  "input_file": "pub_level_02_stitches_023.knit"
+}

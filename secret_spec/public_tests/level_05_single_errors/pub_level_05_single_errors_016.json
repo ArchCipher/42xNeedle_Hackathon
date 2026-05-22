@@ -1,0 +1,13 @@
+{
+  "test_id": "pub_level_05_single_errors_016",
+  "suite": "public",
+  "category": "level_05_single_errors",
+  "difficulty": "easy",
+  "expected_exit_code": 1,
+  "spec_sections": [
+    "14",
+    "18"
+  ],
+  "reason": "Non-positive row repeat count reports INVALID_REPEAT_COUNT.",
+  "input_file": "pub_level_05_single_errors_016.knit"
+}

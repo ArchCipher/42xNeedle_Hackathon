@@ -70,7 +70,28 @@ Notes: This must be disclosed. Logging it does not automatically make it allowed
 
 [2026-05-21 11:21] OTHER
 What happened: scaffold check
-Why: 
-Files or settings affected: 
+Why:
+Files or settings affected:
 Touched final task code directly: no
-Notes: 
+Notes:
+
+[2026-05-22 11:30] MODEL_CONFIG_CHANGE
+What happened: Added Cerebras cloud API as primary LLM provider (model: qwen-3-235b-a22b-instruct-2507, 235B parameters, free tier). Created agent/cerebras_client.py to wrap the cerebras-cloud-sdk. Updated agent/agent.py to select the client based on provider field in config. Added automatic fallback to local Ollama when Cerebras returns 429 rate-limit errors, with message normalization to avoid Ollama 400 errors on OpenAI-format tool_call history.
+Why: Local qwen2.5-coder:7b (7B params) was failing to produce any code — it would read the 38k spec and respond with text acknowledgements instead of calling write_file. The 235B Cerebras model has enough capacity to read the full spec and write a complete implementation in one shot.
+Files or settings affected: agent/config.yaml, agent/agent.py, agent/cerebras_client.py
+Touched final task code directly: no
+Notes: CEREBRAS_API_KEY set as environment variable in user's shell session (not committed). The model is a preview model on Cerebras and subject to rate limits (~token-per-minute quota on free tier).
+
+[2026-05-22 11:45] MODEL_CONFIG_CHANGE
+What happened: Changed local fallback model from qwen2.5-coder:7b to qwen3:4b. Pulled qwen3:4b via ollama pull (~2.5GB download). Updated agent/config.yaml fallback_model field.
+Why: qwen3:4b has better instruction-following and tool-call reliability than qwen2.5-coder:7b, making it a more effective fallback when Cerebras is rate-limited.
+Files or settings affected: agent/config.yaml
+Touched final task code directly: no
+Notes: qwen2.5-coder:7b remains installed locally but is no longer the configured fallback.
+
+[2026-05-22 12:00] PROMPT_EDIT
+What happened: Updated IMPLEMENT_SYSTEM_PROMPT in agent/agent.py to explicitly require the agent to write a function named compile_file(path: str) -> int in src/compile.py, and to not touch knit.py. Also changed the initial user message to include the full spec text directly (instead of relying on the agent calling read_file) to avoid token-wasting read loops and Cerebras rate limit hits.
+Why: The Cerebras agent was writing its entry point as main() instead of compile_file(), causing ImportError. It was also calling read_file on the spec and spec_summary repeatedly before writing code, burning through the free-tier token quota before producing any output.
+Files or settings affected: agent/agent.py
+Touched final task code directly: no
+Notes: These are prompt/infrastructure changes only. The implementation in src/compile.py is entirely agent-generated. 

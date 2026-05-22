@@ -1,0 +1,13 @@
+{
+  "test_id": "pub_level_01_valid_basics_014",
+  "suite": "public",
+  "category": "level_01_valid_basics",
+  "difficulty": "easy",
+  "expected_exit_code": 0,
+  "spec_sections": [
+    "15",
+    "19"
+  ],
+  "reason": "bind_off can be present with no rows.",
+  "input_file": "pub_level_01_valid_basics_014.knit"
+}

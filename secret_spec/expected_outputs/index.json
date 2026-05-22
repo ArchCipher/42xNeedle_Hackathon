@@ -1,0 +1,604 @@
+{
+  "expected_outputs": [
+    {
+      "test_id": "pub_level_01_valid_basics_001",
+      "expected_file": "public/level_01_valid_basics/pub_level_01_valid_basics_001.expected.json"
+    },
+    {
+      "test_id": "pub_level_01_valid_basics_002",
+      "expected_file": "public/level_01_valid_basics/pub_level_01_valid_basics_002.expected.json"
+    },
+    {
+      "test_id": "pub_level_01_valid_basics_003",
+      "expected_file": "public/level_01_valid_basics/pub_level_01_valid_basics_003.expected.json"
+    },
+    {
+      "test_id": "pub_level_01_valid_basics_004",
+      "expected_file": "public/level_01_valid_basics/pub_level_01_valid_basics_004.expected.json"
+    },
+    {
+      "test_id": "pub_level_01_valid_basics_005",
+      "expected_file": "public/level_01_valid_basics/pub_level_01_valid_basics_005.expected.json"
+    },
+    {
+      "test_id": "pub_level_01_valid_basics_006",
+      "expected_file": "public/level_01_valid_basics/pub_level_01_valid_basics_006.expected.json"
+    },
+    {
+      "test_id": "pub_level_01_valid_basics_007",
+      "expected_file": "public/level_01_valid_basics/pub_level_01_valid_basics_007.expected.json"
+    },
+    {
+      "test_id": "pub_level_01_valid_basics_008",
+      "expected_file": "public/level_01_valid_basics/pub_level_01_valid_basics_008.expected.json"
+    },
+    {
+      "test_id": "pub_level_01_valid_basics_009",
+      "expected_file": "public/level_01_valid_basics/pub_level_01_valid_basics_009.expected.json"
+    },
+    {
+      "test_id": "pub_level_01_valid_basics_010",
+      "expected_file": "public/level_01_valid_basics/pub_level_01_valid_basics_010.expected.json"
+    },
+    {
+      "test_id": "pub_level_01_valid_basics_011",
+      "expected_file": "public/level_01_valid_basics/pub_level_01_valid_basics_011.expected.json"
+    },
+    {
+      "test_id": "pub_level_01_valid_basics_012",
+      "expected_file": "public/level_01_valid_basics/pub_level_01_valid_basics_012.expected.json"
+    },
+    {
+      "test_id": "pub_level_01_valid_basics_013",
+      "expected_file": "public/level_01_valid_basics/pub_level_01_valid_basics_013.expected.json"
+    },
+    {
+      "test_id": "pub_level_01_valid_basics_014",
+      "expected_file": "public/level_01_valid_basics/pub_level_01_valid_basics_014.expected.json"
+    },
+    {
+      "test_id": "pub_level_01_valid_basics_015",
+      "expected_file": "public/level_01_valid_basics/pub_level_01_valid_basics_015.expected.json"
+    },
+    {
+      "test_id": "pub_level_01_valid_basics_016",
+      "expected_file": "public/level_01_valid_basics/pub_level_01_valid_basics_016.expected.json"
+    },
+    {
+      "test_id": "pub_level_01_valid_basics_017",
+      "expected_file": "public/level_01_valid_basics/pub_level_01_valid_basics_017.expected.json"
+    },
+    {
+      "test_id": "pub_level_01_valid_basics_018",
+      "expected_file": "public/level_01_valid_basics/pub_level_01_valid_basics_018.expected.json"
+    },
+    {
+      "test_id": "pub_level_01_valid_basics_019",
+      "expected_file": "public/level_01_valid_basics/pub_level_01_valid_basics_019.expected.json"
+    },
+    {
+      "test_id": "pub_level_01_valid_basics_020",
+      "expected_file": "public/level_01_valid_basics/pub_level_01_valid_basics_020.expected.json"
+    },
+    {
+      "test_id": "pub_level_02_stitches_001",
+      "expected_file": "public/level_02_stitches/pub_level_02_stitches_001.expected.json"
+    },
+    {
+      "test_id": "pub_level_02_stitches_002",
+      "expected_file": "public/level_02_stitches/pub_level_02_stitches_002.expected.json"
+    },
+    {
+      "test_id": "pub_level_02_stitches_003",
+      "expected_file": "public/level_02_stitches/pub_level_02_stitches_003.expected.json"
+    },
+    {
+      "test_id": "pub_level_02_stitches_004",
+      "expected_file": "public/level_02_stitches/pub_level_02_stitches_004.expected.json"
+    },
+    {
+      "test_id": "pub_level_02_stitches_005",
+      "expected_file": "public/level_02_stitches/pub_level_02_stitches_005.expected.json"
+    },
+    {
+      "test_id": "pub_level_02_stitches_006",
+      "expected_file": "public/level_02_stitches/pub_level_02_stitches_006.expected.json"
+    },
+    {
+      "test_id": "pub_level_02_stitches_007",
+      "expected_file": "public/level_02_stitches/pub_level_02_stitches_007.expected.json"
+    },
+    {
+      "test_id": "pub_level_02_stitches_008",
+      "expected_file": "public/level_02_stitches/pub_level_02_stitches_008.expected.json"
+    },
+    {
+      "test_id": "pub_level_02_stitches_009",
+      "expected_file": "public/level_02_stitches/pub_level_02_stitches_009.expected.json"
+    },
+    {
+      "test_id": "pub_level_02_stitches_010",
+      "expected_file": "public/level_02_stitches/pub_level_02_stitches_010.expected.json"
+    },
+    {
+      "test_id": "pub_level_02_stitches_011",
+      "expected_file": "public/level_02_stitches/pub_level_02_stitches_011.expected.json"
+    },
+    {
+      "test_id": "pub_level_02_stitches_012",
+      "expected_file": "public/level_02_stitches/pub_level_02_stitches_012.expected.json"
+    },
+    {
+      "test_id": "pub_level_02_stitches_013",
+      "expected_file": "public/level_02_stitches/pub_level_02_stitches_013.expected.json"
+    },
+    {
+      "test_id": "pub_level_02_stitches_014",
+      "expected_file": "public/level_02_stitches/pub_level_02_stitches_014.expected.json"
+    },
+    {
+      "test_id": "pub_level_02_stitches_015",
+      "expected_file": "public/level_02_stitches/pub_level_02_stitches_015.expected.json"
+    },
+    {
+      "test_id": "pub_level_02_stitches_016",
+      "expected_file": "public/level_02_stitches/pub_level_02_stitches_016.expected.json"
+    },
+    {
+      "test_id": "pub_level_02_stitches_017",
+      "expected_file": "public/level_02_stitches/pub_level_02_stitches_017.expected.json"
+    },
+    {
+      "test_id": "pub_level_02_stitches_018",
+      "expected_file": "public/level_02_stitches/pub_level_02_stitches_018.expected.json"
+    },
+    {
+      "test_id": "pub_level_02_stitches_019",
+      "expected_file": "public/level_02_stitches/pub_level_02_stitches_019.expected.json"
+    },
+    {
+      "test_id": "pub_level_02_stitches_020",
+      "expected_file": "public/level_02_stitches/pub_level_02_stitches_020.expected.json"
+    },
+    {
+      "test_id": "pub_level_02_stitches_021",
+      "expected_file": "public/level_02_stitches/pub_level_02_stitches_021.expected.json"
+    },
+    {
+      "test_id": "pub_level_02_stitches_022",
+      "expected_file": "public/level_02_stitches/pub_level_02_stitches_022.expected.json"
+    },
+    {
+      "test_id": "pub_level_02_stitches_023",
+      "expected_file": "public/level_02_stitches/pub_level_02_stitches_023.expected.json"
+    },
+    {
+      "test_id": "pub_level_02_stitches_024",
+      "expected_file": "public/level_02_stitches/pub_level_02_stitches_024.expected.json"
+    },
+    {
+      "test_id": "pub_level_02_stitches_025",
+      "expected_file": "public/level_02_stitches/pub_level_02_stitches_025.expected.json"
+    },
+    {
+      "test_id": "pub_level_03_brackets_001",
+      "expected_file": "public/level_03_brackets/pub_level_03_brackets_001.expected.json"
+    },
+    {
+      "test_id": "pub_level_03_brackets_002",
+      "expected_file": "public/level_03_brackets/pub_level_03_brackets_002.expected.json"
+    },
+    {
+      "test_id": "pub_level_03_brackets_003",
+      "expected_file": "public/level_03_brackets/pub_level_03_brackets_003.expected.json"
+    },
+    {
+      "test_id": "pub_level_03_brackets_004",
+      "expected_file": "public/level_03_brackets/pub_level_03_brackets_004.expected.json"
+    },
+    {
+      "test_id": "pub_level_03_brackets_005",
+      "expected_file": "public/level_03_brackets/pub_level_03_brackets_005.expected.json"
+    },
+    {
+      "test_id": "pub_level_03_brackets_006",
+      "expected_file": "public/level_03_brackets/pub_level_03_brackets_006.expected.json"
+    },
+    {
+      "test_id": "pub_level_03_brackets_007",
+      "expected_file": "public/level_03_brackets/pub_level_03_brackets_007.expected.json"
+    },
+    {
+      "test_id": "pub_level_03_brackets_008",
+      "expected_file": "public/level_03_brackets/pub_level_03_brackets_008.expected.json"
+    },
+    {
+      "test_id": "pub_level_03_brackets_009",
+      "expected_file": "public/level_03_brackets/pub_level_03_brackets_009.expected.json"
+    },
+    {
+      "test_id": "pub_level_03_brackets_010",
+      "expected_file": "public/level_03_brackets/pub_level_03_brackets_010.expected.json"
+    },
+    {
+      "test_id": "pub_level_03_brackets_011",
+      "expected_file": "public/level_03_brackets/pub_level_03_brackets_011.expected.json"
+    },
+    {
+      "test_id": "pub_level_03_brackets_012",
+      "expected_file": "public/level_03_brackets/pub_level_03_brackets_012.expected.json"
+    },
+    {
+      "test_id": "pub_level_03_brackets_013",
+      "expected_file": "public/level_03_brackets/pub_level_03_brackets_013.expected.json"
+    },
+    {
+      "test_id": "pub_level_03_brackets_014",
+      "expected_file": "public/level_03_brackets/pub_level_03_brackets_014.expected.json"
+    },
+    {
+      "test_id": "pub_level_03_brackets_015",
+      "expected_file": "public/level_03_brackets/pub_level_03_brackets_015.expected.json"
+    },
+    {
+      "test_id": "pub_level_03_brackets_016",
+      "expected_file": "public/level_03_brackets/pub_level_03_brackets_016.expected.json"
+    },
+    {
+      "test_id": "pub_level_03_brackets_017",
+      "expected_file": "public/level_03_brackets/pub_level_03_brackets_017.expected.json"
+    },
+    {
+      "test_id": "pub_level_03_brackets_018",
+      "expected_file": "public/level_03_brackets/pub_level_03_brackets_018.expected.json"
+    },
+    {
+      "test_id": "pub_level_03_brackets_019",
+      "expected_file": "public/level_03_brackets/pub_level_03_brackets_019.expected.json"
+    },
+    {
+      "test_id": "pub_level_03_brackets_020",
+      "expected_file": "public/level_03_brackets/pub_level_03_brackets_020.expected.json"
+    },
+    {
+      "test_id": "pub_level_03_brackets_021",
+      "expected_file": "public/level_03_brackets/pub_level_03_brackets_021.expected.json"
+    },
+    {
+      "test_id": "pub_level_03_brackets_022",
+      "expected_file": "public/level_03_brackets/pub_level_03_brackets_022.expected.json"
+    },
+    {
+      "test_id": "pub_level_03_brackets_023",
+      "expected_file": "public/level_03_brackets/pub_level_03_brackets_023.expected.json"
+    },
+    {
+      "test_id": "pub_level_03_brackets_024",
+      "expected_file": "public/level_03_brackets/pub_level_03_brackets_024.expected.json"
+    },
+    {
+      "test_id": "pub_level_03_brackets_025",
+      "expected_file": "public/level_03_brackets/pub_level_03_brackets_025.expected.json"
+    },
+    {
+      "test_id": "pub_level_04_row_repeats_001",
+      "expected_file": "public/level_04_row_repeats/pub_level_04_row_repeats_001.expected.json"
+    },
+    {
+      "test_id": "pub_level_04_row_repeats_002",
+      "expected_file": "public/level_04_row_repeats/pub_level_04_row_repeats_002.expected.json"
+    },
+    {
+      "test_id": "pub_level_04_row_repeats_003",
+      "expected_file": "public/level_04_row_repeats/pub_level_04_row_repeats_003.expected.json"
+    },
+    {
+      "test_id": "pub_level_04_row_repeats_004",
+      "expected_file": "public/level_04_row_repeats/pub_level_04_row_repeats_004.expected.json"
+    },
+    {
+      "test_id": "pub_level_04_row_repeats_005",
+      "expected_file": "public/level_04_row_repeats/pub_level_04_row_repeats_005.expected.json"
+    },
+    {
+      "test_id": "pub_level_04_row_repeats_006",
+      "expected_file": "public/level_04_row_repeats/pub_level_04_row_repeats_006.expected.json"
+    },
+    {
+      "test_id": "pub_level_04_row_repeats_007",
+      "expected_file": "public/level_04_row_repeats/pub_level_04_row_repeats_007.expected.json"
+    },
+    {
+      "test_id": "pub_level_04_row_repeats_008",
+      "expected_file": "public/level_04_row_repeats/pub_level_04_row_repeats_008.expected.json"
+    },
+    {
+      "test_id": "pub_level_04_row_repeats_009",
+      "expected_file": "public/level_04_row_repeats/pub_level_04_row_repeats_009.expected.json"
+    },
+    {
+      "test_id": "pub_level_04_row_repeats_010",
+      "expected_file": "public/level_04_row_repeats/pub_level_04_row_repeats_010.expected.json"
+    },
+    {
+      "test_id": "pub_level_04_row_repeats_011",
+      "expected_file": "public/level_04_row_repeats/pub_level_04_row_repeats_011.expected.json"
+    },
+    {
+      "test_id": "pub_level_04_row_repeats_012",
+      "expected_file": "public/level_04_row_repeats/pub_level_04_row_repeats_012.expected.json"
+    },
+    {
+      "test_id": "pub_level_04_row_repeats_013",
+      "expected_file": "public/level_04_row_repeats/pub_level_04_row_repeats_013.expected.json"
+    },
+    {
+      "test_id": "pub_level_04_row_repeats_014",
+      "expected_file": "public/level_04_row_repeats/pub_level_04_row_repeats_014.expected.json"
+    },
+    {
+      "test_id": "pub_level_04_row_repeats_015",
+      "expected_file": "public/level_04_row_repeats/pub_level_04_row_repeats_015.expected.json"
+    },
+    {
+      "test_id": "pub_level_04_row_repeats_016",
+      "expected_file": "public/level_04_row_repeats/pub_level_04_row_repeats_016.expected.json"
+    },
+    {
+      "test_id": "pub_level_04_row_repeats_017",
+      "expected_file": "public/level_04_row_repeats/pub_level_04_row_repeats_017.expected.json"
+    },
+    {
+      "test_id": "pub_level_04_row_repeats_018",
+      "expected_file": "public/level_04_row_repeats/pub_level_04_row_repeats_018.expected.json"
+    },
+    {
+      "test_id": "pub_level_04_row_repeats_019",
+      "expected_file": "public/level_04_row_repeats/pub_level_04_row_repeats_019.expected.json"
+    },
+    {
+      "test_id": "pub_level_04_row_repeats_020",
+      "expected_file": "public/level_04_row_repeats/pub_level_04_row_repeats_020.expected.json"
+    },
+    {
+      "test_id": "pub_level_05_single_errors_001",
+      "expected_file": "public/level_05_single_errors/pub_level_05_single_errors_001.expected.json"
+    },
+    {
+      "test_id": "pub_level_05_single_errors_002",
+      "expected_file": "public/level_05_single_errors/pub_level_05_single_errors_002.expected.json"
+    },
+    {
+      "test_id": "pub_level_05_single_errors_003",
+      "expected_file": "public/level_05_single_errors/pub_level_05_single_errors_003.expected.json"
+    },
+    {
+      "test_id": "pub_level_05_single_errors_004",
+      "expected_file": "public/level_05_single_errors/pub_level_05_single_errors_004.expected.json"
+    },
+    {
+      "test_id": "pub_level_05_single_errors_005",
+      "expected_file": "public/level_05_single_errors/pub_level_05_single_errors_005.expected.json"
+    },
+    {
+      "test_id": "pub_level_05_single_errors_006",
+      "expected_file": "public/level_05_single_errors/pub_level_05_single_errors_006.expected.json"
+    },
+    {
+      "test_id": "pub_level_05_single_errors_007",
+      "expected_file": "public/level_05_single_errors/pub_level_05_single_errors_007.expected.json"
+    },
+    {
+      "test_id": "pub_level_05_single_errors_008",
+      "expected_file": "public/level_05_single_errors/pub_level_05_single_errors_008.expected.json"
+    },
+    {
+      "test_id": "pub_level_05_single_errors_009",
+      "expected_file": "public/level_05_single_errors/pub_level_05_single_errors_009.expected.json"
+    },
+    {
+      "test_id": "pub_level_05_single_errors_010",
+      "expected_file": "public/level_05_single_errors/pub_level_05_single_errors_010.expected.json"
+    },
+    {
+      "test_id": "pub_level_05_single_errors_011",
+      "expected_file": "public/level_05_single_errors/pub_level_05_single_errors_011.expected.json"
+    },
+    {
+      "test_id": "pub_level_05_single_errors_012",
+      "expected_file": "public/level_05_single_errors/pub_level_05_single_errors_012.expected.json"
+    },
+    {
+      "test_id": "pub_level_05_single_errors_013",
+      "expected_file": "public/level_05_single_errors/pub_level_05_single_errors_013.expected.json"
+    },
+    {
+      "test_id": "pub_level_05_single_errors_014",
+      "expected_file": "public/level_05_single_errors/pub_level_05_single_errors_014.expected.json"
+    },
+    {
+      "test_id": "pub_level_05_single_errors_015",
+      "expected_file": "public/level_05_single_errors/pub_level_05_single_errors_015.expected.json"
+    },
+    {
+      "test_id": "pub_level_05_single_errors_016",
+      "expected_file": "public/level_05_single_errors/pub_level_05_single_errors_016.expected.json"
+    },
+    {
+      "test_id": "pub_level_05_single_errors_017",
+      "expected_file": "public/level_05_single_errors/pub_level_05_single_errors_017.expected.json"
+    },
+    {
+      "test_id": "pub_level_05_single_errors_018",
+      "expected_file": "public/level_05_single_errors/pub_level_05_single_errors_018.expected.json"
+    },
+    {
+      "test_id": "pub_level_05_single_errors_019",
+      "expected_file": "public/level_05_single_errors/pub_level_05_single_errors_019.expected.json"
+    },
+    {
+      "test_id": "pub_level_05_single_errors_020",
+      "expected_file": "public/level_05_single_errors/pub_level_05_single_errors_020.expected.json"
+    },
+    {
+      "test_id": "pub_level_05_single_errors_021",
+      "expected_file": "public/level_05_single_errors/pub_level_05_single_errors_021.expected.json"
+    },
+    {
+      "test_id": "pub_level_05_single_errors_022",
+      "expected_file": "public/level_05_single_errors/pub_level_05_single_errors_022.expected.json"
+    },
+    {
+      "test_id": "pub_level_05_single_errors_023",
+      "expected_file": "public/level_05_single_errors/pub_level_05_single_errors_023.expected.json"
+    },
+    {
+      "test_id": "pub_level_05_single_errors_024",
+      "expected_file": "public/level_05_single_errors/pub_level_05_single_errors_024.expected.json"
+    },
+    {
+      "test_id": "pub_level_05_single_errors_025",
+      "expected_file": "public/level_05_single_errors/pub_level_05_single_errors_025.expected.json"
+    },
+    {
+      "test_id": "pub_level_05_single_errors_026",
+      "expected_file": "public/level_05_single_errors/pub_level_05_single_errors_026.expected.json"
+    },
+    {
+      "test_id": "pub_level_05_single_errors_027",
+      "expected_file": "public/level_05_single_errors/pub_level_05_single_errors_027.expected.json"
+    },
+    {
+      "test_id": "pub_level_05_single_errors_028",
+      "expected_file": "public/level_05_single_errors/pub_level_05_single_errors_028.expected.json"
+    },
+    {
+      "test_id": "pub_level_05_single_errors_029",
+      "expected_file": "public/level_05_single_errors/pub_level_05_single_errors_029.expected.json"
+    },
+    {
+      "test_id": "pub_level_05_single_errors_030",
+      "expected_file": "public/level_05_single_errors/pub_level_05_single_errors_030.expected.json"
+    },
+    {
+      "test_id": "pub_level_06_multi_error_recovery_001",
+      "expected_file": "public/level_06_multi_error_recovery/pub_level_06_multi_error_recovery_001.expected.json"
+    },
+    {
+      "test_id": "pub_level_06_multi_error_recovery_002",
+      "expected_file": "public/level_06_multi_error_recovery/pub_level_06_multi_error_recovery_002.expected.json"
+    },
+    {
+      "test_id": "pub_level_06_multi_error_recovery_003",
+      "expected_file": "public/level_06_multi_error_recovery/pub_level_06_multi_error_recovery_003.expected.json"
+    },
+    {
+      "test_id": "pub_level_06_multi_error_recovery_004",
+      "expected_file": "public/level_06_multi_error_recovery/pub_level_06_multi_error_recovery_004.expected.json"
+    },
+    {
+      "test_id": "pub_level_06_multi_error_recovery_005",
+      "expected_file": "public/level_06_multi_error_recovery/pub_level_06_multi_error_recovery_005.expected.json"
+    },
+    {
+      "test_id": "pub_level_06_multi_error_recovery_006",
+      "expected_file": "public/level_06_multi_error_recovery/pub_level_06_multi_error_recovery_006.expected.json"
+    },
+    {
+      "test_id": "pub_level_06_multi_error_recovery_007",
+      "expected_file": "public/level_06_multi_error_recovery/pub_level_06_multi_error_recovery_007.expected.json"
+    },
+    {
+      "test_id": "pub_level_06_multi_error_recovery_008",
+      "expected_file": "public/level_06_multi_error_recovery/pub_level_06_multi_error_recovery_008.expected.json"
+    },
+    {
+      "test_id": "pub_level_06_multi_error_recovery_009",
+      "expected_file": "public/level_06_multi_error_recovery/pub_level_06_multi_error_recovery_009.expected.json"
+    },
+    {
+      "test_id": "pub_level_06_multi_error_recovery_010",
+      "expected_file": "public/level_06_multi_error_recovery/pub_level_06_multi_error_recovery_010.expected.json"
+    },
+    {
+      "test_id": "pub_level_06_multi_error_recovery_011",
+      "expected_file": "public/level_06_multi_error_recovery/pub_level_06_multi_error_recovery_011.expected.json"
+    },
+    {
+      "test_id": "pub_level_06_multi_error_recovery_012",
+      "expected_file": "public/level_06_multi_error_recovery/pub_level_06_multi_error_recovery_012.expected.json"
+    },
+    {
+      "test_id": "pub_level_06_multi_error_recovery_013",
+      "expected_file": "public/level_06_multi_error_recovery/pub_level_06_multi_error_recovery_013.expected.json"
+    },
+    {
+      "test_id": "pub_level_06_multi_error_recovery_014",
+      "expected_file": "public/level_06_multi_error_recovery/pub_level_06_multi_error_recovery_014.expected.json"
+    },
+    {
+      "test_id": "pub_level_06_multi_error_recovery_015",
+      "expected_file": "public/level_06_multi_error_recovery/pub_level_06_multi_error_recovery_015.expected.json"
+    },
+    {
+      "test_id": "pub_level_07_cli_output_001",
+      "expected_file": "public/level_07_cli_output/pub_level_07_cli_output_001.expected.json"
+    },
+    {
+      "test_id": "pub_level_07_cli_output_002",
+      "expected_file": "public/level_07_cli_output/pub_level_07_cli_output_002.expected.json"
+    },
+    {
+      "test_id": "pub_level_07_cli_output_003",
+      "expected_file": "public/level_07_cli_output/pub_level_07_cli_output_003.expected.json"
+    },
+    {
+      "test_id": "pub_level_07_cli_output_004",
+      "expected_file": "public/level_07_cli_output/pub_level_07_cli_output_004.expected.json"
+    },
+    {
+      "test_id": "pub_level_07_cli_output_005",
+      "expected_file": "public/level_07_cli_output/pub_level_07_cli_output_005.expected.json"
+    },
+    {
+      "test_id": "pub_level_08_stress_001",
+      "expected_file": "public/level_08_stress/pub_level_08_stress_001.expected.json"
+    },
+    {
+      "test_id": "pub_level_08_stress_002",
+      "expected_file": "public/level_08_stress/pub_level_08_stress_002.expected.json"
+    },
+    {
+      "test_id": "pub_level_08_stress_003",
+      "expected_file": "public/level_08_stress/pub_level_08_stress_003.expected.json"
+    },
+    {
+      "test_id": "pub_level_08_stress_004",
+      "expected_file": "public/level_08_stress/pub_level_08_stress_004.expected.json"
+    },
+    {
+      "test_id": "pub_level_08_stress_005",
+      "expected_file": "public/level_08_stress/pub_level_08_stress_005.expected.json"
+    },
+    {
+      "test_id": "pub_level_08_stress_006",
+      "expected_file": "public/level_08_stress/pub_level_08_stress_006.expected.json"
+    },
+    {
+      "test_id": "pub_level_08_stress_007",
+      "expected_file": "public/level_08_stress/pub_level_08_stress_007.expected.json"
+    },
+    {
+      "test_id": "pub_level_08_stress_008",
+      "expected_file": "public/level_08_stress/pub_level_08_stress_008.expected.json"
+    },
+    {
+      "test_id": "pub_level_08_stress_009",
+      "expected_file": "public/level_08_stress/pub_level_08_stress_009.expected.json"
+    },
+    {
+      "test_id": "pub_level_08_stress_010",
+      "expected_file": "public/level_08_stress/pub_level_08_stress_010.expected.json"
+    }
+  ]
+}

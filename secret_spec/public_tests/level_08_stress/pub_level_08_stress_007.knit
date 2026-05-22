@@ -1,0 +1,6 @@
+pattern "Repeat Stress"
+cast_on 2
+row 1: k2
+row 2: p2
+repeat rows 1-2 x5
+repeat rows 2-2 x5

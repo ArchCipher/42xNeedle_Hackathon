@@ -1,0 +1,14 @@
+{
+  "test_id": "pub_level_01_valid_basics_006",
+  "suite": "public",
+  "category": "level_01_valid_basics",
+  "difficulty": "easy",
+  "expected_exit_code": 0,
+  "spec_sections": [
+    "7",
+    "8",
+    "19"
+  ],
+  "reason": "Empty pattern names are valid strings.",
+  "input_file": "pub_level_01_valid_basics_006.knit"
+}

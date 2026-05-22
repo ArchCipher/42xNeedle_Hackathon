@@ -1,0 +1,13 @@
+{
+  "test_id": "pub_level_04_row_repeats_017",
+  "suite": "public",
+  "category": "level_04_row_repeats",
+  "difficulty": "hard",
+  "expected_exit_code": 0,
+  "spec_sections": [
+    "14",
+    "20"
+  ],
+  "reason": "A subrange spanning several source rows is valid.",
+  "input_file": "pub_level_04_row_repeats_017.knit"
+}

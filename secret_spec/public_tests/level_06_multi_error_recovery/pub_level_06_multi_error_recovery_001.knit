@@ -1,0 +1,7 @@
+pattern Bad
+cast_on 5
+row 1: k3, k4
+row 1: dance10
+repeat rows 2-4 x0
+bind_off
+row 3: k5

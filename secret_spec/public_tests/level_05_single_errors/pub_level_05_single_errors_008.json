@@ -1,0 +1,13 @@
+{
+  "test_id": "pub_level_05_single_errors_008",
+  "suite": "public",
+  "category": "level_05_single_errors",
+  "difficulty": "easy",
+  "expected_exit_code": 1,
+  "spec_sections": [
+    "6",
+    "18"
+  ],
+  "reason": "Unrecognized statement keyword reports UNKNOWN_STATEMENT.",
+  "input_file": "pub_level_05_single_errors_008.knit"
+}

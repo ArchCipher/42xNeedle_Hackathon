@@ -1,0 +1,13 @@
+{
+  "test_id": "pub_level_02_stitches_011",
+  "suite": "public",
+  "category": "level_02_stitches",
+  "difficulty": "medium",
+  "expected_exit_code": 0,
+  "spec_sections": [
+    "10",
+    "11"
+  ],
+  "reason": "Knit and purl can be mixed in one row.",
+  "input_file": "pub_level_02_stitches_011.knit"
+}

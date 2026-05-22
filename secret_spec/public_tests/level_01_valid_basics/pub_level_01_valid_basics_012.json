@@ -1,0 +1,14 @@
+{
+  "test_id": "pub_level_01_valid_basics_012",
+  "suite": "public",
+  "category": "level_01_valid_basics",
+  "difficulty": "easy",
+  "expected_exit_code": 0,
+  "spec_sections": [
+    "9",
+    "10",
+    "11"
+  ],
+  "reason": "Multiple simple rows chain stitch counts.",
+  "input_file": "pub_level_01_valid_basics_012.knit"
+}

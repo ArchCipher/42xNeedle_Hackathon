@@ -1,0 +1,14 @@
+{
+  "test_id": "pub_level_08_stress_002",
+  "suite": "public",
+  "category": "level_08_stress",
+  "difficulty": "hard",
+  "expected_exit_code": 0,
+  "spec_sections": [
+    "13",
+    "20",
+    "26"
+  ],
+  "reason": "Large bracket repeat expands a longer flat instruction list without exceeding limits.",
+  "input_file": "pub_level_08_stress_002.knit"
+}

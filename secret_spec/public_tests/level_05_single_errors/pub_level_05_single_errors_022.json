@@ -1,0 +1,14 @@
+{
+  "test_id": "pub_level_05_single_errors_022",
+  "suite": "public",
+  "category": "level_05_single_errors",
+  "difficulty": "easy",
+  "expected_exit_code": 1,
+  "spec_sections": [
+    "6",
+    "8",
+    "18"
+  ],
+  "reason": "Trailing non-comment text makes cast_on malformed.",
+  "input_file": "pub_level_05_single_errors_022.knit"
+}

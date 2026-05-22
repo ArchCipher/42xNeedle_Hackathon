@@ -1,0 +1,13 @@
+{
+  "test_id": "pub_level_01_valid_basics_016",
+  "suite": "public",
+  "category": "level_01_valid_basics",
+  "difficulty": "medium",
+  "expected_exit_code": 0,
+  "spec_sections": [
+    "11",
+    "19"
+  ],
+  "reason": "A valid row may increase the live stitch count.",
+  "input_file": "pub_level_01_valid_basics_016.knit"
+}

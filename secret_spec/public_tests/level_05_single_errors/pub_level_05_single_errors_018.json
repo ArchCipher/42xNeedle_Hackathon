@@ -1,0 +1,13 @@
+{
+  "test_id": "pub_level_05_single_errors_018",
+  "suite": "public",
+  "category": "level_05_single_errors",
+  "difficulty": "easy",
+  "expected_exit_code": 1,
+  "spec_sections": [
+    "15",
+    "18"
+  ],
+  "reason": "bind_off with trailing text reports MALFORMED_BIND_OFF.",
+  "input_file": "pub_level_05_single_errors_018.knit"
+}

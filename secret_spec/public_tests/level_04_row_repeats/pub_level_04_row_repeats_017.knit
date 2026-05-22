@@ -1,0 +1,7 @@
+pattern "Repeat Repeat Subrange"
+cast_on 5
+row 1: k5
+row 2: p5
+row 3: k5
+row 4: p5
+repeat rows 2-4 x1

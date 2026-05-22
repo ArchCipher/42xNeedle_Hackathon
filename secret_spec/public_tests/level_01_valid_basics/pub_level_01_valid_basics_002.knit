@@ -1,0 +1,7 @@
+# leading comment
+
+pattern "Comments"
+
+cast_on 6
+
+# trailing comment

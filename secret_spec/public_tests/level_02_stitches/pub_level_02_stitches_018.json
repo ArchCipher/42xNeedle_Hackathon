@@ -1,0 +1,13 @@
+{
+  "test_id": "pub_level_02_stitches_018",
+  "suite": "public",
+  "category": "level_02_stitches",
+  "difficulty": "medium",
+  "expected_exit_code": 0,
+  "spec_sections": [
+    "6A",
+    "10"
+  ],
+  "reason": "Leading zeros in counted purl normalize.",
+  "input_file": "pub_level_02_stitches_018.knit"
+}

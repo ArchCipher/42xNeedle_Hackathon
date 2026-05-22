@@ -1,0 +1,27 @@
+{
+  "expected_exit_code": 0,
+  "stdout": {
+    "bind_off": false,
+    "cast_on": 123,
+    "errors": [],
+    "expanded_rows": [
+      {
+        "end_stitches": 123,
+        "expanded_row_index": 1,
+        "instructions": [
+          {
+            "count": 123,
+            "stitch": "p"
+          }
+        ],
+        "source_row": 1,
+        "start_stitches": 123
+      }
+    ],
+    "final_stitch_count": 123,
+    "pattern_name": "p123",
+    "valid": true
+  },
+  "stdout_empty": false,
+  "test_id": "pub_level_02_stitches_010"
+}

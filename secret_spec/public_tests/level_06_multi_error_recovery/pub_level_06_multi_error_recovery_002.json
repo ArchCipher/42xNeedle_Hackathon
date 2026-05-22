@@ -1,0 +1,15 @@
+{
+  "test_id": "pub_level_06_multi_error_recovery_002",
+  "suite": "public",
+  "category": "level_06_multi_error_recovery",
+  "difficulty": "medium",
+  "expected_exit_code": 1,
+  "spec_sections": [
+    "12",
+    "14",
+    "16",
+    "18"
+  ],
+  "reason": "Missing declarations do not prevent row and repeat diagnostics.",
+  "input_file": "pub_level_06_multi_error_recovery_002.knit"
+}

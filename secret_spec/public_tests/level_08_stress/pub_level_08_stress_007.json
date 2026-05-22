@@ -1,0 +1,13 @@
+{
+  "test_id": "pub_level_08_stress_007",
+  "suite": "public",
+  "category": "level_08_stress",
+  "difficulty": "hard",
+  "expected_exit_code": 0,
+  "spec_sections": [
+    "14",
+    "26"
+  ],
+  "reason": "Several repeat statements in sequence expand deterministically.",
+  "input_file": "pub_level_08_stress_007.knit"
+}

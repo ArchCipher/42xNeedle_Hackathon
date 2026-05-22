@@ -1,0 +1,13 @@
+{
+  "test_id": "pub_level_08_stress_005",
+  "suite": "public",
+  "category": "level_08_stress",
+  "difficulty": "hard",
+  "expected_exit_code": 0,
+  "spec_sections": [
+    "4",
+    "26"
+  ],
+  "reason": "Lots of comments and blank lines do not affect parsing.",
+  "input_file": "pub_level_08_stress_005.knit"
+}

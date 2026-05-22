@@ -1,0 +1,51 @@
+{
+  "expected_exit_code": 0,
+  "stdout": {
+    "bind_off": false,
+    "cast_on": 2,
+    "errors": [],
+    "expanded_rows": [
+      {
+        "end_stitches": 2,
+        "expanded_row_index": 1,
+        "instructions": [
+          {
+            "count": 2,
+            "stitch": "k"
+          }
+        ],
+        "source_row": 1,
+        "start_stitches": 2
+      },
+      {
+        "end_stitches": 2,
+        "expanded_row_index": 2,
+        "instructions": [
+          {
+            "count": 2,
+            "stitch": "k"
+          }
+        ],
+        "source_row": 1,
+        "start_stitches": 2
+      },
+      {
+        "end_stitches": 2,
+        "expanded_row_index": 3,
+        "instructions": [
+          {
+            "count": 2,
+            "stitch": "k"
+          }
+        ],
+        "source_row": 1,
+        "start_stitches": 2
+      }
+    ],
+    "final_stitch_count": 2,
+    "pattern_name": "Zero Repeat",
+    "valid": true
+  },
+  "stdout_empty": false,
+  "test_id": "pub_level_01_valid_basics_019"
+}

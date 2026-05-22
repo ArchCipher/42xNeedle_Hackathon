@@ -1,0 +1,13 @@
+{
+  "test_id": "pub_level_02_stitches_020",
+  "suite": "public",
+  "category": "level_02_stitches",
+  "difficulty": "medium",
+  "expected_exit_code": 0,
+  "spec_sections": [
+    "11",
+    "20"
+  ],
+  "reason": "Start stitches for later rows equal previous end stitches.",
+  "input_file": "pub_level_02_stitches_020.knit"
+}

@@ -1,0 +1,14 @@
+{
+  "test_id": "pub_level_05_single_errors_001",
+  "suite": "public",
+  "category": "level_05_single_errors",
+  "difficulty": "easy",
+  "expected_exit_code": 1,
+  "spec_sections": [
+    "18",
+    "19",
+    "23"
+  ],
+  "reason": "Section 23 missing-pattern example input, included verbatim to validate MISSING_PATTERN, invalid output fields, and error schema.",
+  "input_file": "pub_level_05_single_errors_001.knit"
+}

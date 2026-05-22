@@ -1,0 +1,20 @@
+{
+  "test_id": "pub_level_07_cli_output_005",
+  "suite": "public",
+  "category": "level_07_cli_output",
+  "difficulty": "easy",
+  "expected_exit_code": 2,
+  "spec_sections": [
+    "2",
+    "25"
+  ],
+  "reason": "Too many arguments is a CLI usage error.",
+  "invocation": {
+    "argv": [
+      "compile",
+      "one.knit",
+      "two.knit"
+    ],
+    "stdout_contract": "empty"
+  }
+}

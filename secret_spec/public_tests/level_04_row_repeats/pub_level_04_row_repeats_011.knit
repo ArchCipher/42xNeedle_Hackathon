@@ -1,0 +1,4 @@
+pattern "Repeat Changed Down"
+cast_on 4
+row 1: dec, yo, yo
+repeat rows 1-1 x1

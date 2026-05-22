@@ -1,0 +1,6 @@
+pattern "Repeat Multiple Repeats"
+cast_on 4
+row 1: k4
+repeat rows 1-1 x1
+row 2: p4
+repeat rows 1-2 x1

@@ -22,6 +22,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from config_loader import load_config  # noqa: E402
 from logger import AgentLogger  # noqa: E402
 from ollama_client import OllamaClient, OllamaError, parse_assistant_response  # noqa: E402
+from cerebras_client import CerebrasClient  # noqa: E402
 from tools import ROOT, execute_tool, run_bash, scrub_malloc_env, tools_as_ollama_json  # noqa: E402
 
 scrub_malloc_env()  # apply to current process before any subprocess
@@ -158,23 +159,26 @@ Focus on knit.py and src/ only."""
 
 IMPLEMENT_SYSTEM_PROMPT = """You are the implementer for the 42 x Needle Hackathon.
 
-Follow agent_logs/plan.md and agent_logs/spec_summary.md. Edit only knit.py and src/.
-Use tools: read_file, write_file, bash, run_tests (runs the configured public test command).
+## CRITICAL — entry point contract
+knit.py is already written and calls:
+    from src.compile import compile_file
+    compile_file(input_path)  # returns int: 0=valid, 1=invalid, 2=file error
 
-Rules:
-- stdout: ONLY spec-compliant JSON on success
-- stderr: errors and diagnostics only
-- Small targeted edits; call run_tests after meaningful changes
-- Do NOT edit agent/, compiler_v2/, agent_logs/
+You MUST write src/compile.py with a function named exactly:
+    def compile_file(path: str) -> int
 
-Self-generated tests (do this once public tests pass):
-- Write edge-case tests to tests/test_self.py using pytest and subprocess
-- Derive cases directly from secret_spec/SECRET_SPEC.md: boundary values, empty input,
-  missing fields, invalid types, maximum row counts, special characters
-- Use the same run_knit() pattern as tests/test_knit.py
-- Run the new tests with bash: python3 -m pytest tests/test_self.py -v
+Do NOT touch knit.py. Do NOT name it main() or anything else.
 
-When stuck, re-read secret_spec/SECRET_SPEC.md with read_file.
+## Tools
+read_file, write_file, bash, run_tests (runs the public test suite).
+
+## Rules
+- Write src/compile.py with compile_file(path) -> int
+- stdout: ONLY spec-compliant JSON
+- stderr: errors/diagnostics only
+- Do NOT edit knit.py, agent/, compiler_v2/, agent_logs/
+- Call run_tests after each meaningful change
+
 Stop calling tools when you need the outer loop to run full public tests again."""
 
 IMPLEMENT_SYSTEM_FLEXIBLE = """You are an autonomous coding agent. The operator's task defines the product.
@@ -217,7 +221,7 @@ def _reject_paid_api_env() -> None:
     for key in ("ANTHROPIC_API_KEY", "OPENAI_API_KEY", "OPENROUTER_API_KEY"):
         if os.getenv(key):
             raise OllamaError(
-                f"{key} is set. This agent uses free Ollama only. Unset it or use a clean shell."
+                f"{key} is set. This agent uses free models only. Unset it or use a clean shell."
             )
 
 
@@ -526,6 +530,20 @@ def run_public_tests(command: str) -> tuple[int, str]:
     return code, out
 
 
+def _strip_for_ollama(messages: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Normalize messages for Ollama — strip OpenAI-format tool_calls, convert tool role to user."""
+    out = []
+    for msg in messages:
+        role = msg.get("role", "")
+        if role == "tool":
+            out.append({"role": "user", "content": f"Tool result:\n{msg.get('content', '')}"})
+        elif role == "assistant" and msg.get("tool_calls"):
+            out.append({"role": "assistant", "content": msg.get("content") or ""})
+        else:
+            out.append(msg)
+    return out
+
+
 def _tool_rounds(
     client: OllamaClient,
     messages: list[dict[str, Any]],
@@ -537,8 +555,20 @@ def _tool_rounds(
     test_cmd = str(config["public_test_command"])
 
     for round_i in range(1, max_rounds + 1):
-        _out(f"  [round {round_i}] Waiting for Ollama (can take minutes on CPU)...")
-        resp = client.chat(messages, tools=tools_as_ollama_json())
+        _out(f"  [round {round_i}] Waiting for model response...")
+        try:
+            resp = client.chat(messages, tools=tools_as_ollama_json())
+        except OllamaError as exc:
+            if "429" in str(exc) or "too_many_requests" in str(exc).lower() or "queue_exceeded" in str(exc):
+                _out(f"  [round {round_i}] Cerebras rate-limited — falling back to local Ollama...")
+                fallback = OllamaClient(
+                    config.get("ollama_base_url", "http://127.0.0.1:11434"),
+                    config.get("fallback_model", "qwen2.5-coder:7b"),
+                    timeout=int(config.get("request_timeout_seconds", 900)),
+                )
+                resp = fallback.chat(_strip_for_ollama(messages), tools=tools_as_ollama_json())
+            else:
+                raise
         msg = resp.get("message", {})
         text, tool_calls = parse_assistant_response(msg)
         last_text = text or last_text
@@ -664,13 +694,30 @@ def run_agent(
         config["diagnose_on_failure"] = diagnose_on_failure
 
     limit = max_iterations or int(config["max_iterations"])
-    client = OllamaClient(
-        config["ollama_base_url"],
-        config["primary_model"],
-        timeout=int(config["request_timeout_seconds"]),
-    )
 
-    LOG.user_prompt(task, context=f"model={config['primary_model']} (Ollama, free)")
+    provider = config.get("provider", "ollama").lower()
+    timeout = int(config["request_timeout_seconds"])
+
+    if provider == "cerebras":
+        api_key = os.environ.get("CEREBRAS_API_KEY", "")
+        if not api_key:
+            _out("WARNING: CEREBRAS_API_KEY not set — falling back to local Ollama")
+            provider = "ollama"
+
+    if provider == "cerebras":
+        client: OllamaClient | CerebrasClient = CerebrasClient(
+            api_key, config["primary_model"], timeout=timeout
+        )
+        provider_label = f"Cerebras ({config['primary_model']})"
+    else:
+        client = OllamaClient(
+            config["ollama_base_url"],
+            config.get("fallback_model", config["primary_model"]),
+            timeout=timeout,
+        )
+        provider_label = f"Ollama ({config.get('fallback_model', config['primary_model'])})"
+
+    LOG.user_prompt(task, context=f"model={config['primary_model']} ({provider})")
     LOG.decision("Agent run started", reason=task, next_action=f"max {limit} iterations")
     LOG.decision(
         "Test command configured",
@@ -685,7 +732,7 @@ def run_agent(
 
     _out_section("SPARK agent run")
     _out(f"Mode: {config.get('task_mode', 'hackathon')}")
-    _out(f"Model: {config['primary_model']} @ {config['ollama_base_url']}")
+    _out(f"Model: {provider_label}")
     _out(f"Iterations: {limit}")
     _out(f"Task: {task}")
     _out(f"Tests: {config['public_test_command']}")
@@ -725,11 +772,10 @@ def run_agent(
             "role": "user",
             "content": (
                 f"Task:\n{task}\n\n"
-                f"Spec summary (agent_logs/spec_summary.md):\n"
-                f"{_read_artifact(SPEC_SUMMARY_PATH)}\n\n"
-                f"Implementation plan (agent_logs/plan.md):\n"
-                f"{_read_artifact(PLAN_PATH)}\n\n"
-                f"Begin implement phase: {impl_hint}"
+                f"Full specification (secret_spec/SECRET_SPEC.md):\n"
+                f"{SPEC_PATH.read_text(encoding='utf-8') if SPEC_PATH.exists() else '(spec not found)'}\n\n"
+                f"Begin implement phase: {impl_hint}\n\n"
+                f"Write src/compile.py now. Do NOT call read_file — everything you need is above."
             ),
         },
     ]

@@ -1,0 +1,22 @@
+{
+  "expected_exit_code": 1,
+  "stdout": {
+    "bind_off": true,
+    "cast_on": 1,
+    "errors": [
+      {
+        "code": "DUPLICATE_BIND_OFF",
+        "line": 5,
+        "message_non_empty": true,
+        "row": null,
+        "type": "error"
+      }
+    ],
+    "expanded_rows": [],
+    "final_stitch_count": null,
+    "pattern_name": "X",
+    "valid": false
+  },
+  "stdout_empty": false,
+  "test_id": "pub_level_05_single_errors_019"
+}

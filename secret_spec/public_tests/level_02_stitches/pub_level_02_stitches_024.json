@@ -1,0 +1,12 @@
+{
+  "test_id": "pub_level_02_stitches_024",
+  "suite": "public",
+  "category": "level_02_stitches",
+  "difficulty": "medium",
+  "expected_exit_code": 0,
+  "spec_sections": [
+    "12"
+  ],
+  "reason": "No space after colon is allowed for instruction lists.",
+  "input_file": "pub_level_02_stitches_024.knit"
+}

@@ -58,3 +58,68 @@ Expected agent action:
 Prompt: Build the CLI calculator from secret_spec/SECRET_SPEC.md in knit.py (use src/ if needed).
 Context: model=qwen2.5-coder:7b (Ollama, free)
 Expected agent action: 
+
+[2026-05-21 22:34] USER_PROMPT
+Prompt:  Build a knitting compiler from secret_spec/SECRET_SPEC.md in knit.py
+Context: model=qwen2.5-coder:7b (Ollama, free)
+Expected agent action: 
+
+[2026-05-22 02:00] USER_PROMPT
+Prompt: We are at 147/150. Fix these 3 failing tests in src/compile.py:
+- pub_level_05_single_errors_020: $.errors[0].row: expected int, got NoneType
+- pub_level_06_multi_error_recovery_001: $.errors: expected list length 7, got 6
+- pub_level_06_multi_error_recovery_009: $.errors[1].row: expected int, got NoneType
+
+Read the failing test inputs in secret_spec/public_tests/, compare to expected outputs in secret_spec/expected_outputs/, fix src/compile.py, then run_tests to verify.
+Context: model=qwen2.5-coder:7b (Ollama, free)
+Expected agent action: 
+
+[2026-05-22 09:31] USER_PROMPT
+Prompt:  Build a knitting compiler from secret_spec/SECRET_SPEC.md in knit.py
+Context: model=qwen2.5-coder:7b (Ollama, free)
+Expected agent action: 
+
+[2026-05-22 10:13] USER_PROMPT
+Prompt: Implement knit.py compile and src/ per secret_spec/SECRET_SPEC.md and agent_logs/plan.md. Priority: CLI + exit codes, JSON on stdout only, row_expansion, invalid input, edge cases. Use run_tests after each meaningful change.
+Context: model=qwen2.5-coder:7b (Ollama, free)
+Expected agent action: 
+
+[2026-05-22 10:32] USER_PROMPT
+Prompt: Implement knit.py compile and src/ per secret_spec/SECRET_SPEC.md and agent_logs/plan.md. Priority: CLI + exit codes, JSON on stdout only, row_expansion, invalid input, edge cases. Use run_tests after each meaningful change.
+Context: model=qwen2.5-coder:7b (Ollama, free)
+Expected agent action: 
+
+[2026-05-22 11:34] USER_PROMPT
+Prompt: Implement knit.py compile and src/ per secret_spec/SECRET_SPEC.md and agent_logs/plan.md. Priority: CLI + exit codes, JSON on stdout only, row_expansion, invalid input, edge cases. Use run_tests after each meaningful change.
+Context: model=qwen-3-235b-a22b-instruct-2507 (ollama)
+Expected agent action: 
+
+[2026-05-22 11:46] USER_PROMPT
+Prompt: Implement knit.py compile and src/ per secret_spec/SECRET_SPEC.md and agent_logs/plan.md. Priority: CLI + exit codes, JSON on stdout only, row_expansion, invalid input, edge cases. Use run_tests after each meaningful change.
+Context: model=qwen-3-235b-a22b-instruct-2507 (cerebras)
+Expected agent action: 
+
+[2026-05-22 11:49] USER_PROMPT
+Prompt: Implement knit.py compile and src/ per secret_spec/SECRET_SPEC.md and agent_logs/plan.md. Priority: CLI + exit codes, JSON on stdout only, row_expansion, invalid input, edge cases. Use run_tests after each meaningful change.
+Context: model=qwen-3-235b-a22b-instruct-2507 (cerebras)
+Expected agent action: 
+
+[2026-05-22 11:54] USER_PROMPT
+Prompt: Implement knit.py compile and src/ per secret_spec/SECRET_SPEC.md and agent_logs/plan.md. Priority: CLI + exit codes, JSON on stdout only, row_expansion, invalid input, edge cases. Use run_tests after each meaningful change.
+Context: model=qwen-3-235b-a22b-instruct-2507 (cerebras)
+Expected agent action: 
+
+[2026-05-22 12:04] USER_PROMPT
+Prompt: Implement knit.py compile and src/ per secret_spec/SECRET_SPEC.md and agent_logs/plan.md. Priority: CLI + exit codes, JSON on stdout only, row_expansion, invalid input, edge cases. Use run_tests after each meaningful change.
+Context: model=qwen-3-235b-a22b-instruct-2507 (cerebras)
+Expected agent action: 
+
+[2026-05-22 12:06] USER_PROMPT
+Prompt: Implement knit.py compile and src/ per secret_spec/SECRET_SPEC.md and agent_logs/plan.md. Priority: CLI + exit codes, JSON on stdout only, row_expansion, invalid input, edge cases. Use run_tests after each meaningful change.
+Context: model=qwen-3-235b-a22b-instruct-2507 (cerebras)
+Expected agent action: 
+
+[2026-05-22 12:15] USER_PROMPT
+Prompt: Implement knit.py compile and src/ per secret_spec/SECRET_SPEC.md and agent_logs/plan.md. Priority: CLI + exit codes, JSON on stdout only, row_expansion, invalid input, edge cases. Use run_tests after each meaningful change.
+Context: model=qwen-3-235b-a22b-instruct-2507 (cerebras)
+Expected agent action: 

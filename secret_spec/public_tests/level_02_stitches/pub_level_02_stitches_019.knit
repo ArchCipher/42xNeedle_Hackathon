@@ -1,0 +1,3 @@
+pattern "All Stitches"
+cast_on 10
+row 1: k1, p1, yo, inc, k2tog, ssk, dec

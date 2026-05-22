@@ -1,0 +1,14 @@
+{
+  "expected_exit_code": 0,
+  "stdout": {
+    "bind_off": true,
+    "cast_on": 4,
+    "errors": [],
+    "expanded_rows": [],
+    "final_stitch_count": 4,
+    "pattern_name": "Bound No Rows",
+    "valid": true
+  },
+  "stdout_empty": false,
+  "test_id": "pub_level_01_valid_basics_014"
+}
