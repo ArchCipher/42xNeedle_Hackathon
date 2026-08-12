@@ -1,7 +1,7 @@
 {
   "team_name": "SPARK",
-  "primary_model": "qwen-3-235b-a22b-instruct-2507",
-  "provider": "cerebras",
+  "primary_model": "llama3.2:1b",
+  "provider": "ollama",
   "runtime_or_tool": "custom Python agent (agent/agent.py) + Ollama",
   "additional_models": [],
   "paid_frontier_models_used_after_spec_release": false,

@@ -1,0 +1,13 @@
+
+[2026-05-22 22:48] CODE_SHIELD
+Path: src/_shield_test.py
+Insecure: True
+Treatment: warn
+Issues: 1
+  - Potential code injection due to eval usage. (CWE-94)
+
+[2026-05-22 22:48] CODE_SHIELD
+Path: src/_shield_test.py
+Insecure: False
+Treatment: ignore
+Issues: 0

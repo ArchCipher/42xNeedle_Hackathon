@@ -2,11 +2,14 @@
 
 from __future__ import annotations
 
+import ast
 import os
 import shlex
 import subprocess
 from pathlib import Path
 from typing import Any
+
+from codeshield_gate import scan_python_before_write
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -141,13 +144,29 @@ def execute_tool(name: str, inputs: dict[str, Any], *, public_test_command: str)
         blocked = _check_write_allowed(rel)
         if blocked:
             return blocked
+        content = inputs["content"]
+        norm = rel.replace("\\", "/")
+        if norm.endswith(".py"):
+            try:
+                ast.parse(content, filename=rel)
+            except SyntaxError as exc:
+                return (
+                    f"error: SYNTAX ERROR in {rel} — {exc}\n"
+                    "file not written. Fix Python syntax and retry write_file."
+                )
+            allow, shield_msg = scan_python_before_write(rel, content)
+            if not allow:
+                return shield_msg
+        else:
+            shield_msg = ""
         p = _resolve_path(rel)
         p.parent.mkdir(parents=True, exist_ok=True)
-        p.write_text(inputs["content"], encoding="utf-8")
+        p.write_text(content, encoding="utf-8")
         hint = ""
-        if rel.replace("\\", "/").startswith("src/") or rel.endswith("knit.py"):
+        if norm.startswith("src/") or rel.endswith("knit.py"):
             hint = " | reminder: JSON to stdout only, errors to stderr, match spec schema"
-        return f"wrote {len(inputs['content'])} bytes to {rel}{hint}"
+        extra = shield_msg if norm.endswith(".py") else ""
+        return f"wrote {len(content)} bytes to {rel}{hint}{extra}"
     if name == "run_tests":
         code, out = run_bash(public_test_command)
         return f"exit={code}\n{out}"

@@ -712,10 +712,10 @@ def run_agent(
     else:
         client = OllamaClient(
             config["ollama_base_url"],
-            config.get("fallback_model", config["primary_model"]),
+            config["primary_model"],
             timeout=timeout,
         )
-        provider_label = f"Ollama ({config.get('fallback_model', config['primary_model'])})"
+        provider_label = f"Ollama ({config['primary_model']})"
 
     LOG.user_prompt(task, context=f"model={config['primary_model']} ({provider})")
     LOG.decision("Agent run started", reason=task, next_action=f"max {limit} iterations")

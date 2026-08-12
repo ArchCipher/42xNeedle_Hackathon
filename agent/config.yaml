@@ -1,11 +1,7 @@
-# Primary: Cerebras cloud (free tier, OpenAI-compatible). Fallback: local Ollama.
+# Local Ollama only (for testing). Cerebras disabled — set provider: cerebras in git history to restore cloud primary.
 
-primary_model: qwen-3-235b-a22b-instruct-2507
-provider: cerebras
-
-# Fallback if Cerebras is unavailable
-fallback_model: qwen3:4b
-fallback_provider: ollama
+primary_model: llama3.2:1b
+provider: ollama
 ollama_base_url: http://127.0.0.1:11434
 
 max_iterations: 40

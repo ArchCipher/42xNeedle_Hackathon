@@ -8,6 +8,7 @@ Autonomous coding agent that builds the **Knitting Compiler** (`python3 knit.py 
 ├── agent/
 │   ├── agent.py          # main agent loop
 │   ├── config.yaml       # model, timeouts, public_test_command
+│   ├── codeshield_gate.py # Meta Code Shield on write_file (.py)
 │   ├── logger.py         # writes to agent_logs/
 │   └── strategy.md
 ├── agent_logs/
@@ -16,6 +17,7 @@ Autonomous coding agent that builds the **Knitting Compiler** (`python3 knit.py 
 │   ├── commands.log
 │   ├── test_runs.log
 │   ├── errors.log
+│   ├── security.log      # Code Shield scan audit (write_file)
 │   ├── human_interventions.log
 │   ├── pending_prompt.txt   # operator steering (read each iteration)
 │   ├── plan.md
@@ -81,10 +83,20 @@ Quick check that `knit.py` exists, `compile-v2` works on `examples/hello.knit`, 
 python3 knit.py compile-v2 examples/hello.knit
 ```
 
-## Agent (Ollama only — no paid APIs)
+## Agent (local Ollama — `llama3.2:1b`)
+
+Configured in `agent/config.yaml` and `agent_manifest.json`:
+
+| Setting | Value |
+|---------|--------|
+| **Model** | `llama3.2:1b` |
+| **Provider** | Ollama (`http://127.0.0.1:11434`) |
+
+Cerebras is **disabled** in config for local testing. To use cloud again, set `provider: cerebras` and `primary_model` in `agent/config.yaml` plus `CEREBRAS_API_KEY` in `.env`.
 
 ```bash
-ollama serve && ollama pull qwen2.5-coder:7b
+ollama serve && ollama pull llama3.2:1b
+ollama run llama3.2:1b    # warm up (recommended on 8GB RAM)
 python3 agent/agent.py doctor
 ```
 
@@ -126,9 +138,32 @@ python3 log_server.py
 
 See [docs/MONITOR_UI.md](docs/MONITOR_UI.md).
 
-**If Ollama is slow or times out:** warm up with `ollama run qwen2.5-coder:7b`, then run the agent. Default `request_timeout_seconds` is **1200** in `agent/config.yaml`. macOS `MallocStackLogging` noise is harmless — `unset MallocStackLogging` optional.
+**If Ollama fallback is slow:** warm up with `ollama run llama3.2:1b`, then run the agent. Default `request_timeout_seconds` is **900** in `agent/config.yaml`. macOS `MallocStackLogging` noise is harmless — `unset MallocStackLogging` optional.
 
-Do **not** set `OPENAI_API_KEY` or `ANTHROPIC_API_KEY` — the agent refuses paid APIs.
+Do **not** set `OPENAI_API_KEY` or `ANTHROPIC_API_KEY` — the agent refuses paid frontier APIs.
+
+### Code Shield (security on `write_file`)
+
+Every agent write to a `.py` file is checked before save:
+
+1. **`ast.parse`** — reject invalid Python (file not written)
+2. **[Meta Code Shield](https://github.com/meta-llama/PurpleLlama/tree/main/CodeShield)** (ICD + Semgrep) — block insecure patterns (e.g. `eval(input)`, non-literal `os.system(...)`)
+3. Results logged to **`agent_logs/security.log`**
+
+Install Code Shield (optional; Python **3.10+**; use a dedicated venv if you also use `llama-stack`):
+
+```bash
+git clone --no-checkout https://github.com/meta-llama/PurpleLlama.git
+cd PurpleLlama
+git sparse-checkout init --cone
+git sparse-checkout set CodeShield
+git checkout
+python3 test_codeshield.py   # smoke test
+```
+
+If `codeshield` is not installed, the agent still runs; only the security scan is skipped.
+
+Implementation: `agent/codeshield_gate.py` (called from `agent/tools.py` → `write_file`).
 
 **Windows:** use `py -3` instead of `python3`. See [docs/RUN_AND_TEST.md](docs/RUN_AND_TEST.md).
 
@@ -192,7 +227,7 @@ python3 knit.py compile <input_file>
 
 ## Agent architecture
 
-One Ollama model (`qwen2.5-coder:7b`), one loop in `agent/agent.py`.
+**Ollama `llama3.2:1b`** (local), one loop in `agent/agent.py`. **Code Shield** gates Python writes in `agent/tools.py`.
 
 ### What is what
 
@@ -210,7 +245,7 @@ One Ollama model (`qwen2.5-coder:7b`), one loop in `agent/agent.py`.
 setup (once): template plan.md + spec_summary.md  [or --llm-setup]
 for each iteration (max 40):
   read pending_prompt.txt if present → inject operator instruction
-  Phase 3 IMPLEMENT: Ollama + tools (read_file, write_file, bash, run_tests)
+  Phase 3 IMPLEMENT: LLM + tools (read_file, write_file + Code Shield, bash, run_tests)
   Phase 4 TEST:     public_test_command (official runner; no LLM)
   if fail → append test output (+ optional --diagnose) → next iteration
 ```
@@ -247,7 +282,7 @@ See `agent_logs/human_interventions.log` for format. `PROMPT_EDIT` = `pending_pr
 - [ ] `python3 knit.py compile <input.knit>` emits spec-compliant JSON
 - [ ] Official tests: `secret_spec/test_runner/run_tests.py --compiler "python3 knit.py" --suite public`
 - [ ] `agent_manifest.json` filled (no secrets)
-- [ ] All `agent_logs/*` populated with timestamps
+- [ ] All `agent_logs/*` populated with timestamps (include `security.log` if Code Shield enabled)
 - [ ] `human_interventions.log` documents steering and any manual restores
 - [ ] `final_report.md` complete
 - [ ] Tags pushed (`agent-readiness-1945`)
